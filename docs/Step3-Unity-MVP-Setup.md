@@ -52,13 +52,16 @@ MVP is allowed to be ugly. Clarity > polish.
 ---
 
 ## 5) Wire the logic (lightweight approach)
-Next implementation step (not yet in repo):
-- Create a `CaseRunner` MonoBehaviour that:
-  - takes a `CaseData` reference
-  - creates a `CaseSession`
-  - updates UI for current question
-  - handles button clicks → `session.Answer(i)`
-  - on completion → `session.CompleteCase()`
+Next implementation step:
+- Add `ETEC510.UI.CaseRunner` to the `Case01_DetectiveRoom` scene.
+- Assign a `CaseData` asset + TMP UI references.
+
+`CaseRunner` will:
+- load a `CaseData`
+- run a `CaseSession`
+- update TMP UI for current question
+- handle button clicks → `session.Answer(i)`
+- on completion → `session.CompleteCase()`
 
 ---
 
