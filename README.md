@@ -87,7 +87,8 @@ Core systems (MVP):
 ---
 
 ## Project documentation
-- ETEC 510 Phase 1 Proposal: (link or add a `/docs` folder later)
+- ETEC 510 Phase 1 Proposal (PDF): [`docs/ETEC510_Phase1_Proposal.pdf`](docs/ETEC510_Phase1_Proposal.pdf)
+- Design rationale (draft): [`docs/Design-Rationale.md`](docs/Design-Rationale.md)
 
 ---
 
