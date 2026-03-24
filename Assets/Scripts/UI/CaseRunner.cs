@@ -3,6 +3,7 @@ using ETEC510.Runtime;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Video;
 
 namespace ETEC510.UI
 {
@@ -41,7 +42,10 @@ namespace ETEC510.UI
 
         // ── Intro ─────────────────────────────────────────────────────────────
         [Header("Intro")]
-        public Button introEnterButton;
+        public RawImage introVideoDisplay;   // RawImage that shows the video
+        public VideoPlayer introVideoPlayer; // VideoPlayer component on the intro panel
+        public Button introEnterButton;      // shown after video ends
+        public Button introSkipButton;       // lets player skip the video early
 
         // ── Mission Briefing ──────────────────────────────────────────────────
         [Header("Mission Briefing")]
@@ -114,6 +118,7 @@ namespace ETEC510.UI
 
         // ── Private ───────────────────────────────────────────────────────────
         private CaseSession _session;
+        private RenderTexture _introRenderTexture;
 
         // ═════════════════════════════════════════════════════════════════════
 
@@ -128,6 +133,65 @@ namespace ETEC510.UI
             _session = new CaseSession(caseData);
             WireButtons();
             ShowPanel(introPanel);
+            PlayIntroVideo();
+        }
+
+        private void OnDestroy()
+        {
+            if (_introRenderTexture != null)
+            {
+                _introRenderTexture.Release();
+                Destroy(_introRenderTexture);
+            }
+        }
+
+        private void PlayIntroVideo()
+        {
+            if (introVideoPlayer == null || caseData.IntroVideo == null)
+            {
+                // No video assigned — show Enter button immediately
+                SetIntroButtonsVisible(enterOnly: true);
+                return;
+            }
+
+            // Hide Enter, show Skip
+            SetIntroButtonsVisible(enterOnly: false);
+
+            // Create a RenderTexture sized to the video clip
+            var clip = caseData.IntroVideo;
+            _introRenderTexture = new RenderTexture((int)clip.width, (int)clip.height, 0);
+
+            introVideoPlayer.clip = clip;
+            introVideoPlayer.targetTexture = _introRenderTexture;
+            introVideoPlayer.isLooping = false;
+            introVideoPlayer.loopPointReached += OnIntroVideoFinished;
+
+            if (introVideoDisplay != null)
+                introVideoDisplay.texture = _introRenderTexture;
+
+            introVideoPlayer.Play();
+        }
+
+        private void OnIntroVideoFinished(VideoPlayer vp)
+        {
+            vp.loopPointReached -= OnIntroVideoFinished;
+            SetIntroButtonsVisible(enterOnly: true);
+        }
+
+        private void OnIntroSkip()
+        {
+            if (introVideoPlayer != null)
+            {
+                introVideoPlayer.loopPointReached -= OnIntroVideoFinished;
+                introVideoPlayer.Stop();
+            }
+            SetIntroButtonsVisible(enterOnly: true);
+        }
+
+        private void SetIntroButtonsVisible(bool enterOnly)
+        {
+            if (introEnterButton != null) introEnterButton.gameObject.SetActive(enterOnly);
+            if (introSkipButton  != null) introSkipButton.gameObject.SetActive(!enterOnly);
         }
 
         // ── Button wiring ─────────────────────────────────────────────────────
@@ -135,7 +199,8 @@ namespace ETEC510.UI
         private void WireButtons()
         {
             // Intro
-            if (introEnterButton)    introEnterButton.onClick.AddListener(ShowMissionBriefing);
+            if (introEnterButton) introEnterButton.onClick.AddListener(ShowMissionBriefing);
+            if (introSkipButton)  introSkipButton.onClick.AddListener(OnIntroSkip);
 
             // Mission Briefing
             if (briefingStartButton) briefingStartButton.onClick.AddListener(ShowEvidenceBoard);

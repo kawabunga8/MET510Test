@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Video;
 
 namespace ETEC510.Cases
 {
@@ -9,6 +10,9 @@ namespace ETEC510.Cases
         [Header("Identity")]
         public string CaseId = "case01";
         public string Title = "Case 01";
+
+        [Header("Intro Video")]
+        public VideoClip IntroVideo;
 
         [Header("Mission Briefing")]
         [TextArea(3, 12)]
