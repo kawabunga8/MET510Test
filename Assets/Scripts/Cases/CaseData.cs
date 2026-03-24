@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace ETEC510.Cases
@@ -10,57 +9,99 @@ namespace ETEC510.Cases
         [Header("Identity")]
         public string CaseId = "case01";
         public string Title = "Case 01";
+
+        [Header("Mission Briefing")]
         [TextArea(3, 12)]
         public string BriefingText;
+        public Sprite BriefingImage;
+        public AudioClip BriefingAudio;
 
-        [Header("Evidence")]
-        public List<EvidenceItem> Evidence = new();
+        [Header("Evidence Board")]
+        public Sprite EvidenceBoardImage;
 
-        [Header("Questions")]
-        public List<ChoiceQuestion> Questions = new();
+        [Header("Spot the Clue  (reveals digit 1 of code)")]
+        public SpotTheClueStep SpotTheClue;
+
+        [Header("Gut Check  (reveals digit 2 of code)")]
+        public GutCheckStep GutCheck;
+
+        [Header("Find the Motive  (reveals digit 3 of code)")]
+        public FindTheMotiveStep FindTheMotive;
+
+        [Header("Password Lock")]
+        public string Password = "510";
+
+        [Header("Evidence Detail — Verdict")]
+        public VerdictStep Verdict;
+
+        [Header("Hints from the Chief")]
+        [TextArea(2, 8)]
+        public string HintText;
+        public Sprite HintImage;
+        public AudioClip HintAudio;
+
+        [Header("Level Complete")]
+        [TextArea(2, 8)]
+        public string CompletionText;
+        public Sprite CompletionImage;
+        public AudioClip CompletionAudio;
 
         [Header("Rewards")]
         public int XpForCompletion = 100;
     }
 
     [Serializable]
-    public class EvidenceItem
-    {
-        public string Title;
-        [TextArea(2, 8)]
-        public string Description;
-
-        [Tooltip("Optional: screenshot, image, or illustration.")]
-        public Sprite Image;
-
-        [Tooltip("Optional: where did this come from?")]
-        public string Source;
-
-        [Tooltip("Optional: when was it posted/created?")]
-        public string Date;
-    }
-
-    [Serializable]
-    public class ChoiceQuestion
+    public class SpotTheClueStep
     {
         [TextArea(2, 8)]
         public string Prompt;
+        public Sprite EvidenceImage;
+        public AudioClip Audio;
+        [TextArea(2, 6)]
+        public string ExplanationText;
+        public string CodeDigit = "5";
+    }
 
-        public List<string> Options = new();
-
-        [Tooltip("Index into Options")]
-        public int CorrectIndex = 0;
-
-        [TextArea(2, 10)]
+    [Serializable]
+    public class GutCheckStep
+    {
+        [TextArea(2, 8)]
+        public string Prompt;
+        public Sprite EvidenceImage;
+        public AudioClip Audio;
+        public string[] Options = { "Yes, it looks real", "No, it looks fake" };
+        public int CorrectIndex = 1;
+        [TextArea(2, 6)]
         public string FeedbackCorrect;
-
-        [TextArea(2, 10)]
+        [TextArea(2, 6)]
         public string FeedbackIncorrect;
+        public string CodeDigit = "1";
+    }
 
-        [Header("Critical Thinking Tags (optional)")]
-        public bool ClaimVsEvidence;
-        public bool CredibilityCheck;
-        public bool BiasOrIntent;
-        public bool WhoBenefits;
+    [Serializable]
+    public class FindTheMotiveStep
+    {
+        [TextArea(2, 8)]
+        public string Prompt;
+        public Sprite EvidenceImage;
+        public AudioClip Audio;
+        [TextArea(2, 6)]
+        public string ExplanationText;
+        public string CodeDigit = "0";
+    }
+
+    [Serializable]
+    public class VerdictStep
+    {
+        [TextArea(2, 8)]
+        public string Prompt;
+        public Sprite EvidenceImage;
+        public AudioClip Audio;
+        public string[] Options = { "Real", "Fake" };
+        public int CorrectIndex = 1;
+        [TextArea(2, 6)]
+        public string FeedbackCorrect;
+        [TextArea(2, 6)]
+        public string FeedbackIncorrect;
     }
 }

@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d16099ea739ef4aa1993af1cac6a930f, type: 3}
+  m_Name: Case01_AIImageCredibility
+  m_EditorClassIdentifier: Assembly-CSharp::ETEC510.Cases.CaseData
+  CaseId: "case01_ai_image\u202F\u2060"
+  Title: 'Case 01: Is This Image Real?'
+  BriefingText: "You\u2019re the Lead Detective. A viral image is spreading fast.
+    Your job: decide whether it\u2019s trustworthy and what to do next\u2014without
+    embarrassing yourself or harming others."
+  Evidence: []
+  Questions:
+  - Prompt: 
+    Options:
+    - 
+    - 
+    - 
+    - 
+    CorrectIndex: 0
+    FeedbackCorrect: 
+    FeedbackIncorrect: 
+    ClaimVsEvidence: 0
+    CredibilityCheck: 0
+    BiasOrIntent: 0
+    WhoBenefits: 0
+  - Prompt: "Before sharing this image, what is the BEST first step to check if it\u2019s
+      trustworthy?"
+    Options:
+    - "\u2060Reverse image search / check source and date   "
+    - 'Ask a friend if it looks real   '
+    - "Assume it\u2019s real because it\u2019s high quality   "
+    - "Share it and delete later if it\u2019s fake   "
+    CorrectIndex: 0
+    FeedbackCorrect: Good. Checking the source and doing a quick verification step
+      is the safest first move.
+    FeedbackIncorrect: Not quite. Before sharing, verify the source/date or use a
+      quick check like reverse image search.
+    ClaimVsEvidence: 0
+    CredibilityCheck: 0
+    BiasOrIntent: 0
+    WhoBenefits: 0
+  XpForCompletion: 100

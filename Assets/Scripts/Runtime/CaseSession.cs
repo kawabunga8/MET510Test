@@ -1,4 +1,3 @@
-using System;
 using ETEC510.Cases;
 
 namespace ETEC510.Runtime
@@ -6,40 +5,64 @@ namespace ETEC510.Runtime
     public class CaseSession
     {
         public CaseData Case { get; }
-        public int CurrentQuestionIndex { get; private set; }
-        public int CorrectCount { get; private set; }
-        public bool IsComplete => CurrentQuestionIndex >= (Case?.Questions?.Count ?? 0);
+
+        public bool SpotTheClueCompleted { get; private set; }
+        public bool GutCheckCompleted    { get; private set; }
+        public bool FindTheMotiveCompleted { get; private set; }
+
+        public bool AllCluesFound =>
+            SpotTheClueCompleted && GutCheckCompleted && FindTheMotiveCompleted;
+
+        public string CollectedCode
+        {
+            get
+            {
+                var code = "";
+                if (SpotTheClueCompleted)    code += Case.SpotTheClue.CodeDigit;
+                if (GutCheckCompleted)       code += Case.GutCheck.CodeDigit;
+                if (FindTheMotiveCompleted)  code += Case.FindTheMotive.CodeDigit;
+                return code;
+            }
+        }
+
+        public bool IsComplete { get; private set; }
 
         public CaseSession(CaseData @case)
         {
             Case = @case;
-            CurrentQuestionIndex = 0;
-            CorrectCount = 0;
         }
 
-        public ChoiceQuestion CurrentQuestion()
+        // Called when player clicks "I found it!" on the Spot the Clue screen
+        public void CompleteSpotTheClue() => SpotTheClueCompleted = true;
+
+        // Called when player selects an answer on Gut Check
+        public (bool isCorrect, string feedback) AnswerGutCheck(int selectedIndex)
         {
-            if (Case == null || Case.Questions == null) return null;
-            if (CurrentQuestionIndex < 0 || CurrentQuestionIndex >= Case.Questions.Count) return null;
-            return Case.Questions[CurrentQuestionIndex];
+            var step = Case.GutCheck;
+            var isCorrect = selectedIndex == step.CorrectIndex;
+            if (isCorrect) GutCheckCompleted = true;
+            return (isCorrect, isCorrect ? step.FeedbackCorrect : step.FeedbackIncorrect);
         }
 
-        public (bool isCorrect, string feedback) Answer(int selectedIndex)
+        // Called when player clicks "I found them!" on Find the Motive screen
+        public void CompleteMotive() => FindTheMotiveCompleted = true;
+
+        // Returns true if the entered password matches
+        public bool ValidatePassword(string input) =>
+            !string.IsNullOrEmpty(input) && input.Trim() == Case.Password;
+
+        // Called when player selects Real or Fake on the Evidence Detail screen
+        public (bool isCorrect, string feedback) SubmitVerdict(int selectedIndex)
         {
-            var q = CurrentQuestion();
-            if (q == null) return (false, "No question loaded.");
-
-            var isCorrect = selectedIndex == q.CorrectIndex;
-            if (isCorrect) CorrectCount++;
-
-            var feedback = isCorrect ? q.FeedbackCorrect : q.FeedbackIncorrect;
-            CurrentQuestionIndex++;
-            return (isCorrect, feedback);
+            var step = Case.Verdict;
+            var isCorrect = selectedIndex == step.CorrectIndex;
+            return (isCorrect, isCorrect ? step.FeedbackCorrect : step.FeedbackIncorrect);
         }
 
         public void CompleteCase()
         {
-            if (Case == null) return;
+            if (Case == null || IsComplete) return;
+            IsComplete = true;
             ProgressStore.MarkCaseCompleted(Case.CaseId);
             ProgressStore.AddXp(Case.XpForCompletion);
         }
