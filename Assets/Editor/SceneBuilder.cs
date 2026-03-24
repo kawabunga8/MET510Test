@@ -481,6 +481,14 @@ namespace ETEC510.Editor
             return go;
         }
 
+        static GameObject CreateEmptyRect(Transform parent, string name)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(parent, false);
+            go.AddComponent<RectTransform>();
+            return go;
+        }
+
         static GameObject CreateTMPText(Transform parent, string name, string text,
             float fontSize, FontStyles style)
         {
@@ -493,7 +501,7 @@ namespace ETEC510.Editor
             tmp.fontStyle = style;
             tmp.alignment = TextAlignmentOptions.Center;
             tmp.color = Color.white;
-            tmp.enableWordWrapping = true;
+            tmp.textWrappingMode = TextWrappingModes.Normal;
             return go;
         }
 
