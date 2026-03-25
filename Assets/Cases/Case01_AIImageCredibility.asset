@@ -15,6 +15,7 @@ MonoBehaviour:
   CaseId: case01_ai_image
   Title: 'Case 01: Is This Image Real?'
   IntroVideo: {fileID: 32900000, guid: 77fea3b3c1d624735b763a79ac4e4129, type: 3}
+  IntroVideoFile: StartupVideo.mp4
   IntroMusic: {fileID: 8300000, guid: 318c0d06c94384739b0d58a2ab1ab4a2, type: 3}
   MainMusic: {fileID: 8300000, guid: dc987ed1832a54bb59c66d5aff5d76cb, type: 3}
   BriefingText: "A photo of a protest has gone viral. Thousands of people are sharing
@@ -110,6 +111,7 @@ MonoBehaviour:
       lighting, and the clear motive to manipulate all point to AI generation. Head
       back to the Chief for a hint.'
   HintVideo: {fileID: 32900000, guid: f37b4e5e9877f4ac9a94ab8bfb0f5860, type: 3}
+  HintVideoFile: HintFromChief.mp4
   HintText: "Listen up, Detective.\n\nThree questions to ask ANY suspicious image:\n\n1.
     Can I find this image somewhere credible with a date and source?\n2. Do the physical
     details (hands, shadows, text) look right?\n3. What strong emotion is this image
