@@ -133,6 +133,17 @@ namespace ETEC510.UI
                 return;
             }
 
+            // Self-initialize audio sources if not wired in Inspector
+            if (mainAudioSource == null)
+                mainAudioSource = GetComponent<AudioSource>() ?? gameObject.AddComponent<AudioSource>();
+            mainAudioSource.playOnAwake = false;
+            mainAudioSource.loop        = true;
+
+            if (introAudioSource == null && introPanel != null)
+                introAudioSource = introPanel.GetComponent<AudioSource>() ?? introPanel.AddComponent<AudioSource>();
+            if (introAudioSource != null)
+                introAudioSource.playOnAwake = false;
+
             _session = new CaseSession(caseData);
             WireButtons();
             ShowPanel(introPanel);
