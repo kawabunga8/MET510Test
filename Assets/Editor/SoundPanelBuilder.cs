@@ -37,56 +37,48 @@ namespace ETEC510.Editor
             panelRT.offsetMin = Vector2.zero;
             panelRT.offsetMax = Vector2.zero;
 
-            // Deep charcoal background — noir detective atmosphere
             var bgImg = panelGO.AddComponent<Image>();
-            bgImg.color = new Color(0.05f, 0.05f, 0.07f, 1f);
+            bgImg.color = DetectiveStyleGuide.BgDeep;
 
             // ── Case file badge label ─────────────────────────────────────────
-            var badgeGO = new GameObject("BadgeText", typeof(RectTransform));
+            var badgeGO  = new GameObject("BadgeText", typeof(RectTransform));
             badgeGO.transform.SetParent(panelGO.transform, false);
             SetAnchors(badgeGO, 0.25f, 0.78f, 0.75f, 0.88f);
             var badgeTMP = badgeGO.AddComponent<TextMeshProUGUI>();
-            badgeTMP.text            = "— DETECTIVE HQ —";
-            badgeTMP.alignment       = TextAlignmentOptions.Center;
-            badgeTMP.fontSize        = 22;
-            badgeTMP.color           = new Color(0.72f, 0.56f, 0.22f, 1f);   // aged gold
-            badgeTMP.characterSpacing = 6f;
-            badgeTMP.fontStyle       = FontStyles.Bold | FontStyles.UpperCase;
+            badgeTMP.text = "— DETECTIVE HQ —";
+            DetectiveStyleGuide.ApplyTextStyle(badgeTMP, DetectiveStyleGuide.TextRole.Badge);
 
             // ── Title ─────────────────────────────────────────────────────────
-            var titleGO = new GameObject("SoundTitleText", typeof(RectTransform));
+            var titleGO  = new GameObject("SoundTitleText", typeof(RectTransform));
             titleGO.transform.SetParent(panelGO.transform, false);
             SetAnchors(titleGO, 0.08f, 0.60f, 0.92f, 0.80f);
             var titleTMP = titleGO.AddComponent<TextMeshProUGUI>();
-            titleTMP.text      = "Before you begin...";
-            titleTMP.alignment = TextAlignmentOptions.Center;
-            titleTMP.fontSize  = 56;
-            titleTMP.color     = new Color(0.92f, 0.88f, 0.72f, 1f);   // parchment
-            titleTMP.fontStyle = FontStyles.Bold | FontStyles.Italic;
+            titleTMP.text = "Before you begin...";
+            DetectiveStyleGuide.ApplyTextStyle(titleTMP, DetectiveStyleGuide.TextRole.Title);
 
-            // ── Question ──────────────────────────────────────────────────────
-            var subGO = new GameObject("SoundSubtitleText", typeof(RectTransform));
-            subGO.transform.SetParent(panelGO.transform, false);
-            SetAnchors(subGO, 0.08f, 0.44f, 0.92f, 0.62f);
+            // ── Question box ──────────────────────────────────────────────────
+            var boxGO  = new GameObject("SoundQuestionBox", typeof(RectTransform));
+            boxGO.transform.SetParent(panelGO.transform, false);
+            SetAnchors(boxGO, 0.12f, 0.46f, 0.88f, 0.62f);
+            var boxImg = boxGO.AddComponent<Image>();
+            boxImg.color = DetectiveStyleGuide.BgPanel;
+
+            var subGO  = new GameObject("SoundSubtitleText", typeof(RectTransform));
+            subGO.transform.SetParent(boxGO.transform, false);
+            SetAnchors(subGO, 0.03f, 0.05f, 0.97f, 0.95f);
             var subTMP = subGO.AddComponent<TextMeshProUGUI>();
-            subTMP.text      = "Will you need audio, Detective?";
-            subTMP.alignment = TextAlignmentOptions.Center;
-            subTMP.fontSize  = 46;
-            subTMP.color     = Color.white;
+            subTMP.text = "Will you need audio, Detective?";
+            DetectiveStyleGuide.ApplyTextStyle(subTMP, DetectiveStyleGuide.TextRole.Question);
 
-            // ── Sound On button (left, smaller) ───────────────────────────────
+            // ── Sound On button (left) ────────────────────────────────────────
             var soundOnGO  = CreateButton(panelGO.transform, "SoundOnButton",
-                0.22f, 0.25f, 0.46f, 0.38f,
-                "Yes, sound on",
-                new Color(0.14f, 0.30f, 0.16f, 1f),    // dark forest green
-                new Color(0.72f, 0.56f, 0.22f, 1f));    // gold border tint
+                0.22f, 0.25f, 0.46f, 0.38f, "Yes, sound on",
+                DetectiveStyleGuide.ButtonRole.Confirm);
 
-            // ── Sound Off button (right, smaller) ────────────────────────────
+            // ── Sound Off button (right) ──────────────────────────────────────
             var soundOffGO = CreateButton(panelGO.transform, "SoundOffButton",
-                0.54f, 0.25f, 0.78f, 0.38f,
-                "No, silence",
-                new Color(0.22f, 0.14f, 0.10f, 1f),    // dark sepia
-                new Color(0.72f, 0.56f, 0.22f, 1f));    // gold border tint
+                0.54f, 0.25f, 0.78f, 0.38f, "No, silence",
+                DetectiveStyleGuide.ButtonRole.Alternate);
 
             // ── Wire CaseRunner ───────────────────────────────────────────────
             var controller = ct.Find("CaseController");
@@ -122,15 +114,12 @@ namespace ETEC510.Editor
 
         static GameObject CreateButton(Transform parent, string name,
             float xMin, float yMin, float xMax, float yMax,
-            string label, Color bgColor, Color labelColor)
+            string label, DetectiveStyleGuide.ButtonRole role)
         {
             var go = new GameObject(name, typeof(RectTransform));
             go.transform.SetParent(parent, false);
             SetAnchors(go, xMin, yMin, xMax, yMax);
-
-            var img = go.AddComponent<Image>();
-            img.color = bgColor;
-
+            go.AddComponent<Image>();
             go.AddComponent<Button>();
 
             var labelGO = new GameObject("Label", typeof(RectTransform));
@@ -140,15 +129,10 @@ namespace ETEC510.Editor
             lrt.anchorMax = Vector2.one;
             lrt.offsetMin = Vector2.zero;
             lrt.offsetMax = Vector2.zero;
-
             var tmp = labelGO.AddComponent<TextMeshProUGUI>();
-            tmp.text             = label;
-            tmp.alignment        = TextAlignmentOptions.Center;
-            tmp.fontSize         = 32;
-            tmp.color            = labelColor;
-            tmp.fontStyle        = FontStyles.Bold;
-            tmp.characterSpacing = 2f;
+            tmp.text = label;
 
+            DetectiveStyleGuide.StyleButton(go, role);
             return go;
         }
     }

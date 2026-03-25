@@ -33,6 +33,19 @@ namespace ETEC510.Editor
             SetAnchors(ct, "LevelCompletePanel/RestartButton",
                 new Vector2(0.02f, 0.02f), new Vector2(0.28f, 0.11f));
 
+            // ── Evidence Board — path buttons + lock button ───────────────────
+            // Shift path buttons up (0.38→0.46 base) so lock button has clear space below
+            // Equal-width buttons: 0.30 wide each, 0.02 gap, centred
+            SetAnchors(ct, "EvidenceBoardPanel/SpotTheClueButton",
+                new Vector2(0.03f, 0.46f), new Vector2(0.33f, 0.74f));
+            SetAnchors(ct, "EvidenceBoardPanel/GutCheckButton",
+                new Vector2(0.35f, 0.46f), new Vector2(0.65f, 0.74f));
+            SetAnchors(ct, "EvidenceBoardPanel/FindTheMotiveButton",
+                new Vector2(0.67f, 0.46f), new Vector2(0.97f, 0.74f));
+            // Lock button sits clearly below path buttons, above bottom edge
+            SetAnchors(ct, "EvidenceBoardPanel/EnterPasswordButton",
+                new Vector2(0.32f, 0.22f), new Vector2(0.68f, 0.38f));
+
             // ── Back / navigation buttons ─────────────────────────────────────
             SetAnchors(ct, "SpotTheCluePanel/SpotBackButton",
                 new Vector2(0.02f, 0.02f), new Vector2(0.25f, 0.10f));
@@ -42,6 +55,11 @@ namespace ETEC510.Editor
                 new Vector2(0.02f, 0.02f), new Vector2(0.25f, 0.10f));
             SetAnchors(ct, "EvidenceDetailPanel/VerdictBackButton",
                 new Vector2(0.02f, 0.02f), new Vector2(0.30f, 0.10f));
+            // Verdict option buttons — moved up clear of back button
+            SetAnchors(ct, "EvidenceDetailPanel/VerdictOptionButton0",
+                new Vector2(0.05f, 0.14f), new Vector2(0.45f, 0.28f));
+            SetAnchors(ct, "EvidenceDetailPanel/VerdictOptionButton1",
+                new Vector2(0.55f, 0.14f), new Vector2(0.95f, 0.28f));
             SetAnchors(ct, "PasswordLockPanel/PasswordBackButton",
                 new Vector2(0.02f, 0.02f), new Vector2(0.25f, 0.10f));
 

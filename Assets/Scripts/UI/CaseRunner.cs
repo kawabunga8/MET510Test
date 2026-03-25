@@ -508,23 +508,10 @@ namespace ETEC510.UI
         private void OnEnterPasswordPressed()
         {
             if (_session.AllCluesFound)
-            {
                 ShowPasswordLock();
-            }
             else
-            {
-                StopCoroutine("ShowBoardWarning");
-                StartCoroutine("ShowBoardWarning");
-            }
-        }
-
-        private System.Collections.IEnumerator ShowBoardWarning()
-        {
-            if (boardWarningText == null) yield break;
-            boardWarningText.text = "This room is password protected.\nCollect all three clues first.";
-            boardWarningText.gameObject.SetActive(true);
-            yield return new WaitForSeconds(2.5f);
-            boardWarningText.gameObject.SetActive(false);
+                PopupController.ShowToast(
+                    "This room is password-protected.\nCollect all three clues first.", 2.5f);
         }
 
         private void ShowPasswordLock()
@@ -676,18 +663,22 @@ namespace ETEC510.UI
             if (_session.SpotTheClueCompleted) return;
             var step = caseData.SpotTheClue;
             bool correct = selectedIndex == step.CorrectIndex;
-            if (correct) _session.CompleteSpotTheClue();
-            if (spotFeedbackText)
-                spotFeedbackText.text = correct ? step.FeedbackCorrect : step.FeedbackIncorrect;
-            foreach (var btn in spotOptionButtons) if (btn) btn.interactable = false;
+            if (correct) { _session.CompleteSpotTheClue(); LockButtons(spotOptionButtons); }
+            PopupController.Show(
+                correct ? "Clue Found!" : "Look Again...",
+                correct ? step.FeedbackCorrect : step.FeedbackIncorrect,
+                "Got it");
         }
 
         private void OnGutCheckAnswer(int selectedIndex)
         {
             if (_session.GutCheckCompleted) return;
             var result = _session.AnswerGutCheck(selectedIndex);
-            if (gutFeedbackText) gutFeedbackText.text = result.feedback;
-            foreach (var btn in gutOptionButtons) if (btn) btn.interactable = false;
+            if (result.isCorrect) LockButtons(gutOptionButtons);
+            PopupController.Show(
+                result.isCorrect ? "Good Instinct!" : "Think Again...",
+                result.feedback,
+                "Got it");
         }
 
         private void OnMotiveAnswer(int selectedIndex)
@@ -695,33 +686,39 @@ namespace ETEC510.UI
             if (_session.FindTheMotiveCompleted) return;
             var step = caseData.FindTheMotive;
             bool correct = selectedIndex == step.CorrectIndex;
-            if (correct) _session.CompleteMotive();
-            if (motiveFeedbackText)
-                motiveFeedbackText.text = correct ? step.FeedbackCorrect : step.FeedbackIncorrect;
-            foreach (var btn in motiveOptionButtons) if (btn) btn.interactable = false;
+            if (correct) { _session.CompleteMotive(); LockButtons(motiveOptionButtons); }
+            PopupController.Show(
+                correct ? "Motive Identified!" : "Look Deeper...",
+                correct ? step.FeedbackCorrect : step.FeedbackIncorrect,
+                "Got it");
+        }
+
+        private static void LockButtons(Button[] buttons)
+        {
+            foreach (var btn in buttons) if (btn) btn.interactable = false;
         }
 
         private void OnPasswordSubmit()
         {
             var input = passwordInputField != null ? passwordInputField.text : "";
             if (_session.ValidatePassword(input))
-            {
                 ShowEvidenceDetail();
-            }
             else
-            {
-                if (passwordFeedbackText)
-                    passwordFeedbackText.text = "Incorrect code. Review your evidence clues!";
-            }
+                PopupController.Show("Wrong Code",
+                    "That code is incorrect.\nReview your evidence clues and try again.",
+                    "Try Again");
         }
 
         private void OnVerdictAnswer(int selectedIndex)
         {
             var result = _session.SubmitVerdict(selectedIndex);
+            var step   = caseData.Verdict;
             if (result.isCorrect)
-                ShowLevelComplete();
+                PopupController.Show("Case Closed!",
+                    step.FeedbackCorrect, "Complete Case!", ShowLevelComplete);
             else
-                ShowHintsFromChief();
+                PopupController.Show("Not Quite...",
+                    step.FeedbackIncorrect, "Get a Hint", ShowHintsFromChief);
         }
     }
 }

@@ -33,7 +33,7 @@ namespace ETEC510.Editor
                 ApplyEnvelopeFit(ct, path);
 
             CreatePanelBackground(ct, "PasswordLockPanel", "PasswordBgImage",
-                "Assets/Images/CodeEnterScreen.png");
+                "Assets/Images/CodeEnterScreen2.png");
             CreatePanelBackground(ct, "EvidenceDetailPanel", "JudgementBgImage",
                 "Assets/Images/Judgement_Dark.png");
 
