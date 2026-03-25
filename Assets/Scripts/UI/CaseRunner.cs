@@ -162,8 +162,10 @@ namespace ETEC510.UI
             if (sfxSource == null)
             {
                 sfxSource = gameObject.AddComponent<AudioSource>();
-                sfxSource.playOnAwake = false;
-                sfxSource.loop        = false;
+                sfxSource.playOnAwake  = false;
+                sfxSource.loop         = false;
+                sfxSource.spatialBlend = 0f;   // 2D — must be 0 for UI sounds
+                sfxSource.volume       = 1f;
             }
 
             if (introAudioSource == null && introPanel != null)
@@ -197,6 +199,13 @@ namespace ETEC510.UI
             AudioListener.volume = soundOn ? 1f : 0f;
             PlayerPrefs.SetInt("etec510_sound_enabled", soundOn ? 1 : 0);
             PlayerPrefs.Save();
+
+            if (!soundOn)
+            {
+                if (mainAudioSource  != null) mainAudioSource.Stop();
+                if (introAudioSource != null) introAudioSource.Stop();
+            }
+
             ShowIntroPanel();
         }
 
@@ -358,6 +367,7 @@ namespace ETEC510.UI
             // Password Lock
             if (passwordSubmitButton) passwordSubmitButton.onClick.AddListener(OnPasswordSubmit);
             if (passwordBackButton)   passwordBackButton.onClick.AddListener(ShowEvidenceBoard);
+            if (passwordInputField)   passwordInputField.onValueChanged.AddListener(_ => PlayClick());
 
             // Evidence Detail
             WireIndexedButtons(verdictOptionButtons, OnVerdictAnswer);
@@ -587,6 +597,9 @@ namespace ETEC510.UI
                 if (t != null) hintOverlay = t.gameObject;
             }
 
+            if (completionMusic != null && mainAudioSource != null)
+                StartCoroutine(CrossfadeMusic(mainAudioSource, completionMusic, 1.2f));
+
             SetHintContentVisible(false);
             ShowPanel(hintsFromChiefPanel);
             PlayHintVideo();
@@ -692,6 +705,10 @@ namespace ETEC510.UI
 
         private System.Collections.IEnumerator CrossfadeMusic(AudioSource source, AudioClip newClip, float duration)
         {
+            // Already playing this clip — don't restart, just continue
+            if (source.clip == newClip && source.isPlaying)
+                yield break;
+
             // Fade out current track
             float start = source.volume;
             float half = duration * 0.5f;
@@ -783,8 +800,7 @@ namespace ETEC510.UI
             var result = _session.SubmitVerdict(selectedIndex);
             var step   = caseData.Verdict;
             if (result.isCorrect)
-                PopupController.Show("Case Closed!",
-                    step.FeedbackCorrect, "Complete Case!", ShowLevelComplete);
+                ShowLevelComplete();
             else
                 PopupController.Show("Not Quite...",
                     step.FeedbackIncorrect, "Get a Hint", ShowHintsFromChief);
