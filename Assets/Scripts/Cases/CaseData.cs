@@ -12,7 +12,8 @@ namespace ETEC510.Cases
         public string Title = "Case 01";
 
         [Header("Intro Video")]
-        public VideoClip IntroVideo;
+        public VideoClip IntroVideo;        // Editor / Standalone only
+        public string    IntroVideoFile;    // filename in StreamingAssets/Video/ — used on WebGL
         public AudioClip IntroMusic;
 
         [Header("Background Music")]
@@ -43,7 +44,8 @@ namespace ETEC510.Cases
         public VerdictStep Verdict;
 
         [Header("Hints from the Chief")]
-        public VideoClip HintVideo;
+        public VideoClip HintVideo;         // Editor / Standalone only
+        public string    HintVideoFile;     // filename in StreamingAssets/Video/ — used on WebGL
         [TextArea(2, 8)]
         public string HintText;
         public Sprite HintImage;

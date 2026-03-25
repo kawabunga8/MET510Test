@@ -30,6 +30,7 @@ namespace ETEC510.Editor
             var introVideo = AssetDatabase.LoadAssetAtPath<VideoClip>("Assets/Video/StartupVideo.mp4");
             if (introVideo == null) Debug.LogWarning("ETEC510: StartupVideo.mp4 not found.");
             so.FindProperty("IntroVideo").objectReferenceValue = introVideo;
+            so.FindProperty("IntroVideoFile").stringValue = "StartupVideo.mp4";
 
             var introMusic = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/ETEC510 Critical Thinking v2.mp3");
             if (introMusic == null) Debug.LogWarning("ETEC510: Intro music not found.");
@@ -145,6 +146,7 @@ namespace ETEC510.Editor
             var hintVideo = AssetDatabase.LoadAssetAtPath<VideoClip>("Assets/Video/HintFromChief.mp4");
             if (hintVideo == null) Debug.LogWarning("ETEC510: HintFromChief.mp4 not found.");
             so.FindProperty("HintVideo").objectReferenceValue = hintVideo;
+            so.FindProperty("HintVideoFile").stringValue = "HintFromChief.mp4";
 
             so.FindProperty("HintText").stringValue =
                 "Listen up, Detective.\n\n" +

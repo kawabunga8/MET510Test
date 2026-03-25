@@ -163,27 +163,41 @@ namespace ETEC510.UI
 
         private void PlayIntroVideo()
         {
-            Debug.Log($"[CaseRunner] PlayIntroVideo — vp={(introVideoPlayer != null ? introVideoPlayer.name : "NULL")}, clip={(caseData.IntroVideo != null ? caseData.IntroVideo.name : "NULL")}");
-            if (introVideoPlayer == null || caseData.IntroVideo == null)
+            if (introVideoPlayer == null)
             {
-                Debug.LogWarning("[CaseRunner] No video player or clip — skipping to Enter.");
+                Debug.LogWarning("[CaseRunner] No video player — skipping to Enter.");
+                SetIntroButtonsVisible(enterOnly: true);
+                return;
+            }
+
+            var url = BuildVideoUrl(caseData.IntroVideoFile);
+            bool hasSource = url != null || caseData.IntroVideo != null;
+            if (!hasSource)
+            {
+                Debug.LogWarning("[CaseRunner] No video source — skipping to Enter.");
                 SetIntroButtonsVisible(enterOnly: true);
                 return;
             }
 
             SetIntroButtonsVisible(enterOnly: false);
-
-            // Use the RenderTexture pre-wired via ETEC510 > Setup Intro Video RT.
-            // Do NOT change renderMode here — doing so resets targetTexture.
-            // Mute the video's own audio track — custom AudioSource music plays instead.
-            introVideoPlayer.audioOutputMode = VideoAudioOutputMode.None;
-            introVideoPlayer.clip      = caseData.IntroVideo;
-            introVideoPlayer.isLooping = false;
+            introVideoPlayer.audioOutputMode  = VideoAudioOutputMode.None;
+            introVideoPlayer.isLooping        = false;
             introVideoPlayer.errorReceived    += OnVideoError;
             introVideoPlayer.loopPointReached += OnIntroVideoFinished;
             introVideoPlayer.prepareCompleted += OnIntroPrepared;
+
+            if (url != null)
+            {
+                introVideoPlayer.source = VideoSource.Url;
+                introVideoPlayer.url    = url;
+            }
+            else
+            {
+                introVideoPlayer.source = VideoSource.VideoClip;
+                introVideoPlayer.clip   = caseData.IntroVideo;
+            }
             introVideoPlayer.Prepare();
-            Debug.Log("[CaseRunner] Prepare() called.");
+            Debug.Log($"[CaseRunner] Intro video Prepare() — source={introVideoPlayer.source}");
         }
 
         private void OnIntroPrepared(VideoPlayer vp)
@@ -548,18 +562,45 @@ namespace ETEC510.UI
 
         private void PlayHintVideo()
         {
-            if (hintVideoPlayer == null || caseData.HintVideo == null)
+            if (hintVideoPlayer == null)
             {
                 SetHintContentVisible(true);
                 return;
             }
 
-            hintVideoPlayer.clip      = caseData.HintVideo;
-            hintVideoPlayer.isLooping = false;
+            var url = BuildVideoUrl(caseData.HintVideoFile);
+            bool hasSource = url != null || caseData.HintVideo != null;
+            if (!hasSource)
+            {
+                SetHintContentVisible(true);
+                return;
+            }
+
+            hintVideoPlayer.isLooping        = false;
             hintVideoPlayer.errorReceived    += OnHintVideoError;
             hintVideoPlayer.loopPointReached += OnHintVideoFinished;
             hintVideoPlayer.prepareCompleted += OnHintVideoPrepared;
+
+            if (url != null)
+            {
+                hintVideoPlayer.source = VideoSource.Url;
+                hintVideoPlayer.url    = url;
+            }
+            else
+            {
+                hintVideoPlayer.source = VideoSource.VideoClip;
+                hintVideoPlayer.clip   = caseData.HintVideo;
+            }
             hintVideoPlayer.Prepare();
+        }
+
+        // Returns a StreamingAssets URL for the given filename, or null if not provided.
+        // On WebGL, Application.streamingAssetsPath is already an http:// URL.
+        private static string BuildVideoUrl(string filename)
+        {
+            if (string.IsNullOrEmpty(filename)) return null;
+            return System.IO.Path.Combine(
+                Application.streamingAssetsPath, "Video", filename).Replace("\\", "/");
         }
 
         private void OnHintVideoPrepared(VideoPlayer vp)
