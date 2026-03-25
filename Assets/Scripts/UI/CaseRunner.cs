@@ -28,6 +28,12 @@ namespace ETEC510.UI
         public CaseData caseData;
         public AudioSource mainAudioSource;  // looping background music during investigation
 
+        // ── Sound Toggle ──────────────────────────────────────────────────────
+        [Header("Sound Toggle")]
+        public GameObject soundTogglePanel;
+        public Button     soundOnButton;
+        public Button     soundOffButton;
+
         // ── Panels ────────────────────────────────────────────────────────────
         [Header("Panels")]
         public GameObject introPanel;
@@ -155,10 +161,30 @@ namespace ETEC510.UI
             if (introAudioSource != null)
                 introAudioSource.playOnAwake = false;
 
+            // Restore saved sound preference (default: on)
+            AudioListener.volume = PlayerPrefs.GetInt("etec510_sound_enabled", 1) == 1 ? 1f : 0f;
+
             _session = new CaseSession(caseData);
             WireButtons();
+
+            if (soundTogglePanel != null)
+                ShowPanel(soundTogglePanel);
+            else
+                ShowIntroPanel();
+        }
+
+        private void ShowIntroPanel()
+        {
             ShowPanel(introPanel);
             PlayIntroVideo();
+        }
+
+        private void OnSoundChoice(bool soundOn)
+        {
+            AudioListener.volume = soundOn ? 1f : 0f;
+            PlayerPrefs.SetInt("etec510_sound_enabled", soundOn ? 1 : 0);
+            PlayerPrefs.Save();
+            ShowIntroPanel();
         }
 
         private void PlayIntroVideo()
@@ -287,6 +313,10 @@ namespace ETEC510.UI
 
         private void WireButtons()
         {
+            // Sound Toggle
+            if (soundOnButton)  soundOnButton.onClick.AddListener(() => OnSoundChoice(true));
+            if (soundOffButton) soundOffButton.onClick.AddListener(() => OnSoundChoice(false));
+
             // Intro
             if (introEnterButton) introEnterButton.onClick.AddListener(ShowMissionBriefing);
             if (introSkipButton)  introSkipButton.onClick.AddListener(OnIntroSkip);
@@ -344,7 +374,7 @@ namespace ETEC510.UI
         private void ShowPanel(GameObject target)
         {
             GameObject[] all = {
-                introPanel, missionBriefingPanel, evidenceBoardPanel,
+                soundTogglePanel, introPanel, missionBriefingPanel, evidenceBoardPanel,
                 spotTheCluePanel, gutCheckPanel, findTheMotivePanel,
                 passwordLockPanel, evidenceDetailPanel,
                 hintsFromChiefPanel, levelCompletePanel
