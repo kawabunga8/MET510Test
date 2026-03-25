@@ -62,7 +62,8 @@ namespace ETEC510.UI
         public Button   spotTheClueButton;
         public Button   gutCheckButton;
         public Button   findTheMotiveButton;
-        public Button   enterPasswordButton;   // enabled when all 3 clues found
+        public Button   enterPasswordButton;
+        public TMP_Text boardWarningText;      // popup warning shown when room is locked
         public TMP_Text digit1Text;            // shows "?" until Spot the Clue done
         public TMP_Text digit2Text;            // shows "?" until Gut Check done
         public TMP_Text digit3Text;            // shows "?" until Find the Motive done
@@ -71,8 +72,8 @@ namespace ETEC510.UI
         [Header("Spot the Clue")]
         public TMP_Text spotPromptText;
         public Image    spotEvidenceImage;
-        public TMP_Text spotExplanationText;   // hidden until confirmed
-        public Button   spotConfirmButton;     // "I found it!"
+        public Button[] spotOptionButtons;     // 2 answer buttons
+        public TMP_Text spotFeedbackText;
         public Button   spotBackButton;
 
         // ── Gut Check ─────────────────────────────────────────────────────────
@@ -81,15 +82,15 @@ namespace ETEC510.UI
         public Image    gutEvidenceImage;
         public Button[] gutOptionButtons;      // 2 buttons
         public TMP_Text gutFeedbackText;
-        public Button   gutNextButton;         // "Back to Board" after answering
+        public Button   gutNextButton;
         public Button   gutBackButton;
 
         // ── Find the Motive ───────────────────────────────────────────────────
         [Header("Find the Motive")]
         public TMP_Text motivePromptText;
         public Image    motiveEvidenceImage;
-        public TMP_Text motiveExplanationText; // hidden until confirmed
-        public Button   motiveConfirmButton;   // "I found them!"
+        public Button[] motiveOptionButtons;   // 2 answer buttons
+        public TMP_Text motiveFeedbackText;
         public Button   motiveBackButton;
 
         // ── Password Lock ─────────────────────────────────────────────────────
@@ -110,15 +111,18 @@ namespace ETEC510.UI
         [Header("Hints from Chief")]
         public RawImage    hintVideoDisplay;
         public VideoPlayer hintVideoPlayer;
+        public GameObject  hintOverlay;        // shown only after video ends
         public TMP_Text hintBodyText;
         public Image    hintImage;
-        public Button   hintTryAgainButton;    // returns to Evidence Detail
+        public Button   hintTryAgainButton;    // returns to Evidence Detail (verdict)
+        public Button   hintReturnButton;      // returns to Evidence Board
 
         // ── Level Complete ────────────────────────────────────────────────────
         [Header("Level Complete")]
         public TMP_Text completionBodyText;
         public Image    completionImage;
         public TMP_Text xpText;
+        public Button   restartButton;
 
         // ── Private ───────────────────────────────────────────────────────────
         private CaseSession _session;
@@ -210,6 +214,12 @@ namespace ETEC510.UI
             SetIntroButtonsVisible(enterOnly: true);
         }
 
+        private void RestartGame()
+        {
+            UnityEngine.SceneManagement.SceneManager.LoadScene(
+                UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+        }
+
         private void OnDestroy()
         {
             // Only clean up dynamically created RTs (hint video).
@@ -274,20 +284,19 @@ namespace ETEC510.UI
             if (spotTheClueButton)   spotTheClueButton.onClick.AddListener(ShowSpotTheClue);
             if (gutCheckButton)      gutCheckButton.onClick.AddListener(ShowGutCheck);
             if (findTheMotiveButton) findTheMotiveButton.onClick.AddListener(ShowFindTheMotive);
-            if (enterPasswordButton) enterPasswordButton.onClick.AddListener(ShowPasswordLock);
+            if (enterPasswordButton) enterPasswordButton.onClick.AddListener(OnEnterPasswordPressed);
 
             // Spot the Clue
-            if (spotConfirmButton) spotConfirmButton.onClick.AddListener(OnSpotClueConfirm);
-            if (spotBackButton)    spotBackButton.onClick.AddListener(ShowEvidenceBoard);
+            WireIndexedButtons(spotOptionButtons, OnSpotAnswer);
+            if (spotBackButton) spotBackButton.onClick.AddListener(ShowEvidenceBoard);
 
             // Gut Check
             WireIndexedButtons(gutOptionButtons, OnGutCheckAnswer);
-            if (gutNextButton) gutNextButton.onClick.AddListener(ShowEvidenceBoard);
             if (gutBackButton) gutBackButton.onClick.AddListener(ShowEvidenceBoard);
 
             // Find the Motive
-            if (motiveConfirmButton) motiveConfirmButton.onClick.AddListener(OnMotiveConfirm);
-            if (motiveBackButton)    motiveBackButton.onClick.AddListener(ShowEvidenceBoard);
+            WireIndexedButtons(motiveOptionButtons, OnMotiveAnswer);
+            if (motiveBackButton) motiveBackButton.onClick.AddListener(ShowEvidenceBoard);
 
             // Password Lock
             if (passwordSubmitButton) passwordSubmitButton.onClick.AddListener(OnPasswordSubmit);
@@ -299,6 +308,10 @@ namespace ETEC510.UI
 
             // Hints from Chief
             if (hintTryAgainButton) hintTryAgainButton.onClick.AddListener(ShowEvidenceDetail);
+            if (hintReturnButton)   hintReturnButton.onClick.AddListener(ShowEvidenceBoard);
+
+            // Level Complete
+            if (restartButton) restartButton.onClick.AddListener(RestartGame);
         }
 
         private void WireIndexedButtons(Button[] buttons, UnityEngine.Events.UnityAction<int> handler)
@@ -326,12 +339,22 @@ namespace ETEC510.UI
                 if (p != null) p.SetActive(p == target);
         }
 
+        // Ensures an Image fills its panel without stretching (zoom-to-fill / cover).
+        private static void EnsureCoverFit(Image img)
+        {
+            if (img == null) return;
+            var fitter = img.GetComponent<AspectRatioFitter>();
+            if (fitter == null) fitter = img.gameObject.AddComponent<AspectRatioFitter>();
+            fitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+        }
+
         public void ShowMissionBriefing()
         {
             if (briefingTitleText) briefingTitleText.text = caseData.Title;
             if (briefingBodyText)  briefingBodyText.text  = caseData.BriefingText;
             if (briefingImage && caseData.BriefingImage)
                 briefingImage.sprite = caseData.BriefingImage;
+            EnsureCoverFit(briefingImage);
             ShowPanel(missionBriefingPanel);
         }
 
@@ -346,12 +369,19 @@ namespace ETEC510.UI
 
             if (evidenceBoardImage && caseData.EvidenceBoardImage)
                 evidenceBoardImage.sprite = caseData.EvidenceBoardImage;
+            EnsureCoverFit(evidenceBoardImage);
 
             if (digit1Text) digit1Text.text = _session.SpotTheClueCompleted   ? caseData.SpotTheClue.CodeDigit   : "?";
             if (digit2Text) digit2Text.text = _session.GutCheckCompleted       ? caseData.GutCheck.CodeDigit       : "?";
             if (digit3Text) digit3Text.text = _session.FindTheMotiveCompleted  ? caseData.FindTheMotive.CodeDigit  : "?";
 
-            if (enterPasswordButton) enterPasswordButton.gameObject.SetActive(_session.AllCluesFound);
+            if (boardWarningText) boardWarningText.gameObject.SetActive(false);
+
+            if (enterPasswordButton)
+            {
+                enterPasswordButton.onClick.RemoveAllListeners();
+                enterPasswordButton.onClick.AddListener(OnEnterPasswordPressed);
+            }
 
             ShowPanel(evidenceBoardPanel);
         }
@@ -359,17 +389,25 @@ namespace ETEC510.UI
         private void ShowSpotTheClue()
         {
             var step = caseData.SpotTheClue;
-            if (spotPromptText)    spotPromptText.text = step.Prompt;
+            if (spotPromptText) spotPromptText.text = step.Prompt;
             if (spotEvidenceImage && step.EvidenceImage)
                 spotEvidenceImage.sprite = step.EvidenceImage;
+            if (spotFeedbackText) spotFeedbackText.text = "";
 
             var done = _session.SpotTheClueCompleted;
-            if (spotExplanationText)
+            for (int i = 0; i < spotOptionButtons.Length; i++)
             {
-                spotExplanationText.text = step.ExplanationText;
-                spotExplanationText.gameObject.SetActive(done);
+                var btn = spotOptionButtons[i];
+                if (btn == null) continue;
+                bool hasOption = i < step.Options.Length;
+                btn.gameObject.SetActive(hasOption);
+                btn.interactable = !done;
+                if (hasOption)
+                {
+                    var label = btn.GetComponentInChildren<TMP_Text>();
+                    if (label) label.text = step.Options[i];
+                }
             }
-            if (spotConfirmButton) spotConfirmButton.interactable = !done;
             ShowPanel(spotTheCluePanel);
         }
 
@@ -395,7 +433,6 @@ namespace ETEC510.UI
                     if (label) label.text = step.Options[i];
                 }
             }
-            if (gutNextButton) gutNextButton.gameObject.SetActive(done);
             ShowPanel(gutCheckPanel);
         }
 
@@ -405,15 +442,45 @@ namespace ETEC510.UI
             if (motivePromptText) motivePromptText.text = step.Prompt;
             if (motiveEvidenceImage && step.EvidenceImage)
                 motiveEvidenceImage.sprite = step.EvidenceImage;
+            if (motiveFeedbackText) motiveFeedbackText.text = "";
 
             var done = _session.FindTheMotiveCompleted;
-            if (motiveExplanationText)
+            for (int i = 0; i < motiveOptionButtons.Length; i++)
             {
-                motiveExplanationText.text = step.ExplanationText;
-                motiveExplanationText.gameObject.SetActive(done);
+                var btn = motiveOptionButtons[i];
+                if (btn == null) continue;
+                bool hasOption = i < step.Options.Length;
+                btn.gameObject.SetActive(hasOption);
+                btn.interactable = !done;
+                if (hasOption)
+                {
+                    var label = btn.GetComponentInChildren<TMP_Text>();
+                    if (label) label.text = step.Options[i];
+                }
             }
-            if (motiveConfirmButton) motiveConfirmButton.interactable = !done;
             ShowPanel(findTheMotivePanel);
+        }
+
+        private void OnEnterPasswordPressed()
+        {
+            if (_session.AllCluesFound)
+            {
+                ShowPasswordLock();
+            }
+            else
+            {
+                StopCoroutine("ShowBoardWarning");
+                StartCoroutine("ShowBoardWarning");
+            }
+        }
+
+        private System.Collections.IEnumerator ShowBoardWarning()
+        {
+            if (boardWarningText == null) yield break;
+            boardWarningText.text = "This room is password protected.\nCollect all three clues first.";
+            boardWarningText.gameObject.SetActive(true);
+            yield return new WaitForSeconds(2.5f);
+            boardWarningText.gameObject.SetActive(false);
         }
 
         private void ShowPasswordLock()
@@ -451,17 +518,46 @@ namespace ETEC510.UI
         {
             if (hintBodyText) hintBodyText.text = caseData.HintText;
             if (hintImage && caseData.HintImage) hintImage.sprite = caseData.HintImage;
+
+            // Auto-discover overlay if Inspector field was never wired
+            if (hintOverlay == null && hintsFromChiefPanel != null)
+            {
+                var t = hintsFromChiefPanel.transform.Find("HintOverlay");
+                if (t != null) hintOverlay = t.gameObject;
+            }
+
+            SetHintContentVisible(false);
             ShowPanel(hintsFromChiefPanel);
             PlayHintVideo();
         }
 
+        // Shows or hides hint content. Uses the overlay GO when available;
+        // falls back to controlling hintBodyText + hintTryAgainButton directly.
+        private void SetHintContentVisible(bool visible)
+        {
+            if (hintOverlay != null)
+            {
+                hintOverlay.SetActive(visible);
+            }
+            else
+            {
+                if (hintBodyText)      hintBodyText.gameObject.SetActive(visible);
+                if (hintTryAgainButton) hintTryAgainButton.gameObject.SetActive(visible);
+            }
+        }
+
         private void PlayHintVideo()
         {
-            if (hintVideoPlayer == null || caseData.HintVideo == null) return;
+            if (hintVideoPlayer == null || caseData.HintVideo == null)
+            {
+                SetHintContentVisible(true);
+                return;
+            }
 
             hintVideoPlayer.clip      = caseData.HintVideo;
             hintVideoPlayer.isLooping = false;
             hintVideoPlayer.errorReceived    += OnHintVideoError;
+            hintVideoPlayer.loopPointReached += OnHintVideoFinished;
             hintVideoPlayer.prepareCompleted += OnHintVideoPrepared;
             hintVideoPlayer.Prepare();
         }
@@ -477,10 +573,17 @@ namespace ETEC510.UI
             vp.Play();
         }
 
+        private void OnHintVideoFinished(VideoPlayer vp)
+        {
+            vp.loopPointReached -= OnHintVideoFinished;
+            SetHintContentVisible(true);
+        }
+
         private void OnHintVideoError(VideoPlayer vp, string msg)
         {
             Debug.LogError($"[CaseRunner] Hint video error: {msg}");
             vp.errorReceived -= OnHintVideoError;
+            SetHintContentVisible(true);
         }
 
         private void ShowLevelComplete()
@@ -489,6 +592,7 @@ namespace ETEC510.UI
             if (completionBodyText) completionBodyText.text = caseData.CompletionText;
             if (completionImage && caseData.CompletionImage)
                 completionImage.sprite = caseData.CompletionImage;
+            EnsureCoverFit(completionImage);
             if (xpText)
                 xpText.text = $"You earned {caseData.XpForCompletion} XP!  •  Total XP: {ProgressStore.GetXp()}";
             ShowPanel(levelCompletePanel);
@@ -496,15 +600,15 @@ namespace ETEC510.UI
 
         // ── Action handlers ───────────────────────────────────────────────────
 
-        private void OnSpotClueConfirm()
+        private void OnSpotAnswer(int selectedIndex)
         {
-            _session.CompleteSpotTheClue();
-            if (spotExplanationText)
-            {
-                spotExplanationText.text = caseData.SpotTheClue.ExplanationText;
-                spotExplanationText.gameObject.SetActive(true);
-            }
-            if (spotConfirmButton) spotConfirmButton.interactable = false;
+            if (_session.SpotTheClueCompleted) return;
+            var step = caseData.SpotTheClue;
+            bool correct = selectedIndex == step.CorrectIndex;
+            if (correct) _session.CompleteSpotTheClue();
+            if (spotFeedbackText)
+                spotFeedbackText.text = correct ? step.FeedbackCorrect : step.FeedbackIncorrect;
+            foreach (var btn in spotOptionButtons) if (btn) btn.interactable = false;
         }
 
         private void OnGutCheckAnswer(int selectedIndex)
@@ -513,18 +617,17 @@ namespace ETEC510.UI
             var result = _session.AnswerGutCheck(selectedIndex);
             if (gutFeedbackText) gutFeedbackText.text = result.feedback;
             foreach (var btn in gutOptionButtons) if (btn) btn.interactable = false;
-            if (gutNextButton) gutNextButton.gameObject.SetActive(true);
         }
 
-        private void OnMotiveConfirm()
+        private void OnMotiveAnswer(int selectedIndex)
         {
-            _session.CompleteMotive();
-            if (motiveExplanationText)
-            {
-                motiveExplanationText.text = caseData.FindTheMotive.ExplanationText;
-                motiveExplanationText.gameObject.SetActive(true);
-            }
-            if (motiveConfirmButton) motiveConfirmButton.interactable = false;
+            if (_session.FindTheMotiveCompleted) return;
+            var step = caseData.FindTheMotive;
+            bool correct = selectedIndex == step.CorrectIndex;
+            if (correct) _session.CompleteMotive();
+            if (motiveFeedbackText)
+                motiveFeedbackText.text = correct ? step.FeedbackCorrect : step.FeedbackIncorrect;
+            foreach (var btn in motiveOptionButtons) if (btn) btn.interactable = false;
         }
 
         private void OnPasswordSubmit()

@@ -57,12 +57,19 @@ namespace ETEC510.Editor
                 "LOOK CLOSELY at the image.\n\n" +
                 "AI-generated images often hide a tell-tale flaw. " +
                 "Can you find the visual glitch that gives it away?\n\n" +
-                "Common signs: distorted hands or fingers, impossible shadows, " +
-                "blurry or melting background details, text that makes no sense.";
-            spot.FindPropertyRelative("ExplanationText").stringValue =
-                "Nice detective work! This image shows hands with an unusual number of fingers—" +
-                "a classic AI artefact. Current AI image generators still struggle to render " +
-                "human hands correctly. That's Clue 1: the visual glitch.";
+                "Which of these is the most obvious sign that this image is AI-generated?";
+            var spotOptions = spot.FindPropertyRelative("Options");
+            spotOptions.arraySize = 2;
+            spotOptions.GetArrayElementAtIndex(0).stringValue = "Distorted hands or fingers";
+            spotOptions.GetArrayElementAtIndex(1).stringValue = "The colours look too bright";
+            spot.FindPropertyRelative("CorrectIndex").intValue = 0;
+            spot.FindPropertyRelative("FeedbackCorrect").stringValue =
+                "Nice detective work! This image shows hands with an unusual number of fingers — " +
+                "a classic AI artefact. Current AI generators still struggle to render hands correctly. " +
+                "That's Clue 1: the visual glitch.";
+            spot.FindPropertyRelative("FeedbackIncorrect").stringValue =
+                "Look more carefully. Bright colours can appear in real photos too. " +
+                "Focus on the hands — count the fingers. Something isn't right there.";
             spot.FindPropertyRelative("CodeDigit").stringValue = "5";
 
             // ── Gut Check  (digit 2 → "1") ────────────────────────────────────
@@ -93,14 +100,21 @@ namespace ETEC510.Editor
             motive.FindPropertyRelative("Prompt").stringValue =
                 "WHO would create and spread this image — and WHY?\n\n" +
                 "Think about: Who benefits if people believe this protest happened (or didn't)? " +
-                "What emotion is this image designed to trigger? " +
-                "Could this be used to manipulate public opinion?\n\n" +
-                "Tap 'I Found Them!' once you've worked it out.";
-            motive.FindPropertyRelative("ExplanationText").stringValue =
-                "Whoever made this image wanted to stir strong emotions about a protest — " +
-                "possibly to make it look bigger, smaller, or more violent than it was. " +
-                "That's a form of disinformation: using fake visuals to shape what " +
-                "people believe and feel. Always ask: Who benefits from me believing this?";
+                "What emotion is this image designed to trigger?\n\n" +
+                "What is the most likely motive behind this image?";
+            var motiveOptions = motive.FindPropertyRelative("Options");
+            motiveOptions.arraySize = 2;
+            motiveOptions.GetArrayElementAtIndex(0).stringValue = "To manipulate public opinion about a protest";
+            motiveOptions.GetArrayElementAtIndex(1).stringValue = "To share an accurate news story";
+            motive.FindPropertyRelative("CorrectIndex").intValue = 0;
+            motive.FindPropertyRelative("FeedbackCorrect").stringValue =
+                "Exactly. Whoever made this image wanted to stir strong emotions — " +
+                "possibly to make a protest look bigger, smaller, or more violent than it was. " +
+                "That's disinformation: fake visuals used to shape what people believe. " +
+                "Always ask: Who benefits from me believing this?";
+            motive.FindPropertyRelative("FeedbackIncorrect").stringValue =
+                "Think again. A real news story would use a verified photograph with a source and date. " +
+                "An AI-generated image has no original source — it was created to mislead, not inform.";
             motive.FindPropertyRelative("CodeDigit").stringValue = "0";
 
             // ── Password ──────────────────────────────────────────────────────

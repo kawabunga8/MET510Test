@@ -66,8 +66,12 @@ namespace ETEC510.Cases
         public string Prompt;
         public Sprite EvidenceImage;
         public AudioClip Audio;
+        public string[] Options = { "Option A", "Option B" };
+        public int CorrectIndex = 0;
         [TextArea(2, 6)]
-        public string ExplanationText;
+        public string FeedbackCorrect;
+        [TextArea(2, 6)]
+        public string FeedbackIncorrect;
         public string CodeDigit = "5";
     }
 
@@ -94,8 +98,12 @@ namespace ETEC510.Cases
         public string Prompt;
         public Sprite EvidenceImage;
         public AudioClip Audio;
+        public string[] Options = { "Option A", "Option B" };
+        public int CorrectIndex = 0;
         [TextArea(2, 6)]
-        public string ExplanationText;
+        public string FeedbackCorrect;
+        [TextArea(2, 6)]
+        public string FeedbackIncorrect;
         public string CodeDigit = "0";
     }
 

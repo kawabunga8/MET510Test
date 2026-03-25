@@ -33,14 +33,19 @@ MonoBehaviour:
       tell-tale flaw. Can you find the visual glitch that gives it away?
 
 
-      Common
-      signs: distorted hands or fingers, impossible shadows, blurry or melting background
-      details, text that makes no sense.'
+      Which
+      of these is the most obvious sign that this image is AI-generated?'
     EvidenceImage: {fileID: 0}
     Audio: {fileID: 0}
-    ExplanationText: "Nice detective work! This image shows hands with an unusual
-      number of fingers\u2014a classic AI artefact. Current AI image generators still
-      struggle to render human hands correctly. That's Clue 1: the visual glitch."
+    Options:
+    - Distorted hands or fingers
+    - The colours look too bright
+    CorrectIndex: 0
+    FeedbackCorrect: "Nice detective work! This image shows hands with an unusual
+      number of fingers \u2014 a classic AI artefact. Current AI generators still
+      struggle to render hands correctly. That's Clue 1: the visual glitch."
+    FeedbackIncorrect: "Look more carefully. Bright colours can appear in real photos
+      too. Focus on the hands \u2014 count the fingers. Something isn't right there."
     CodeDigit: 5
   GutCheck:
     Prompt: "Before sharing this image, what is your GUT REACTION?\n\nDoes the scene
@@ -62,14 +67,21 @@ MonoBehaviour:
   FindTheMotive:
     Prompt: "WHO would create and spread this image \u2014 and WHY?\n\nThink about:
       Who benefits if people believe this protest happened (or didn't)? What emotion
-      is this image designed to trigger? Could this be used to manipulate public
-      opinion?\n\nTap 'I Found Them!' once you've worked it out."
+      is this image designed to trigger?\n\nWhat is the most likely motive behind
+      this image?"
     EvidenceImage: {fileID: 0}
     Audio: {fileID: 0}
-    ExplanationText: "Whoever made this image wanted to stir strong emotions about
-      a protest \u2014 possibly to make it look bigger, smaller, or more violent
-      than it was. That's a form of disinformation: using fake visuals to shape what
-      people believe and feel. Always ask: Who benefits from me believing this?"
+    Options:
+    - To manipulate public opinion about a protest
+    - To share an accurate news story
+    CorrectIndex: 0
+    FeedbackCorrect: "Exactly. Whoever made this image wanted to stir strong emotions
+      \u2014 possibly to make a protest look bigger, smaller, or more violent than
+      it was. That's disinformation: fake visuals used to shape what people believe.
+      Always ask: Who benefits from me believing this?"
+    FeedbackIncorrect: "Think again. A real news story would use a verified photograph
+      with a source and date. An AI-generated image has no original source \u2014
+      it was created to mislead, not inform."
     CodeDigit: 0
   Password: 510
   Verdict:

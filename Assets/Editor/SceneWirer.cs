@@ -128,10 +128,14 @@ namespace ETEC510.Editor
                 Child<TMP_Text>("SpotTheCluePanel/SpotPromptText");
             so.FindProperty("spotEvidenceImage").objectReferenceValue =
                 Child<Image>("SpotTheCluePanel/SpotEvidenceImage");
-            so.FindProperty("spotExplanationText").objectReferenceValue =
-                Child<TMP_Text>("SpotTheCluePanel/SpotExplanationText");
-            so.FindProperty("spotConfirmButton").objectReferenceValue =
-                Child<Button>("SpotTheCluePanel/SpotConfirmButton");
+            so.FindProperty("spotFeedbackText").objectReferenceValue =
+                Child<TMP_Text>("SpotTheCluePanel/SpotFeedbackText");
+            var spotOpts = so.FindProperty("spotOptionButtons");
+            spotOpts.arraySize = 2;
+            spotOpts.GetArrayElementAtIndex(0).objectReferenceValue =
+                Child<Button>("SpotTheCluePanel/SpotOptionButton0");
+            spotOpts.GetArrayElementAtIndex(1).objectReferenceValue =
+                Child<Button>("SpotTheCluePanel/SpotOptionButton1");
             so.FindProperty("spotBackButton").objectReferenceValue =
                 Child<Button>("SpotTheCluePanel/SpotBackButton");
 
@@ -159,10 +163,14 @@ namespace ETEC510.Editor
                 Child<TMP_Text>("FindTheMotivePanel/MotivePromptText");
             so.FindProperty("motiveEvidenceImage").objectReferenceValue =
                 Child<Image>("FindTheMotivePanel/MotiveEvidenceImage");
-            so.FindProperty("motiveExplanationText").objectReferenceValue =
-                Child<TMP_Text>("FindTheMotivePanel/MotiveExplanationText");
-            so.FindProperty("motiveConfirmButton").objectReferenceValue =
-                Child<Button>("FindTheMotivePanel/MotiveConfirmButton");
+            so.FindProperty("motiveFeedbackText").objectReferenceValue =
+                Child<TMP_Text>("FindTheMotivePanel/MotiveFeedbackText");
+            var motiveOpts = so.FindProperty("motiveOptionButtons");
+            motiveOpts.arraySize = 2;
+            motiveOpts.GetArrayElementAtIndex(0).objectReferenceValue =
+                Child<Button>("FindTheMotivePanel/MotiveOptionButton0");
+            motiveOpts.GetArrayElementAtIndex(1).objectReferenceValue =
+                Child<Button>("FindTheMotivePanel/MotiveOptionButton1");
             so.FindProperty("motiveBackButton").objectReferenceValue =
                 Child<Button>("FindTheMotivePanel/MotiveBackButton");
 
@@ -196,12 +204,16 @@ namespace ETEC510.Editor
                 Child<RawImage>("HintsFromChiefPanel/HintVideoDisplay");
             so.FindProperty("hintVideoPlayer").objectReferenceValue =
                 Child<VideoPlayer>("HintsFromChiefPanel");
+            so.FindProperty("hintOverlay").objectReferenceValue =
+                ChildGO("HintsFromChiefPanel/HintOverlay");
             so.FindProperty("hintBodyText").objectReferenceValue =
                 Child<TMP_Text>("HintsFromChiefPanel/HintBodyText");
             so.FindProperty("hintImage").objectReferenceValue =
                 Child<Image>("HintsFromChiefPanel/ChiefImage");
             so.FindProperty("hintTryAgainButton").objectReferenceValue =
                 Child<Button>("HintsFromChiefPanel/HintTryAgainButton");
+            so.FindProperty("hintReturnButton").objectReferenceValue =
+                Child<Button>("HintsFromChiefPanel/HintOverlay/HintReturnButton");
 
             // ── Level Complete ───────────────────────────────────────────────
             so.FindProperty("completionBodyText").objectReferenceValue =
