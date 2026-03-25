@@ -351,7 +351,7 @@ namespace ETEC510.UI
             if (digit2Text) digit2Text.text = _session.GutCheckCompleted       ? caseData.GutCheck.CodeDigit       : "?";
             if (digit3Text) digit3Text.text = _session.FindTheMotiveCompleted  ? caseData.FindTheMotive.CodeDigit  : "?";
 
-            if (enterPasswordButton) enterPasswordButton.interactable = _session.AllCluesFound;
+            if (enterPasswordButton) enterPasswordButton.gameObject.SetActive(_session.AllCluesFound);
 
             ShowPanel(evidenceBoardPanel);
         }
@@ -418,6 +418,7 @@ namespace ETEC510.UI
 
         private void ShowPasswordLock()
         {
+            Debug.Log($"[CaseRunner] ShowPasswordLock — panel={(passwordLockPanel != null ? passwordLockPanel.name : "NULL")}");
             if (passwordInputField)    passwordInputField.text = "";
             if (passwordFeedbackText)  passwordFeedbackText.text = "";
             ShowPanel(passwordLockPanel);

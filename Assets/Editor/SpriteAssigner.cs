@@ -17,7 +17,7 @@ namespace ETEC510.Editor
 
             var map          = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Images/map.png");
             var chief        = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Images/Chief silouetter.png");
-            var detBg        = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Images/Detective background.png");
+            var detBg        = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Images/BriefingRoom16_9.png");
             var detBgTech    = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Images/Detective background TECH.png");
 
             Assign(ct, "EvidenceBoardPanel/EvidenceBoardImage",       map);
