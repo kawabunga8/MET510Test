@@ -13,6 +13,10 @@ namespace ETEC510.Cases
 
         [Header("Intro Video")]
         public VideoClip IntroVideo;
+        public AudioClip IntroMusic;
+
+        [Header("Background Music")]
+        public AudioClip MainMusic;
 
         [Header("Mission Briefing")]
         [TextArea(3, 12)]
@@ -39,6 +43,7 @@ namespace ETEC510.Cases
         public VerdictStep Verdict;
 
         [Header("Hints from the Chief")]
+        public VideoClip HintVideo;
         [TextArea(2, 8)]
         public string HintText;
         public Sprite HintImage;

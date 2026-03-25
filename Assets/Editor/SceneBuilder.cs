@@ -75,13 +75,13 @@ namespace ETEC510.Editor
             // Video surface (RawImage fills the panel)
             var videoDisplay = CreateChild<RawImage>(panel, "VideoBackground");
             SetStretch(videoDisplay.GetComponent<RectTransform>());
-            videoDisplay.color = Color.black;
+            videoDisplay.color = Color.white;
 
             // VideoPlayer on the panel itself
             panel.gameObject.AddComponent<VideoPlayer>();
 
             // Skip button — top-right
-            var skipBtn = CreateButton(panel, "SkipButton", "Skip ▶");
+            var skipBtn = CreateButton(panel, "SkipButton", "Skip");
             var skipRT = skipBtn.GetComponent<RectTransform>();
             skipRT.anchorMin = new Vector2(1, 1);
             skipRT.anchorMax = new Vector2(1, 1);
@@ -174,12 +174,12 @@ namespace ETEC510.Editor
             CreateDigitLabel(codeRow.transform, "Digit3Text", "?", new Vector2(0.66f, 0f), new Vector2(1f, 1f));
 
             // Three investigation path buttons
-            BuildEvidenceBoardButton(panel, "SpotTheClueButton",    "🔍 Spot the Clue",    new Vector2(0.1f, 0.38f), new Vector2(0.38f, 0.65f));
-            BuildEvidenceBoardButton(panel, "GutCheckButton",       "💬 Gut Check",        new Vector2(0.41f, 0.38f), new Vector2(0.59f, 0.65f));
-            BuildEvidenceBoardButton(panel, "FindTheMotiveButton",  "🎯 Find the Motive",  new Vector2(0.62f, 0.38f), new Vector2(0.9f, 0.65f));
+            BuildEvidenceBoardButton(panel, "SpotTheClueButton",    "Spot the Clue",    new Vector2(0.06f, 0.38f), new Vector2(0.37f, 0.65f));
+            BuildEvidenceBoardButton(panel, "GutCheckButton",       "Gut Check",        new Vector2(0.38f, 0.38f), new Vector2(0.62f, 0.65f));
+            BuildEvidenceBoardButton(panel, "FindTheMotiveButton",  "Find the Motive",  new Vector2(0.63f, 0.38f), new Vector2(0.94f, 0.65f));
 
             // Enter password button (locked until all 3 done)
-            var lockBtn = CreateButton(panel, "EnterPasswordButton", "🔒  Enter Code Room");
+            var lockBtn = CreateButton(panel, "EnterPasswordButton", "Enter Code Room");
             var lockRT = lockBtn.GetComponent<RectTransform>();
             lockRT.anchorMin = new Vector2(0.35f, 0.12f);
             lockRT.anchorMax = new Vector2(0.65f, 0.28f);
@@ -205,7 +205,7 @@ namespace ETEC510.Editor
                 new Vector2(0.05f, 0.18f), new Vector2(0.95f, 0.38f));
             explain.SetActive(false);
 
-            CreateButton(panel.transform, "SpotConfirmButton", "✔  I Found It!",
+            CreateButton(panel.transform, "SpotConfirmButton", "I Found It!",
                 new Vector2(0.3f, 0.06f), new Vector2(0.7f, 0.17f));
 
             CreateButton(panel.transform, "SpotBackButton", "← Back to Board",
@@ -260,7 +260,7 @@ namespace ETEC510.Editor
                 new Vector2(0.05f, 0.18f), new Vector2(0.95f, 0.38f));
             explain.SetActive(false);
 
-            CreateButton(panel.transform, "MotiveConfirmButton", "✔  I Found Them!",
+            CreateButton(panel.transform, "MotiveConfirmButton", "I Found Them!",
                 new Vector2(0.3f, 0.06f), new Vector2(0.7f, 0.17f));
 
             CreateButton(panel.transform, "MotiveBackButton", "← Back to Board",
@@ -344,20 +344,29 @@ namespace ETEC510.Editor
             var panel = CreateFullscreenPanel(parent, "HintsFromChiefPanel", new Color(0.08f, 0.06f, 0.02f));
             panel.gameObject.SetActive(false);
 
+            // VideoPlayer on the panel itself
+            panel.gameObject.AddComponent<VideoPlayer>();
+
             var title = CreateTMPText(panel, "TitleText", "HINT FROM THE CHIEF", 46, FontStyles.Bold);
             SetAnchoredRect(title.GetComponent<RectTransform>(),
                 new Vector2(0.1f, 0.82f), new Vector2(0.9f, 0.95f));
 
-            // Chief silhouette image — right side
+            // Chief video — right column
+            var videoDisplay = CreateChild<RawImage>(panel, "HintVideoDisplay");
+            videoDisplay.color = Color.white;
+            SetAnchoredRect(videoDisplay.GetComponent<RectTransform>(),
+                new Vector2(0.55f, 0.15f), new Vector2(0.95f, 0.80f));
+
+            // Chief silhouette image (shown as fallback / behind video)
             var chiefImg = CreateChild<Image>(panel, "ChiefImage");
             SetAnchoredRect(chiefImg.GetComponent<RectTransform>(),
-                new Vector2(0.65f, 0.15f), new Vector2(0.95f, 0.80f));
+                new Vector2(0.55f, 0.15f), new Vector2(0.95f, 0.80f));
             chiefImg.preserveAspect = true;
 
             // Hint text — left side
             var hint = CreateTMPText(panel, "HintBodyText", "Here's a clue to help you...", 30, FontStyles.Normal);
             SetAnchoredRect(hint.GetComponent<RectTransform>(),
-                new Vector2(0.05f, 0.35f), new Vector2(0.60f, 0.78f));
+                new Vector2(0.05f, 0.35f), new Vector2(0.52f, 0.78f));
             hint.GetComponent<TMP_Text>().alignment = TextAlignmentOptions.TopLeft;
 
             CreateButton(panel, "HintTryAgainButton", "Try Again →",

@@ -26,6 +26,7 @@ namespace ETEC510.UI
     {
         [Header("Case")]
         public CaseData caseData;
+        public AudioSource mainAudioSource;  // looping background music during investigation
 
         // ── Panels ────────────────────────────────────────────────────────────
         [Header("Panels")]
@@ -44,6 +45,7 @@ namespace ETEC510.UI
         [Header("Intro")]
         public RawImage introVideoDisplay;   // RawImage that shows the video
         public VideoPlayer introVideoPlayer; // VideoPlayer component on the intro panel
+        public AudioSource introAudioSource; // AudioSource for intro music
         public Button introEnterButton;      // shown after video ends
         public Button introSkipButton;       // lets player skip the video early
 
@@ -106,6 +108,8 @@ namespace ETEC510.UI
 
         // ── Hints from Chief ──────────────────────────────────────────────────
         [Header("Hints from Chief")]
+        public RawImage    hintVideoDisplay;
+        public VideoPlayer hintVideoPlayer;
         public TMP_Text hintBodyText;
         public Image    hintImage;
         public Button   hintTryAgainButton;    // returns to Evidence Detail
@@ -118,7 +122,6 @@ namespace ETEC510.UI
 
         // ── Private ───────────────────────────────────────────────────────────
         private CaseSession _session;
-        private RenderTexture _introRenderTexture;
 
         // ═════════════════════════════════════════════════════════════════════
 
@@ -136,45 +139,75 @@ namespace ETEC510.UI
             PlayIntroVideo();
         }
 
-        private void OnDestroy()
-        {
-            if (_introRenderTexture != null)
-            {
-                _introRenderTexture.Release();
-                Destroy(_introRenderTexture);
-            }
-        }
-
         private void PlayIntroVideo()
         {
+            Debug.Log($"[CaseRunner] PlayIntroVideo — vp={(introVideoPlayer != null ? introVideoPlayer.name : "NULL")}, clip={(caseData.IntroVideo != null ? caseData.IntroVideo.name : "NULL")}");
             if (introVideoPlayer == null || caseData.IntroVideo == null)
             {
-                // No video assigned — show Enter button immediately
+                Debug.LogWarning("[CaseRunner] No video player or clip — skipping to Enter.");
                 SetIntroButtonsVisible(enterOnly: true);
                 return;
             }
 
-            // Hide Enter, show Skip
             SetIntroButtonsVisible(enterOnly: false);
 
-            // Create a RenderTexture sized to the video clip
-            var clip = caseData.IntroVideo;
-            _introRenderTexture = new RenderTexture((int)clip.width, (int)clip.height, 0);
-
-            introVideoPlayer.clip = clip;
-            introVideoPlayer.targetTexture = _introRenderTexture;
+            // Use the RenderTexture pre-wired via ETEC510 > Setup Intro Video RT.
+            // Do NOT change renderMode here — doing so resets targetTexture.
+            introVideoPlayer.clip      = caseData.IntroVideo;
             introVideoPlayer.isLooping = false;
+            introVideoPlayer.errorReceived    += OnVideoError;
             introVideoPlayer.loopPointReached += OnIntroVideoFinished;
+            introVideoPlayer.prepareCompleted += OnIntroPrepared;
+            introVideoPlayer.Prepare();
+            Debug.Log("[CaseRunner] Prepare() called.");
+        }
 
+        private void OnIntroPrepared(VideoPlayer vp)
+        {
+            vp.prepareCompleted -= OnIntroPrepared;
+
+            // Create a fresh RT sized to the video's actual decoded dimensions
+            var rt = new RenderTexture((int)vp.width, (int)vp.height, 0, RenderTextureFormat.ARGB32);
+            rt.Create();
+            vp.targetTexture = rt;
             if (introVideoDisplay != null)
-                introVideoDisplay.texture = _introRenderTexture;
+                introVideoDisplay.texture = rt;
 
-            introVideoPlayer.Play();
+            vp.Play();
+            if (introAudioSource != null && caseData.IntroMusic != null)
+            {
+                introAudioSource.clip = caseData.IntroMusic;
+                introAudioSource.Play();
+            }
+            Debug.Log($"[CaseRunner] OnIntroPrepared — {vp.width}x{vp.height}, RT created={rt.IsCreated()}, isPlaying={vp.isPlaying}");
+        }
+
+        private void OnVideoError(VideoPlayer vp, string msg)
+        {
+            Debug.LogError($"[CaseRunner] VideoPlayer error: {msg}");
+            vp.errorReceived -= OnVideoError;
+            SetIntroButtonsVisible(enterOnly: true);
+        }
+
+        private void OnDestroy()
+        {
+            CleanupVideoRT(introVideoPlayer);
+            CleanupVideoRT(hintVideoPlayer);
+        }
+
+        private static void CleanupVideoRT(VideoPlayer vp)
+        {
+            if (vp != null && vp.targetTexture != null)
+            {
+                vp.targetTexture.Release();
+                Destroy(vp.targetTexture);
+            }
         }
 
         private void OnIntroVideoFinished(VideoPlayer vp)
         {
             vp.loopPointReached -= OnIntroVideoFinished;
+            if (introAudioSource != null) introAudioSource.Stop();
             SetIntroButtonsVisible(enterOnly: true);
         }
 
@@ -185,7 +218,22 @@ namespace ETEC510.UI
                 introVideoPlayer.loopPointReached -= OnIntroVideoFinished;
                 introVideoPlayer.Stop();
             }
+            if (introAudioSource != null) StartCoroutine(FadeOutAudio(introAudioSource, 0.8f));
             SetIntroButtonsVisible(enterOnly: true);
+        }
+
+        private System.Collections.IEnumerator FadeOutAudio(AudioSource source, float duration)
+        {
+            float startVolume = source.volume;
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                source.volume = Mathf.Lerp(startVolume, 0f, elapsed / duration);
+                yield return null;
+            }
+            source.Stop();
+            source.volume = startVolume;
         }
 
         private void SetIntroButtonsVisible(bool enterOnly)
@@ -272,6 +320,13 @@ namespace ETEC510.UI
 
         public void ShowEvidenceBoard()
         {
+            if (mainAudioSource != null && caseData.MainMusic != null && !mainAudioSource.isPlaying)
+            {
+                mainAudioSource.clip = caseData.MainMusic;
+                mainAudioSource.loop = true;
+                mainAudioSource.Play();
+            }
+
             if (evidenceBoardImage && caseData.EvidenceBoardImage)
                 evidenceBoardImage.sprite = caseData.EvidenceBoardImage;
 
@@ -379,6 +434,35 @@ namespace ETEC510.UI
             if (hintBodyText) hintBodyText.text = caseData.HintText;
             if (hintImage && caseData.HintImage) hintImage.sprite = caseData.HintImage;
             ShowPanel(hintsFromChiefPanel);
+            PlayHintVideo();
+        }
+
+        private void PlayHintVideo()
+        {
+            if (hintVideoPlayer == null || caseData.HintVideo == null) return;
+
+            hintVideoPlayer.clip      = caseData.HintVideo;
+            hintVideoPlayer.isLooping = false;
+            hintVideoPlayer.errorReceived    += OnHintVideoError;
+            hintVideoPlayer.prepareCompleted += OnHintVideoPrepared;
+            hintVideoPlayer.Prepare();
+        }
+
+        private void OnHintVideoPrepared(VideoPlayer vp)
+        {
+            vp.prepareCompleted -= OnHintVideoPrepared;
+            var rt = new RenderTexture((int)vp.width, (int)vp.height, 0, RenderTextureFormat.ARGB32);
+            rt.Create();
+            vp.targetTexture = rt;
+            if (hintVideoDisplay != null)
+                hintVideoDisplay.texture = rt;
+            vp.Play();
+        }
+
+        private void OnHintVideoError(VideoPlayer vp, string msg)
+        {
+            Debug.LogError($"[CaseRunner] Hint video error: {msg}");
+            vp.errorReceived -= OnHintVideoError;
         }
 
         private void ShowLevelComplete()

@@ -12,40 +12,109 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d16099ea739ef4aa1993af1cac6a930f, type: 3}
   m_Name: Case01_AIImageCredibility
   m_EditorClassIdentifier: Assembly-CSharp::ETEC510.Cases.CaseData
-  CaseId: "case01_ai_image\u202F\u2060"
+  CaseId: case01_ai_image
   Title: 'Case 01: Is This Image Real?'
-  BriefingText: "You\u2019re the Lead Detective. A viral image is spreading fast.
-    Your job: decide whether it\u2019s trustworthy and what to do next\u2014without
-    embarrassing yourself or harming others."
-  Evidence: []
-  Questions:
-  - Prompt: 
+  IntroVideo: {fileID: 32900000, guid: 77fea3b3c1d624735b763a79ac4e4129, type: 3}
+  IntroMusic: {fileID: 8300000, guid: 318c0d06c94384739b0d58a2ab1ab4a2, type: 3}
+  MainMusic: {fileID: 8300000, guid: dc987ed1832a54bb59c66d5aff5d76cb, type: 3}
+  BriefingText: "A photo of a protest has gone viral. Thousands of people are sharing
+    it\u2014but something feels off.\n\nYou're the Lead Detective. Your mission:
+    investigate this image and decide whether it's trustworthy before it spreads
+    any further. Collect three clues to unlock the evidence vault, then deliver your
+    verdict."
+  BriefingImage: {fileID: 0}
+  BriefingAudio: {fileID: 0}
+  EvidenceBoardImage: {fileID: 0}
+  SpotTheClue:
+    Prompt: 'LOOK CLOSELY at the image.
+
+
+      AI-generated images often hide a
+      tell-tale flaw. Can you find the visual glitch that gives it away?
+
+
+      Common
+      signs: distorted hands or fingers, impossible shadows, blurry or melting background
+      details, text that makes no sense.'
+    EvidenceImage: {fileID: 0}
+    Audio: {fileID: 0}
+    ExplanationText: "Nice detective work! This image shows hands with an unusual
+      number of fingers\u2014a classic AI artefact. Current AI image generators still
+      struggle to render human hands correctly. That's Clue 1: the visual glitch."
+    CodeDigit: 5
+  GutCheck:
+    Prompt: "Before sharing this image, what is your GUT REACTION?\n\nDoes the scene
+      feel realistic? Is the lighting consistent? Are the faces too perfect\u2014or
+      strangely blank?\n\nWhat's your verdict right now?"
+    EvidenceImage: {fileID: 0}
+    Audio: {fileID: 0}
     Options:
-    - 
-    - 
-    - 
-    - 
-    CorrectIndex: 0
-    FeedbackCorrect: 
-    FeedbackIncorrect: 
-    ClaimVsEvidence: 0
-    CredibilityCheck: 0
-    BiasOrIntent: 0
-    WhoBenefits: 0
-  - Prompt: "Before sharing this image, what is the BEST first step to check if it\u2019s
-      trustworthy?"
+    - It looks real to me
+    - "Something feels off \u2014 probably AI"
+    CorrectIndex: 1
+    FeedbackCorrect: "Good instinct! The too-perfect lighting, oddly blank expressions,
+      and background artefacts are giveaways. Trusting your gut \u2014 then verifying
+      \u2014 is a key media-literacy skill."
+    FeedbackIncorrect: Look again. The lighting is unnaturally even, faces lack micro-expressions,
+      and background details blur or repeat. AI generators often produce images that
+      feel 'clean' in a way real photos don't.
+    CodeDigit: 1
+  FindTheMotive:
+    Prompt: "WHO would create and spread this image \u2014 and WHY?\n\nThink about:
+      Who benefits if people believe this protest happened (or didn't)? What emotion
+      is this image designed to trigger? Could this be used to manipulate public
+      opinion?\n\nTap 'I Found Them!' once you've worked it out."
+    EvidenceImage: {fileID: 0}
+    Audio: {fileID: 0}
+    ExplanationText: "Whoever made this image wanted to stir strong emotions about
+      a protest \u2014 possibly to make it look bigger, smaller, or more violent
+      than it was. That's a form of disinformation: using fake visuals to shape what
+      people believe and feel. Always ask: Who benefits from me believing this?"
+    CodeDigit: 0
+  Password: 510
+  Verdict:
+    Prompt: 'You''ve collected all three clues.
+
+
+      Visual glitch [OK]  |  Gut
+      check [OK]  |  Motive identified [OK]
+
+
+      Time to deliver your official
+      verdict:
+
+      Is this image REAL or FAKE?'
+    EvidenceImage: {fileID: 0}
+    Audio: {fileID: 0}
     Options:
-    - "\u2060Reverse image search / check source and date   "
-    - 'Ask a friend if it looks real   '
-    - "Assume it\u2019s real because it\u2019s high quality   "
-    - "Share it and delete later if it\u2019s fake   "
-    CorrectIndex: 0
-    FeedbackCorrect: Good. Checking the source and doing a quick verification step
-      is the safest first move.
-    FeedbackIncorrect: Not quite. Before sharing, verify the source/date or use a
-      quick check like reverse image search.
-    ClaimVsEvidence: 0
-    CredibilityCheck: 0
-    BiasOrIntent: 0
-    WhoBenefits: 0
+    - "REAL \u2014 I'd share it"
+    - "FAKE \u2014 AI-generated"
+    CorrectIndex: 1
+    FeedbackCorrect: "Case closed! You correctly identified this as an AI-generated
+      image. Your three clues \u2014 the visual artefact, your gut check, and the
+      motive \u2014 all pointed to the same conclusion. That's critical thinking
+      in action."
+    FeedbackIncorrect: 'Not quite. Review the clues: the distorted hands, the too-perfect
+      lighting, and the clear motive to manipulate all point to AI generation. Head
+      back to the Chief for a hint.'
+  HintVideo: {fileID: 32900000, guid: f37b4e5e9877f4ac9a94ab8bfb0f5860, type: 3}
+  HintText: "Listen up, Detective.\n\nThree questions to ask ANY suspicious image:\n\n1.
+    Can I find this image somewhere credible with a date and source?\n2. Do the physical
+    details (hands, shadows, text) look right?\n3. What strong emotion is this image
+    trying to make me feel \u2014 and who gains from that reaction?\n\nNow go back
+    and look again."
+  HintImage: {fileID: 0}
+  HintAudio: {fileID: 0}
+  CompletionText: 'Outstanding detective work!
+
+
+    You spotted the visual glitch,
+    trusted your gut, identified the motive, and delivered the correct verdict.
+
+
+    Remember:
+    Before sharing any image, take 30 seconds to check the source, look for artefacts,
+    and ask who benefits. That''s how misinformation stops spreading.'
+  CompletionImage: {fileID: 0}
+  CompletionAudio: {fileID: 0}
   XpForCompletion: 100
