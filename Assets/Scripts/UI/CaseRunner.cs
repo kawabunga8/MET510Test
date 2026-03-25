@@ -133,14 +133,21 @@ namespace ETEC510.UI
                 return;
             }
 
-            // Self-initialize audio sources if not wired in Inspector
+            // Self-initialize audio sources if not wired in Inspector.
+            // Use explicit null checks — Unity's fake-null breaks the ?? operator.
             if (mainAudioSource == null)
-                mainAudioSource = GetComponent<AudioSource>() ?? gameObject.AddComponent<AudioSource>();
+            {
+                mainAudioSource = GetComponent<AudioSource>();
+                if (mainAudioSource == null) mainAudioSource = gameObject.AddComponent<AudioSource>();
+            }
             mainAudioSource.playOnAwake = false;
             mainAudioSource.loop        = true;
 
             if (introAudioSource == null && introPanel != null)
-                introAudioSource = introPanel.GetComponent<AudioSource>() ?? introPanel.AddComponent<AudioSource>();
+            {
+                introAudioSource = introPanel.GetComponent<AudioSource>();
+                if (introAudioSource == null) introAudioSource = introPanel.AddComponent<AudioSource>();
+            }
             if (introAudioSource != null)
                 introAudioSource.playOnAwake = false;
 
@@ -164,6 +171,8 @@ namespace ETEC510.UI
 
             // Use the RenderTexture pre-wired via ETEC510 > Setup Intro Video RT.
             // Do NOT change renderMode here — doing so resets targetTexture.
+            // Mute the video's own audio track — custom AudioSource music plays instead.
+            introVideoPlayer.audioOutputMode = VideoAudioOutputMode.None;
             introVideoPlayer.clip      = caseData.IntroVideo;
             introVideoPlayer.isLooping = false;
             introVideoPlayer.errorReceived    += OnVideoError;
@@ -177,20 +186,21 @@ namespace ETEC510.UI
         {
             vp.prepareCompleted -= OnIntroPrepared;
 
-            // Create a fresh RT sized to the video's actual decoded dimensions
-            var rt = new RenderTexture((int)vp.width, (int)vp.height, 0, RenderTextureFormat.ARGB32);
-            rt.Create();
-            vp.targetTexture = rt;
-            if (introVideoDisplay != null)
-                introVideoDisplay.texture = rt;
-
+            // VideoPlayer already targets IntroRT (set in scene) — just play.
+            // Do NOT reassign targetTexture; doing so breaks the RawImage connection.
             vp.Play();
+
             if (introAudioSource != null && caseData.IntroMusic != null)
             {
                 introAudioSource.clip = caseData.IntroMusic;
                 introAudioSource.Play();
+                Debug.Log($"[CaseRunner] Intro music — clip={caseData.IntroMusic.name}, isPlaying={introAudioSource.isPlaying}, volume={introAudioSource.volume}, spatialBlend={introAudioSource.spatialBlend}, mute={introAudioSource.mute}");
             }
-            Debug.Log($"[CaseRunner] OnIntroPrepared — {vp.width}x{vp.height}, RT created={rt.IsCreated()}, isPlaying={vp.isPlaying}");
+            else
+            {
+                Debug.LogWarning($"[CaseRunner] Intro music skipped — audioSrc={(introAudioSource != null ? "ok" : "NULL")}, clip={(caseData.IntroMusic != null ? caseData.IntroMusic.name : "NULL")}");
+            }
+            Debug.Log($"[CaseRunner] OnIntroPrepared — {vp.width}x{vp.height}, isPlaying={vp.isPlaying}");
         }
 
         private void OnVideoError(VideoPlayer vp, string msg)
@@ -202,16 +212,12 @@ namespace ETEC510.UI
 
         private void OnDestroy()
         {
-            CleanupVideoRT(introVideoPlayer);
-            CleanupVideoRT(hintVideoPlayer);
-        }
-
-        private static void CleanupVideoRT(VideoPlayer vp)
-        {
-            if (vp != null && vp.targetTexture != null)
+            // Only clean up dynamically created RTs (hint video).
+            // IntroRT is a scene asset — do NOT destroy it.
+            if (hintVideoPlayer != null && hintVideoPlayer.targetTexture != null)
             {
-                vp.targetTexture.Release();
-                Destroy(vp.targetTexture);
+                hintVideoPlayer.targetTexture.Release();
+                Destroy(hintVideoPlayer.targetTexture);
             }
         }
 
