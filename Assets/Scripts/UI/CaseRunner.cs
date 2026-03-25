@@ -125,10 +125,16 @@ namespace ETEC510.UI
 
         // ── Level Complete ────────────────────────────────────────────────────
         [Header("Level Complete")]
-        public TMP_Text completionBodyText;
-        public Image    completionImage;
-        public TMP_Text xpText;
-        public Button   restartButton;
+        public TMP_Text   completionBodyText;
+        public Image      completionImage;
+        public TMP_Text   xpText;
+        public Button     restartButton;
+        public AudioClip  completionMusic;   // "Shadows in the File"
+
+        // ── SFX ───────────────────────────────────────────────────────────────
+        [Header("SFX")]
+        public AudioClip  clickSound;    // assign any short UI click clip
+        public AudioSource sfxSource;   // separate non-looping source for one-shots
 
         // ── Private ───────────────────────────────────────────────────────────
         private CaseSession _session;
@@ -152,6 +158,13 @@ namespace ETEC510.UI
             }
             mainAudioSource.playOnAwake = false;
             mainAudioSource.loop        = true;
+
+            if (sfxSource == null)
+            {
+                sfxSource = gameObject.AddComponent<AudioSource>();
+                sfxSource.playOnAwake = false;
+                sfxSource.loop        = false;
+            }
 
             if (introAudioSource == null && introPanel != null)
             {
@@ -356,6 +369,23 @@ namespace ETEC510.UI
 
             // Level Complete
             if (restartButton) restartButton.onClick.AddListener(RestartGame);
+
+            // ── Click sounds on every button ──────────────────────────────────
+            AddClick(soundOnButton); AddClick(soundOffButton);
+            AddClick(introEnterButton); AddClick(introSkipButton);
+            AddClick(briefingStartButton);
+            AddClick(spotTheClueButton); AddClick(gutCheckButton);
+            AddClick(findTheMotiveButton); AddClick(enterPasswordButton);
+            AddClick(spotBackButton); AddClick(gutBackButton);
+            AddClick(motiveBackButton);
+            AddClick(passwordSubmitButton); AddClick(passwordBackButton);
+            AddClick(verdictBackButton);
+            AddClick(hintTryAgainButton); AddClick(hintReturnButton);
+            AddClick(restartButton);
+            if (spotOptionButtons  != null) foreach (var b in spotOptionButtons)   AddClick(b);
+            if (gutOptionButtons   != null) foreach (var b in gutOptionButtons)    AddClick(b);
+            if (motiveOptionButtons!= null) foreach (var b in motiveOptionButtons) AddClick(b);
+            if (verdictOptionButtons!= null) foreach (var b in verdictOptionButtons) AddClick(b);
         }
 
         private void WireIndexedButtons(Button[] buttons, UnityEngine.Events.UnityAction<int> handler)
@@ -653,7 +683,35 @@ namespace ETEC510.UI
             EnsureCoverFit(completionImage);
             if (xpText)
                 xpText.text = $"You earned {caseData.XpForCompletion} XP!  •  Total XP: {ProgressStore.GetXp()}";
+
+            if (completionMusic != null && mainAudioSource != null)
+                StartCoroutine(CrossfadeMusic(mainAudioSource, completionMusic, 1.2f));
+
             ShowPanel(levelCompletePanel);
+        }
+
+        private System.Collections.IEnumerator CrossfadeMusic(AudioSource source, AudioClip newClip, float duration)
+        {
+            // Fade out current track
+            float start = source.volume;
+            float half = duration * 0.5f;
+            for (float t = 0; t < half; t += Time.unscaledDeltaTime)
+            {
+                source.volume = Mathf.Lerp(start, 0f, t / half);
+                yield return null;
+            }
+            source.Stop();
+            source.clip   = newClip;
+            source.loop   = true;
+            source.volume = 0f;
+            source.Play();
+            // Fade in new track
+            for (float t = 0; t < half; t += Time.unscaledDeltaTime)
+            {
+                source.volume = Mathf.Lerp(0f, start, t / half);
+                yield return null;
+            }
+            source.volume = start;
         }
 
         // ── Action handlers ───────────────────────────────────────────────────
@@ -691,6 +749,17 @@ namespace ETEC510.UI
                 correct ? "Motive Identified!" : "Look Deeper...",
                 correct ? step.FeedbackCorrect : step.FeedbackIncorrect,
                 "Got it");
+        }
+
+        private void PlayClick()
+        {
+            if (sfxSource != null && clickSound != null)
+                sfxSource.PlayOneShot(clickSound);
+        }
+
+        private void AddClick(Button btn)
+        {
+            if (btn != null) btn.onClick.AddListener(PlayClick);
         }
 
         private static void LockButtons(Button[] buttons)
