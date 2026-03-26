@@ -68,11 +68,11 @@ namespace ETEC510.Editor
         public static readonly Color TextMuted     = Hex("#9A9080");
 
         // Button backgrounds
-        public static readonly Color BtnPrimary    = Hex("#2B2010");
+        public static readonly Color BtnPrimary    = Hex("#1A6BC8");
         public static readonly Color BtnConfirm    = Hex("#1B3016");
         public static readonly Color BtnAlternate  = Hex("#1A1016");
-        public static readonly Color BtnChoice     = Hex("#1A1C2A");
-        public static readonly Color BtnNav        = Hex("#12141E");
+        public static readonly Color BtnChoice     = Hex("#1A6BC8");
+        public static readonly Color BtnNav        = Hex("#1A6BC8");
         public static readonly Color BtnDanger     = Hex("#2E0F0F");
         public static readonly Color BtnWarn       = Hex("#2A1A08");
 
@@ -90,7 +90,7 @@ namespace ETEC510.Editor
         /// <summary>Returns (bgColor, labelColor) for the given role.</summary>
         public static (Color bg, Color label) ButtonColors(ButtonRole role) => role switch
         {
-            ButtonRole.Primary   => (BtnPrimary,   LabelGold),
+            ButtonRole.Primary   => (BtnPrimary,   LabelLight),
             ButtonRole.Confirm   => (BtnConfirm,   LabelGreen),
             ButtonRole.Alternate => (BtnAlternate, LabelLight),
             ButtonRole.Choice    => (BtnChoice,    LabelLight),

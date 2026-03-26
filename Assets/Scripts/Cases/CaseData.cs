@@ -20,15 +20,23 @@ namespace ETEC510.Cases
         public AudioClip MainMusic;
 
         [Header("Mission Briefing")]
+        public VideoClip BriefingVideo;      // Editor / Standalone only
+        public string    BriefingVideoFile;  // filename in StreamingAssets/Video/ — used on WebGL
         [TextArea(3, 12)]
         public string BriefingText;
         public Sprite BriefingImage;
         public AudioClip BriefingAudio;
+        public VideoClip MissionStartVideo;      // plays when Start Investigation is pressed
+        public string    MissionStartVideoFile;  // filename in StreamingAssets/Video/ — used on WebGL
 
         [Header("Evidence Board")]
         public Sprite EvidenceBoardImage;
+        public VideoClip EvidenceBoardIntroVideo;      // played once on first board visit
+        public string    EvidenceBoardIntroVideoFile;  // filename in StreamingAssets/Video/
 
         [Header("Spot the Clue  (reveals digit 1 of code)")]
+        public VideoClip SpotTheClueVideo;
+        public string    SpotTheClueVideoFile;  // filename in StreamingAssets/Video/
         public SpotTheClueStep SpotTheClue;
 
         [Header("Gut Check  (reveals digit 2 of code)")]
@@ -39,6 +47,10 @@ namespace ETEC510.Cases
 
         [Header("Password Lock")]
         public string Password = "510";
+
+        [Header("Password Unlocked Video")]
+        public VideoClip UnlockVideo;
+        public string    UnlockVideoFile;  // filename in StreamingAssets/Video/
 
         [Header("Evidence Detail — Verdict")]
         public VerdictStep Verdict;
