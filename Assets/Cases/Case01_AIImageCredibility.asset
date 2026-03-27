@@ -15,7 +15,7 @@ MonoBehaviour:
   CaseId: case01_ai_image
   Title: 'Case 01: Is This Image Real?'
   IntroVideo: {fileID: 32900000, guid: 858d9dff77ce34244939d39bc8a48f9a, type: 3}
-  IntroVideoFile: StartupVideoNoAudio.mp4
+  IntroVideoFile: StartUpVideoNoAudio.mp4
   IntroMusic: {fileID: 8300000, guid: 318c0d06c94384739b0d58a2ab1ab4a2, type: 3}
   MainMusic: {fileID: 8300000, guid: dc987ed1832a54bb59c66d5aff5d76cb, type: 3}
   BriefingVideo: {fileID: 32900000, guid: 12857437f439a47bbb0dfadc1f694faa, type: 3}
@@ -94,7 +94,7 @@ MonoBehaviour:
     CodeDigit: 0
   Password: 510
   UnlockVideo: {fileID: 32900000, guid: 7ec4e8a9379e74a9789d14ade3ff12b7, type: 3}
-  UnlockVideoFile: 6) Pragmatic Decision point.mp4
+  UnlockVideoFile: 6) Pragmatic Decision Point.mp4
   Verdict:
     Prompt: 'You''ve collected all three clues.
 
