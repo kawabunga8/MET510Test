@@ -103,3 +103,8 @@ InitTestScene*.unity*
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
 
 .fake
+
+# Large archive/build files exceeding GitHub 100MB limit
+DigitalDetectiveToolkitDemoWebGLVIDEO/Archive*.zip
+DigitalDetectiveToolkitDemoWebGL/Archive*.zip
+DigitalDetectiveToolkitDemoWebGLVIDEO/Build/*.data.br
