@@ -768,9 +768,14 @@ namespace ETEC510.UI
 
         public void ShowMissionBriefing()
         {
-            ShowBriefingContent();   // populate and show everything immediately
-            if (introAudioSource != null) introAudioSource.Stop();
+            // Populate fields but keep hidden until loop video starts
+            if (briefingTitleText) briefingTitleText.text = caseData.Title;
+            if (briefingBodyText)  briefingBodyText.text  = caseData.BriefingText;
+            if (briefingImage && caseData.BriefingImage) briefingImage.sprite = caseData.BriefingImage;
+            EnsureCoverFit(briefingImage);
+            SetBriefingContentVisible(false);
 
+            if (introAudioSource != null) introAudioSource.Stop();
             ShowPanel(missionBriefingPanel);
             PlayBriefingVideo();
         }
@@ -784,17 +789,31 @@ namespace ETEC510.UI
             if (briefingRepeatButton) briefingRepeatButton.gameObject.SetActive(visible);
             // Video loops behind content — always visible, never blocks input
             if (briefingVideoDisplay) { briefingVideoDisplay.color = Color.white; briefingVideoDisplay.raycastTarget = false; }
-            if (briefingSkipButton)   briefingSkipButton.gameObject.SetActive(false);
         }
 
         private void SkipBriefingVideo()
         {
+            if (briefingSkipButton != null) briefingSkipButton.gameObject.SetActive(false);
             if (briefingVideoPlayer != null)
             {
                 briefingVideoPlayer.loopPointReached -= OnBriefingVideoFinished;
                 briefingVideoPlayer.Stop();
             }
-            ShowBriefingContent();
+            SetBriefingContentVisible(true);
+            StartMainMusic();
+            // Jump straight to the loop video
+            var loopUrl = BuildVideoUrl(caseData.BriefingLoopVideoFile);
+            if (loopUrl != null && briefingVideoPlayer != null)
+            {
+                briefingVideoPlayer.errorReceived    -= OnBriefingVideoError;
+                briefingVideoPlayer.prepareCompleted -= OnBriefingVideoPrepared;
+                briefingVideoPlayer.isLooping       = true;
+                briefingVideoPlayer.source          = VideoSource.Url;
+                briefingVideoPlayer.url             = loopUrl;
+                briefingVideoPlayer.errorReceived    += OnBriefingVideoError;
+                briefingVideoPlayer.prepareCompleted += OnBriefingVideoPrepared;
+                briefingVideoPlayer.Prepare();
+            }
         }
 
         private void RepeatBriefingVideo()
@@ -823,14 +842,23 @@ namespace ETEC510.UI
 
             if (briefingVideoDisplay != null) briefingVideoDisplay.color = Color.clear;
 
+            // Show skip button as label-only (transparent background)
+            if (briefingSkipButton != null)
+            {
+                briefingSkipButton.gameObject.SetActive(true);
+                var img = briefingSkipButton.GetComponent<UnityEngine.UI.Image>();
+                if (img != null) img.color = Color.clear;
+            }
+
             // Remove stale listeners before re-adding (safe if not subscribed)
             briefingVideoPlayer.errorReceived    -= OnBriefingVideoError;
             briefingVideoPlayer.loopPointReached -= OnBriefingVideoFinished;
             briefingVideoPlayer.prepareCompleted -= OnBriefingVideoPrepared;
 
-            briefingVideoPlayer.isLooping       = true;
+            briefingVideoPlayer.isLooping       = false;
             briefingVideoPlayer.audioOutputMode = VideoAudioOutputMode.Direct;
             briefingVideoPlayer.errorReceived    += OnBriefingVideoError;
+            briefingVideoPlayer.loopPointReached += OnBriefingVideoFinished;
             briefingVideoPlayer.prepareCompleted += OnBriefingVideoPrepared;
 
             if (url != null) { briefingVideoPlayer.source = VideoSource.Url; briefingVideoPlayer.url = url; }
@@ -856,10 +884,26 @@ namespace ETEC510.UI
         private void OnBriefingVideoFinished(VideoPlayer vp)
         {
             vp.loopPointReached -= OnBriefingVideoFinished;
-            if (briefingVideoDisplay != null) briefingVideoDisplay.color = Color.clear;
-            if (AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
-                StartCoroutine(UnduckAudio(mainAudioSource, 1f, 0.5f));
-            ShowBriefingContent();
+            if (briefingSkipButton != null) briefingSkipButton.gameObject.SetActive(false);
+            SetBriefingContentVisible(true);
+            StartMainMusic();
+            // Switch to loop video if configured
+            var loopUrl = BuildVideoUrl(caseData.BriefingLoopVideoFile);
+            if (loopUrl != null)
+            {
+                vp.errorReceived    -= OnBriefingVideoError;
+                vp.prepareCompleted -= OnBriefingVideoPrepared;
+                vp.isLooping       = true;
+                vp.source          = VideoSource.Url;
+                vp.url             = loopUrl;
+                vp.errorReceived    += OnBriefingVideoError;
+                vp.prepareCompleted += OnBriefingVideoPrepared;
+                vp.Prepare();
+            }
+            else
+            {
+                if (briefingVideoDisplay != null) briefingVideoDisplay.color = Color.clear;
+            }
         }
 
         private void OnBriefingVideoError(VideoPlayer vp, string msg)

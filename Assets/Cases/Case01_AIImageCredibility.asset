@@ -20,6 +20,7 @@ MonoBehaviour:
   MainMusic: {fileID: 8300000, guid: dc987ed1832a54bb59c66d5aff5d76cb, type: 3}
   BriefingVideo: {fileID: 32900000, guid: 12857437f439a47bbb0dfadc1f694faa, type: 3}
   BriefingVideoFile: 1) Intro Video.mp4
+  BriefingLoopVideoFile: MissionBriefing.mp4
   BriefingText: "A photo of a protest has gone viral. Thousands of people are sharing
     it\u2014but something feels off.\n\nYou're the Lead Detective. Your mission:
     investigate this image and decide whether it's trustworthy before it spreads

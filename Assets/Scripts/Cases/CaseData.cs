@@ -22,6 +22,7 @@ namespace ETEC510.Cases
         [Header("Mission Briefing")]
         public VideoClip BriefingVideo;      // Editor / Standalone only
         public string    BriefingVideoFile;  // filename in StreamingAssets/Video/ — used on WebGL
+        public string    BriefingLoopVideoFile; // loops after BriefingVideo finishes
         [TextArea(3, 12)]
         public string BriefingText;
         public Sprite BriefingImage;
