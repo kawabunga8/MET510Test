@@ -109,6 +109,7 @@ namespace ETEC510.UI
         public Button      badge2AnalyticsBoardButton;
         public Button      badge2CommentFeedButton;
         public Button      badge2ContinueButton;
+        public Button      badge2ViralImageButton;         // invisible overlay → viral image popup
 
         // ── Badge 2 Tool Panels ───────────────────────────────────────────────
         [Header("Badge 2 Tool Panels")]
@@ -696,7 +697,7 @@ namespace ETEC510.UI
             // ── Click sounds on every button ──────────────────────────────────
             AddClick(soundOnButton); AddClick(soundOffButton);
             AddClick(badge2IntroSkipButton); AddClick(badge2IntroProceedButton); AddClick(badge2IntroBackButton);
-            AddClick(badge2RepeatButton); AddClick(badge2AnalyticsBoardButton); AddClick(badge2CommentFeedButton); AddClick(badge2ContinueButton);
+            AddClick(badge2RepeatButton); AddClick(badge2AnalyticsBoardButton); AddClick(badge2CommentFeedButton); AddClick(badge2ContinueButton); AddClick(badge2ViralImageButton);
             AddClick(badge2AnalyticsBackButton); AddClick(badge2CommentFeedBackButton);
             AddClick(badge1RepeatButton); AddClick(badge1AnalyzeAccountButton);
             AddClick(badge1EvaluateCommentsButton); AddClick(badge1ExtractMetaDataButton);
@@ -1002,7 +1003,6 @@ namespace ETEC510.UI
         private void ShowBadge1Panel()
         {
             Debug.Log($"[CaseRunner] ShowBadge1Panel called. badge1Panel={badge1Panel?.name ?? "NULL"}\n{System.Environment.StackTrace}");
-            StartMainMusic();
             if (badge1Panel != null)
                 ShowPanel(badge1Panel);
             else
@@ -1036,18 +1036,23 @@ namespace ETEC510.UI
                 badge2RepeatButton = badge2Panel.transform.Find("Badge2RepeatButton")?.GetComponent<Button>();
             if (badge2ContinueButton == null)
                 badge2ContinueButton = badge2Panel.transform.Find("Badge2ContinueButton")?.GetComponent<Button>();
+            if (badge2ViralImageButton == null)
+                badge2ViralImageButton = badge2Panel.transform.Find("Badge2ViralImageButton")?.GetComponent<Button>();
 
             // Wire each button using remove+add to avoid duplicates
             WireOnce(badge2AnalyticsBoardButton, ShowBadge2AnalyticsPanel);
             WireOnce(badge2CommentFeedButton,    ShowBadge2CommentFeedPanel);
             WireOnce(badge2RepeatButton,         PlayBadge2IntroVideo);
             WireOnce(badge2ContinueButton,       OnBadge2Continue);
+            if (badge2ViralImageButton != null)
+                WireOnce(badge2ViralImageButton, () => ShowImagePopup(viralImageSprite, badge2Panel));
             if (!_badge2PanelButtonsWired)
             {
                 AddHoverText(badge2AnalyticsBoardButton, "Analytics Board",        badge2IncomingMessageText);
                 AddHoverText(badge2CommentFeedButton,    "Comments Feed",           badge2IncomingMessageText);
                 AddHoverText(badge2RepeatButton,         "Replay Video",            badge2IncomingMessageText);
                 AddHoverText(badge2ContinueButton,       "Dispositional Badge Award", badge2IncomingMessageText);
+                AddHoverText(badge2ViralImageButton,     "View Viral Image",        badge2IncomingMessageText);
                 _badge2PanelButtonsWired = true;
             }
 
@@ -1503,6 +1508,10 @@ namespace ETEC510.UI
             if (digit1Text) digit1Text.text = _session.SpotTheClueCompleted   ? caseData.SpotTheClue.CodeDigit   : "?";
             if (digit2Text) digit2Text.text = _session.GutCheckCompleted       ? caseData.GutCheck.CodeDigit       : "?";
             if (digit3Text) digit3Text.text = _session.FindTheMotiveCompleted  ? caseData.FindTheMotive.CodeDigit  : "?";
+
+            SetButtonLabelVisible(spotTheClueButton,  !_session.SpotTheClueCompleted);
+            SetButtonLabelVisible(gutCheckButton,     !_session.GutCheckCompleted);
+            SetButtonLabelVisible(findTheMotiveButton,!_session.FindTheMotiveCompleted);
 
             if (boardWarningText) boardWarningText.gameObject.SetActive(false);
 
@@ -2337,6 +2346,13 @@ namespace ETEC510.UI
             if (btn == null) return;
             btn.onClick.RemoveListener(action);
             btn.onClick.AddListener(action);
+        }
+
+        private void SetButtonLabelVisible(Button btn, bool visible)
+        {
+            if (btn == null) return;
+            var labelT = btn.transform.Find("Label");
+            if (labelT != null) labelT.gameObject.SetActive(visible);
         }
 
         private void AddHoverText(Button btn, string message)

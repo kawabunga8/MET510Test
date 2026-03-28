@@ -198,8 +198,8 @@ namespace ETEC510.Editor
             brt.anchorMin = Vector2.zero; brt.anchorMax = Vector2.one;
             brt.offsetMin = new Vector2(3, 3); brt.offsetMax = new Vector2(-3, -3);
             var bgFillImg = bgFillT.GetComponent<Image>() ?? bgFillT.gameObject.AddComponent<Image>();
-            if (rounded != null) { bgFillImg.sprite = rounded; bgFillImg.type = Image.Type.Sliced; bgFillImg.pixelsPerUnitMultiplier = 0.3f; }
-            bgFillImg.color         = new Color(bg.r, bg.g, bg.b, 0.9f);
+            if (rounded != null) { bgFillImg.sprite = rounded; bgFillImg.type = Image.Type.Sliced; bgFillImg.pixelsPerUnitMultiplier = 0.1f; }
+            bgFillImg.color         = new Color(bg.r, bg.g, bg.b, 0.6f);
             bgFillImg.raycastTarget = false;
 
             // ── Shine — white sheen on upper half (simulates surface catch-light) ─
@@ -215,8 +215,8 @@ namespace ETEC510.Editor
             srt.anchorMin = new Vector2(0.04f, 0.52f); srt.anchorMax = new Vector2(0.96f, 0.90f);
             srt.offsetMin = Vector2.zero; srt.offsetMax = Vector2.zero;
             var shineImg = shineT.GetComponent<Image>() ?? shineT.gameObject.AddComponent<Image>();
-            if (rounded != null) { shineImg.sprite = rounded; shineImg.type = Image.Type.Sliced; shineImg.pixelsPerUnitMultiplier = 0.2f; }
-            shineImg.color         = new Color(1f, 1f, 1f, 0.8f);
+            if (rounded != null) { shineImg.sprite = rounded; shineImg.type = Image.Type.Sliced; shineImg.pixelsPerUnitMultiplier = 0.1f; }
+            shineImg.color         = new Color(1f, 1f, 1f, 0.07f);
             shineImg.raycastTarget = false;
 
             // ── Drop shadow ───────────────────────────────────────────────────

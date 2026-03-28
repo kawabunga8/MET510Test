@@ -119,6 +119,11 @@ namespace ETEC510.Editor
                 new Vector2(0.02f, 0.02f), new Vector2(0.27f, 0.18f));
             DetectiveStyleGuide.ApplySavedRect((RectTransform)commentGO.transform, "CommentFeedButton", saved);
 
+            // Viral Image — invisible overlay over the viral image in the scene
+            var viralGO = NewInvisibleButton("Badge2ViralImageButton", panelRT,
+                new Vector2(0.02f, 0.20f), new Vector2(0.55f, 0.54f));
+            DetectiveStyleGuide.ApplySavedRect((RectTransform)viralGO.transform, "Badge2ViralImageButton", saved);
+
             // ── Sibling order — just after CriticalDecisionPointPanel ──────────
             var critPanel = canvasGO.transform.Find("CriticalDecisionPointPanel");
             int targetIndex = critPanel != null
@@ -135,6 +140,7 @@ namespace ETEC510.Editor
             so.FindProperty("badge2ContinueButton").objectReferenceValue     = contGO.GetComponent<Button>();
             so.FindProperty("badge2AnalyticsBoardButton").objectReferenceValue = analyticsGO.GetComponent<Button>();
             so.FindProperty("badge2CommentFeedButton").objectReferenceValue  = commentGO.GetComponent<Button>();
+            so.FindProperty("badge2ViralImageButton").objectReferenceValue   = viralGO.GetComponent<Button>();
             so.ApplyModifiedProperties();
 
             EditorUtility.SetDirty(runner);

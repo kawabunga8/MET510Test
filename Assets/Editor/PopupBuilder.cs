@@ -249,6 +249,7 @@ namespace ETEC510.Editor
                 pcGO.transform.SetParent(ct, false);
                 hostT = pcGO.transform;
             }
+            hostT.gameObject.SetActive(true); // must be active so Awake() fires and sets Instance
             var ctrl = hostT.GetComponent<ETEC510.UI.PopupController>()
                     ?? hostT.gameObject.AddComponent<ETEC510.UI.PopupController>();
 

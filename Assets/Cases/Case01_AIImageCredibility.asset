@@ -17,6 +17,11 @@ MonoBehaviour:
   IntroVideo: {fileID: 32900000, guid: 858d9dff77ce34244939d39bc8a48f9a, type: 3}
   IntroVideoFile: StartUpVideoNoAudio.mp4
   IntroMusic: {fileID: 8300000, guid: 318c0d06c94384739b0d58a2ab1ab4a2, type: 3}
+  NarrationVideoFiles:
+  - 1) Intro Video.mp4
+  - 2) Badge 1 Intro.mp4
+  - 6) Pragmatic Decision Point.mp4
+  - 09) Badge 2 Intro.mp4
   MainMusic: {fileID: 8300000, guid: dc987ed1832a54bb59c66d5aff5d76cb, type: 3}
   BriefingVideo: {fileID: 32900000, guid: 12857437f439a47bbb0dfadc1f694faa, type: 3}
   BriefingVideoFile: 1) Intro Video.mp4
@@ -121,27 +126,25 @@ MonoBehaviour:
     Prompt: 'You''ve collected all three clues.
 
 
-      Visual glitch [OK]  |  Gut
-      check [OK]  |  Motive identified [OK]
+      Visual glitch
 
+      Gut
+      check
 
-      Time to deliver your official
-      verdict:
-
-      Is this image REAL or FAKE?'
+      Motive identified'
     EvidenceImage: {fileID: 0}
     Audio: {fileID: 0}
     Options:
-    - "REAL \u2014 I'd share it"
-    - "FAKE \u2014 AI-generated"
+    - REAL
+    - FAKE
     CorrectIndex: 1
     FeedbackCorrect: "Case closed! You correctly identified this as an AI-generated
       image. Your three clues \u2014 the visual artefact, your gut check, and the
       motive \u2014 all pointed to the same conclusion. That's critical thinking
       in action."
-    FeedbackIncorrect: 'Not quite. Review the clues: the distorted hands, the too-perfect
-      lighting, and the clear motive to manipulate all point to AI generation. Head
-      back to the Chief for a hint.'
+    FeedbackIncorrect: 'Not quite. Review the clues: unidentified faces, the lighting,
+      and the clear motive to manipulate all point to AI generation. Head back to
+      the Chief for a hint.'
   HintVideo: {fileID: 32900000, guid: f37b4e5e9877f4ac9a94ab8bfb0f5860, type: 3}
   HintVideoFile: HintFromChief.mp4
   HintsOverlayVideoFile: HintsVideo.mp4

@@ -174,6 +174,8 @@ namespace ETEC510.UI
             if (Instance == null)
                 Instance = FindFirstObjectByType<PopupController>();
             if (Instance == null)
+                Instance = FindFirstObjectByType<PopupController>(FindObjectsInactive.Include);
+            if (Instance == null)
                 Debug.LogWarning("[PopupController] No instance found in scene.");
         }
     }
