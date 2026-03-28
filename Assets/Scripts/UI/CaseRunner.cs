@@ -246,6 +246,12 @@ namespace ETEC510.UI
         public VideoPlayer unlockVideoPlayer;
         public Button      unlockSkipButton;
 
+        [Header("Vault Entry")]
+        public GameObject  vaultEntryPanel;
+        public RawImage    vaultEntryVideoDisplay;
+        public VideoPlayer vaultEntryVideoPlayer;
+        public Button      vaultEntrySkipButton;
+
         // ── Evidence Detail (Verdict) ─────────────────────────────────────────
         [Header("Evidence Detail")]
         public TMP_Text verdictPromptText;
@@ -255,9 +261,11 @@ namespace ETEC510.UI
 
         // ── Hints from Chief ──────────────────────────────────────────────────
         [Header("Hints from Chief")]
-        public RawImage    hintVideoDisplay;
-        public VideoPlayer hintVideoPlayer;
-        public GameObject  hintOverlay;        // shown only after video ends
+        public RawImage    hintVideoDisplay;           // RawImage on the main panel (HintFromChief.mp4)
+        public VideoPlayer hintVideoPlayer;            // VideoPlayer on HintsFromChiefPanel (HintFromChief.mp4)
+        public RawImage    hintsOverlayVideoDisplay;   // RawImage inside HintOverlay (HintsVideo.mp4)
+        public VideoPlayer hintsOverlayVideoPlayer;    // VideoPlayer inside HintOverlay (HintsVideo.mp4)
+        public GameObject  hintOverlay;
         public TMP_Text hintBodyText;
         public Image    hintImage;
         public Button   hintTryAgainButton;    // returns to Evidence Detail (verdict)
@@ -439,6 +447,11 @@ namespace ETEC510.UI
                 hintVideoPlayer.targetTexture.Release();
                 Destroy(hintVideoPlayer.targetTexture);
             }
+            if (hintsOverlayVideoPlayer != null && hintsOverlayVideoPlayer.targetTexture != null)
+            {
+                hintsOverlayVideoPlayer.targetTexture.Release();
+                Destroy(hintsOverlayVideoPlayer.targetTexture);
+            }
         }
 
         private void OnIntroVideoFinished(VideoPlayer vp)
@@ -457,6 +470,12 @@ namespace ETEC510.UI
             }
             if (introAudioSource != null) StartCoroutine(FadeOutAudio(introAudioSource, 0.8f));
             SetIntroButtonsVisible(enterOnly: true);
+        }
+
+        private System.Collections.IEnumerator ShowAfterDelay(GameObject go, float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            if (go != null) go.SetActive(true);
         }
 
         private System.Collections.IEnumerator FadeOutAudio(AudioSource source, float duration)
@@ -592,8 +611,8 @@ namespace ETEC510.UI
             // Evidence Board
             if (evidenceBoardBackButton)   evidenceBoardBackButton.onClick.AddListener(ShowBadge1Panel);
             if (evidenceBoardBadge2Button) evidenceBoardBadge2Button.onClick.AddListener(ShowBadge2Panel);
-            if (spotTheClueButton)   spotTheClueButton.onClick.AddListener(ShowSpotTheClue);
-            if (gutCheckButton)      gutCheckButton.onClick.AddListener(ShowGutCheck);
+            if (spotTheClueButton)   spotTheClueButton.onClick.AddListener(OnSpotTheClueButton);
+            if (gutCheckButton)      gutCheckButton.onClick.AddListener(OnGutCheckButton);
             if (findTheMotiveButton) findTheMotiveButton.onClick.AddListener(ShowFindTheMotive);
             if (enterPasswordButton) enterPasswordButton.onClick.AddListener(OnEnterPasswordPressed);
 
@@ -622,8 +641,8 @@ namespace ETEC510.UI
                 () => ShowPanel(metaDataPanel));
 
             // Tool Sub-Panels
-            if (accountProfileBackButton)  accountProfileBackButton.onClick.AddListener(ShowSpotTheClue);
-            if (commentsSectionBackButton) commentsSectionBackButton.onClick.AddListener(ShowGutCheck);
+            if (accountProfileBackButton)  accountProfileBackButton.onClick.AddListener(ShowEvidenceBoard);
+            if (commentsSectionBackButton) commentsSectionBackButton.onClick.AddListener(ShowEvidenceBoard);
             if (metaDataBackButton)        metaDataBackButton.onClick.AddListener(ShowFindTheMotive);
 
             // Critical Decision Try Again
@@ -660,6 +679,7 @@ namespace ETEC510.UI
             if (passwordSubmitButton) passwordSubmitButton.onClick.AddListener(OnPasswordSubmit);
             if (passwordBackButton)   passwordBackButton.onClick.AddListener(ShowEvidenceBoard);
             if (unlockSkipButton)     unlockSkipButton.onClick.AddListener(SkipUnlockVideo);
+            if (vaultEntrySkipButton) vaultEntrySkipButton.onClick.AddListener(SkipVaultEntryVideo);
             if (passwordInputField)   passwordInputField.onValueChanged.AddListener(_ => PlayClick());
 
             // Evidence Detail
@@ -727,7 +747,7 @@ namespace ETEC510.UI
                 badge2AnalyticsPanel, badge2CommentFeedPanel,
                 analyzeAccountPanel, evaluateCommentsPanel, extractMetaDataPanel,
                 spotTheCluePanel, gutCheckPanel, findTheMotivePanel,
-                passwordLockPanel, unlockPanel, evidenceDetailPanel,
+                passwordLockPanel, unlockPanel, vaultEntryPanel, evidenceDetailPanel,
                 hintsFromChiefPanel, levelCompletePanel,
                 accountProfilePanel, commentsSectionPanel, metaDataPanel,
                 badgeAchievedPanel,
@@ -748,10 +768,10 @@ namespace ETEC510.UI
 
         public void ShowMissionBriefing()
         {
+            ShowBriefingContent();   // populate and show everything immediately
             if (introAudioSource != null) introAudioSource.Stop();
 
             ShowPanel(missionBriefingPanel);
-            SetBriefingContentVisible(false);
             PlayBriefingVideo();
         }
 
@@ -762,9 +782,9 @@ namespace ETEC510.UI
             if (briefingImage)       briefingImage.gameObject.SetActive(visible);
             if (briefingStartButton) briefingStartButton.gameObject.SetActive(visible);
             if (briefingRepeatButton) briefingRepeatButton.gameObject.SetActive(visible);
-            // Video overlay visible when content is hidden
-            if (briefingVideoDisplay) { briefingVideoDisplay.color = visible ? Color.clear : Color.white; briefingVideoDisplay.raycastTarget = !visible; }
-            if (briefingSkipButton)   briefingSkipButton.gameObject.SetActive(!visible);
+            // Video loops behind content — always visible, never blocks input
+            if (briefingVideoDisplay) { briefingVideoDisplay.color = Color.white; briefingVideoDisplay.raycastTarget = false; }
+            if (briefingSkipButton)   briefingSkipButton.gameObject.SetActive(false);
         }
 
         private void SkipBriefingVideo()
@@ -808,17 +828,14 @@ namespace ETEC510.UI
             briefingVideoPlayer.loopPointReached -= OnBriefingVideoFinished;
             briefingVideoPlayer.prepareCompleted -= OnBriefingVideoPrepared;
 
-            briefingVideoPlayer.isLooping       = false;
-            briefingVideoPlayer.audioOutputMode = VideoAudioOutputMode.Direct; // play video audio
+            briefingVideoPlayer.isLooping       = true;
+            briefingVideoPlayer.audioOutputMode = VideoAudioOutputMode.Direct;
             briefingVideoPlayer.errorReceived    += OnBriefingVideoError;
-            briefingVideoPlayer.loopPointReached += OnBriefingVideoFinished;
             briefingVideoPlayer.prepareCompleted += OnBriefingVideoPrepared;
 
             if (url != null) { briefingVideoPlayer.source = VideoSource.Url; briefingVideoPlayer.url = url; }
             else             { briefingVideoPlayer.source = VideoSource.VideoClip; briefingVideoPlayer.clip = caseData.BriefingVideo; }
 
-            if (AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
-                StartCoroutine(DuckAudio(mainAudioSource, 0.15f, 0.5f));
             briefingVideoPlayer.Prepare();
         }
 
@@ -1217,9 +1234,13 @@ namespace ETEC510.UI
 
             ShowPanel(critDecAwardPanel);
 
-            // Video state: skip and back both visible
+            // Skip visible immediately; back appears after 1 s
             if (critDecAwardSkipButton != null) critDecAwardSkipButton.gameObject.SetActive(true);
-            if (critDecAwardBackButton != null) critDecAwardBackButton.gameObject.SetActive(true);
+            if (critDecAwardBackButton != null)
+            {
+                critDecAwardBackButton.gameObject.SetActive(false);
+                StartCoroutine(ShowAfterDelay(critDecAwardBackButton.gameObject, 1f));
+            }
 
             if (critDecAwardVideoDisplay != null)
             {
@@ -1531,6 +1552,20 @@ namespace ETEC510.UI
             StartMainMusic();
         }
 
+        private void OnSpotTheClueButton()
+        {
+            if (!_session.SpotTheClueCompleted)
+                _session.CompleteSpotTheClue();
+            ShowBadgeAchieved(caseData.SpotTheClueBadgeVideoFile, ShowEvidenceBoard);
+        }
+
+        private void OnGutCheckButton()
+        {
+            if (!_session.GutCheckCompleted)
+                _session.CompleteGutCheck();
+            ShowBadgeAchieved(caseData.GutCheckBadgeVideoFile, ShowEvidenceBoard);
+        }
+
         private void ShowSpotTheClue()
         {
             ShowPanel(spotTheCluePanel);
@@ -1803,8 +1838,13 @@ namespace ETEC510.UI
 
             ShowPanel(dispositionalAwardPanel);
 
+            // Skip visible immediately; back appears after 1 s
             if (dispositionalAwardSkipButton != null) dispositionalAwardSkipButton.gameObject.SetActive(true);
-            if (dispositionalAwardBackButton != null) dispositionalAwardBackButton.gameObject.SetActive(true);
+            if (dispositionalAwardBackButton != null)
+            {
+                dispositionalAwardBackButton.gameObject.SetActive(false);
+                StartCoroutine(ShowAfterDelay(dispositionalAwardBackButton.gameObject, 1f));
+            }
 
             if (dispositionalAwardVideoDisplay != null)
             {
@@ -1980,68 +2020,126 @@ namespace ETEC510.UI
             if (hintBodyText) hintBodyText.text = caseData.HintText;
             if (hintImage && caseData.HintImage) hintImage.sprite = caseData.HintImage;
 
-            // Auto-discover overlay if Inspector field was never wired
             if (hintOverlay == null && hintsFromChiefPanel != null)
             {
                 var t = hintsFromChiefPanel.transform.Find("HintOverlay");
                 if (t != null) hintOverlay = t.gameObject;
             }
 
-            if (mainAudioSource != null && mainAudioSource.isPlaying)
-                StartCoroutine(FadeOutAudio(mainAudioSource, 1.2f));
-
-            SetHintContentVisible(false);
+            StartMainMusic();
             ShowPanel(hintsFromChiefPanel);
-            PlayHintVideo();
+
+            // Both videos start simultaneously.
+            // Overlay video controls when the Return button appears.
+            SetHintContentVisible(false);
+            PlayHintPanelVideo();
+            PlayHintsOverlayVideo();
         }
 
-        // Shows or hides hint content. Uses the overlay GO when available;
-        // falls back to controlling hintBodyText + hintTryAgainButton directly.
+        // ── Panel video (HintFromChief.mp4) ──────────────────────────────────
+
+        private void PlayHintPanelVideo()
+        {
+            if (hintVideoDisplay != null) { hintVideoDisplay.color = Color.clear; hintVideoDisplay.texture = null; }
+            if (hintVideoPlayer == null) return;
+
+            var url = BuildVideoUrl(caseData.HintVideoFile);
+            bool hasSource = url != null || (!IsWebGL && caseData.HintVideo != null);
+            if (!hasSource) return;
+
+            hintVideoPlayer.isLooping        = false;
+            hintVideoPlayer.errorReceived    += OnHintPanelVideoError;
+            hintVideoPlayer.prepareCompleted += OnHintPanelVideoPrepared;
+
+            if (url != null) { hintVideoPlayer.source = VideoSource.Url; hintVideoPlayer.url = url; }
+            else             { hintVideoPlayer.source = VideoSource.VideoClip; hintVideoPlayer.clip = caseData.HintVideo; }
+            hintVideoPlayer.Prepare();
+        }
+
+        private void OnHintPanelVideoPrepared(VideoPlayer vp)
+        {
+            vp.prepareCompleted -= OnHintPanelVideoPrepared;
+            var rt = new RenderTexture((int)vp.width, (int)vp.height, 0, RenderTextureFormat.ARGB32);
+            rt.Create();
+            vp.targetTexture = rt;
+            if (hintVideoDisplay != null) { hintVideoDisplay.texture = rt; hintVideoDisplay.color = Color.white; }
+            vp.Play();
+        }
+
+        private void OnHintPanelVideoError(VideoPlayer vp, string msg)
+        {
+            Debug.LogError($"[CaseRunner] Hint panel video error: {msg}");
+            vp.errorReceived -= OnHintPanelVideoError;
+        }
+
+        // ── Overlay video (HintsVideo.mp4) ───────────────────────────────────
+
+        private void PlayHintsOverlayVideo()
+        {
+            if (hintsOverlayVideoDisplay != null) { hintsOverlayVideoDisplay.color = Color.clear; hintsOverlayVideoDisplay.texture = null; }
+
+            if (hintsOverlayVideoPlayer == null) { SetHintContentVisible(true); return; }
+
+            var url = BuildVideoUrl(caseData.HintsOverlayVideoFile);
+            if (url == null) { SetHintContentVisible(true); return; }
+
+            hintsOverlayVideoPlayer.isLooping        = false;
+            hintsOverlayVideoPlayer.errorReceived    += OnHintsOverlayVideoError;
+            hintsOverlayVideoPlayer.loopPointReached += OnHintsOverlayVideoFinished;
+            hintsOverlayVideoPlayer.prepareCompleted += OnHintsOverlayVideoPrepared;
+            hintsOverlayVideoPlayer.source = VideoSource.Url;
+            hintsOverlayVideoPlayer.url    = url;
+            hintsOverlayVideoPlayer.Prepare();
+        }
+
+        private void OnHintsOverlayVideoPrepared(VideoPlayer vp)
+        {
+            vp.prepareCompleted -= OnHintsOverlayVideoPrepared;
+            var rt = new RenderTexture((int)vp.width, (int)vp.height, 0, RenderTextureFormat.ARGB32);
+            rt.Create();
+            vp.targetTexture = rt;
+            if (hintsOverlayVideoDisplay != null) { hintsOverlayVideoDisplay.texture = rt; hintsOverlayVideoDisplay.color = Color.white; }
+            vp.Play();
+        }
+
+        private void OnHintsOverlayVideoFinished(VideoPlayer vp)
+        {
+            vp.loopPointReached -= OnHintsOverlayVideoFinished;
+            SetHintContentVisible(true);
+        }
+
+        private void OnHintsOverlayVideoError(VideoPlayer vp, string msg)
+        {
+            Debug.LogError($"[CaseRunner] Hints overlay video error: {msg}");
+            vp.errorReceived -= OnHintsOverlayVideoError;
+            SetHintContentVisible(true);
+        }
+
+        // ── Overlay content visibility ────────────────────────────────────────
+
+        // visible=false: show overlay video display, hide buttons/text
+        // visible=true:  hide overlay video display, show buttons/text
         private void SetHintContentVisible(bool visible)
         {
             if (hintOverlay != null)
             {
-                hintOverlay.SetActive(visible);
+                if (!hintOverlay.activeSelf) hintOverlay.SetActive(true);
+                for (int i = 0; i < hintOverlay.transform.childCount; i++)
+                {
+                    var child = hintOverlay.transform.GetChild(i);
+                    if (child.name == "HintVideoDisplay")
+                        child.gameObject.SetActive(!visible);
+                    else if (child.name == "HintsVideo")
+                        child.gameObject.SetActive(true); // VideoPlayer GO must never be disabled
+                    else
+                        child.gameObject.SetActive(visible);
+                }
             }
             else
             {
-                if (hintBodyText)      hintBodyText.gameObject.SetActive(visible);
+                if (hintBodyText)       hintBodyText.gameObject.SetActive(visible);
                 if (hintTryAgainButton) hintTryAgainButton.gameObject.SetActive(visible);
             }
-        }
-
-        private void PlayHintVideo()
-        {
-            if (hintVideoPlayer == null)
-            {
-                SetHintContentVisible(true);
-                return;
-            }
-
-            var url = BuildVideoUrl(caseData.HintVideoFile);
-            bool hasSource = url != null || (!IsWebGL && caseData.HintVideo != null);
-            if (!hasSource)
-            {
-                SetHintContentVisible(true);
-                return;
-            }
-
-            hintVideoPlayer.isLooping        = false;
-            hintVideoPlayer.errorReceived    += OnHintVideoError;
-            hintVideoPlayer.loopPointReached += OnHintVideoFinished;
-            hintVideoPlayer.prepareCompleted += OnHintVideoPrepared;
-
-            if (url != null)
-            {
-                hintVideoPlayer.source = VideoSource.Url;
-                hintVideoPlayer.url    = url;
-            }
-            else
-            {
-                hintVideoPlayer.source = VideoSource.VideoClip;
-                hintVideoPlayer.clip   = caseData.HintVideo;
-            }
-            hintVideoPlayer.Prepare();
         }
 
         // Returns a StreamingAssets URL for the given filename, or null if not provided.
@@ -2056,30 +2154,6 @@ namespace ETEC510.UI
         // On WebGL VideoClip assets cannot be used — URL is required.
         private static bool IsWebGL =>
             Application.platform == RuntimePlatform.WebGLPlayer;
-
-        private void OnHintVideoPrepared(VideoPlayer vp)
-        {
-            vp.prepareCompleted -= OnHintVideoPrepared;
-            var rt = new RenderTexture((int)vp.width, (int)vp.height, 0, RenderTextureFormat.ARGB32);
-            rt.Create();
-            vp.targetTexture = rt;
-            if (hintVideoDisplay != null)
-                hintVideoDisplay.texture = rt;
-            vp.Play();
-        }
-
-        private void OnHintVideoFinished(VideoPlayer vp)
-        {
-            vp.loopPointReached -= OnHintVideoFinished;
-            SetHintContentVisible(true);
-        }
-
-        private void OnHintVideoError(VideoPlayer vp, string msg)
-        {
-            Debug.LogError($"[CaseRunner] Hint video error: {msg}");
-            vp.errorReceived -= OnHintVideoError;
-            SetHintContentVisible(true);
-        }
 
         private void ShowLevelComplete()
         {
@@ -2241,11 +2315,89 @@ namespace ETEC510.UI
         {
             var input = passwordInputField != null ? passwordInputField.text : "";
             if (_session.ValidatePassword(input))
-                PlayUnlockVideo();
+                PlayVaultEntryVideo();
             else
                 PopupController.Show("Wrong Code",
                     "That code is incorrect.\nReview your evidence clues and try again.",
                     "Try Again");
+        }
+
+        // ── Vault Entry Video ─────────────────────────────────────────────────
+
+        private void PlayVaultEntryVideo()
+        {
+            var url = BuildVideoUrl(caseData.VaultEntryVideoFile);
+            if (vaultEntryPanel == null || vaultEntryVideoPlayer == null || url == null)
+            {
+                PlayUnlockVideo(); return; // fallback to old unlock panel
+            }
+
+            ShowPanel(vaultEntryPanel);
+
+            if (vaultEntryVideoDisplay != null)
+            {
+                vaultEntryVideoDisplay.gameObject.SetActive(true);
+                vaultEntryVideoDisplay.color        = Color.clear;
+                vaultEntryVideoDisplay.raycastTarget = false;
+            }
+            if (vaultEntrySkipButton != null)
+            {
+                vaultEntrySkipButton.gameObject.SetActive(false);
+                StartCoroutine(ShowAfterDelay(vaultEntrySkipButton.gameObject, 1f));
+            }
+
+            vaultEntryVideoPlayer.errorReceived    -= OnVaultEntryVideoError;
+            vaultEntryVideoPlayer.loopPointReached -= OnVaultEntryVideoFinished;
+            vaultEntryVideoPlayer.prepareCompleted -= OnVaultEntryVideoPrepared;
+            vaultEntryVideoPlayer.isLooping        = false;
+            vaultEntryVideoPlayer.audioOutputMode  = VideoAudioOutputMode.Direct;
+            vaultEntryVideoPlayer.errorReceived    += OnVaultEntryVideoError;
+            vaultEntryVideoPlayer.loopPointReached += OnVaultEntryVideoFinished;
+            vaultEntryVideoPlayer.prepareCompleted += OnVaultEntryVideoPrepared;
+            vaultEntryVideoPlayer.source = VideoSource.Url;
+            vaultEntryVideoPlayer.url    = url;
+
+            if (AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
+                StartCoroutine(DuckAudio(mainAudioSource, 0.15f, 0.5f));
+            vaultEntryVideoPlayer.Prepare();
+        }
+
+        private void SkipVaultEntryVideo()
+        {
+            if (vaultEntryVideoPlayer != null)
+            {
+                vaultEntryVideoPlayer.loopPointReached -= OnVaultEntryVideoFinished;
+                vaultEntryVideoPlayer.Stop();
+            }
+            if (vaultEntryVideoDisplay != null) vaultEntryVideoDisplay.color = Color.clear;
+            if (AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
+                StartCoroutine(UnduckAudio(mainAudioSource, 1f, 0.5f));
+            ShowEvidenceDetail();
+        }
+
+        private void OnVaultEntryVideoPrepared(VideoPlayer vp)
+        {
+            vp.prepareCompleted -= OnVaultEntryVideoPrepared;
+            var rt = new RenderTexture((int)vp.width, (int)vp.height, 0, RenderTextureFormat.ARGB32);
+            rt.Create();
+            vp.targetTexture = rt;
+            if (vaultEntryVideoDisplay != null) { vaultEntryVideoDisplay.texture = rt; vaultEntryVideoDisplay.color = Color.white; }
+            vp.Play();
+        }
+
+        private void OnVaultEntryVideoFinished(VideoPlayer vp)
+        {
+            vp.loopPointReached -= OnVaultEntryVideoFinished;
+            if (AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
+                StartCoroutine(UnduckAudio(mainAudioSource, 1f, 0.5f));
+            ShowEvidenceDetail();
+        }
+
+        private void OnVaultEntryVideoError(VideoPlayer vp, string msg)
+        {
+            Debug.LogError($"[CaseRunner] VaultEntry video error: {msg}");
+            vp.errorReceived -= OnVaultEntryVideoError;
+            ShowEvidenceDetail();
         }
 
         private void SkipUnlockVideo()

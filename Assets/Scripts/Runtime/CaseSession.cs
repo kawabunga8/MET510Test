@@ -35,6 +35,8 @@ namespace ETEC510.Runtime
         // Called when player clicks "I found it!" on the Spot the Clue screen
         public void CompleteSpotTheClue() => SpotTheClueCompleted = true;
 
+        public void CompleteGutCheck() => GutCheckCompleted = true;
+
         // Called when player selects an answer on Gut Check
         public (bool isCorrect, string feedback) AnswerGutCheck(int selectedIndex)
         {

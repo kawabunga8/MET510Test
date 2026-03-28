@@ -34,7 +34,7 @@ MonoBehaviour:
   EvidenceBoardIntroVideoFile: 
   SpotTheClueVideo: {fileID: 0}
   SpotTheClueVideoFile: 
-  SpotTheClueBadgeVideoFile: 
+  SpotTheClueBadgeVideoFile: 'BadgeCodeReveal-Pragmatic.mp4  '
   SpotTheClue:
     Prompt: 'LOOK CLOSELY at the image.
 
@@ -56,7 +56,7 @@ MonoBehaviour:
     FeedbackIncorrect: Look more carefully. Bright colours can appear in real photos
       too. Focus on the lights. Something isn't right there.
     CodeDigit: 5
-  GutCheckBadgeVideoFile: 
+  GutCheckBadgeVideoFile: BadgeCodeReveal-Dispositional.mp4
   DispositionalAwardVideoFile: 12) Badge 2 Award.mp4
   GutCheck:
     Prompt: 'Before sharing this image, what is your GUT REACTION?
@@ -115,6 +115,7 @@ MonoBehaviour:
   Password: 510
   UnlockVideo: {fileID: 32900000, guid: 7ec4e8a9379e74a9789d14ade3ff12b7, type: 3}
   UnlockVideoFile: 6) Pragmatic Decision Point.mp4
+  VaultEntryVideoFile: VaultEntry.mp4
   Verdict:
     Prompt: 'You''ve collected all three clues.
 
@@ -142,6 +143,7 @@ MonoBehaviour:
       back to the Chief for a hint.'
   HintVideo: {fileID: 32900000, guid: f37b4e5e9877f4ac9a94ab8bfb0f5860, type: 3}
   HintVideoFile: HintFromChief.mp4
+  HintsOverlayVideoFile: HintsVideo.mp4
   HintText: "Listen up, Detective.\n\nThree questions to ask ANY suspicious image:\n\n1.
     Can I find this image somewhere credible with a date and source?\n2. Do the physical
     details (hands, shadows, text) look right?\n3. What strong emotion is this image

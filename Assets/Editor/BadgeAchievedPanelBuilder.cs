@@ -38,8 +38,6 @@ namespace ETEC510.Editor
             var existing = canvasGO.transform.Find("BadgeAchievedPanel");
             if (existing != null) Object.DestroyImmediate(existing.gameObject);
 
-            var font = FindFont();
-
             // ── Root panel — full stretch ──────────────────────────────────────
             var panelRT = NewStretch("BadgeAchievedPanel", canvasGO.transform);
             panelRT.gameObject.SetActive(false);
@@ -67,48 +65,19 @@ namespace ETEC510.Editor
             // ── Skip button — bottom-right ─────────────────────────────────────
             var skipGO = NewChild("BadgeSkipButton", panelRT);
             var skipRT = (RectTransform)skipGO.transform;
-            skipRT.anchorMin = new Vector2(0.70f, 0.03f);
-            skipRT.anchorMax = new Vector2(0.97f, 0.10f);
+            skipRT.anchorMin = new Vector2(0.79f, 0.02f);
+            skipRT.anchorMax = new Vector2(0.97f, 0.13f);
             skipRT.offsetMin = Vector2.zero;
             skipRT.offsetMax = Vector2.zero;
             skipGO.AddComponent<Image>();
             skipGO.AddComponent<Button>();
-
             var skipLabel = NewChild("Label", skipGO.transform);
             var skipLabelRT = (RectTransform)skipLabel.transform;
             skipLabelRT.anchorMin = Vector2.zero; skipLabelRT.anchorMax = Vector2.one;
             skipLabelRT.offsetMin = Vector2.zero; skipLabelRT.offsetMax = Vector2.zero;
-            var skipTMP = skipLabel.AddComponent<TextMeshProUGUI>();
-            skipTMP.text      = "Skip";
-            skipTMP.alignment = TextAlignmentOptions.Center;
-            skipTMP.fontSize  = 28f;
-            skipTMP.fontStyle = FontStyles.Bold;
-            if (font != null) skipTMP.font = font;
+            skipLabel.AddComponent<TextMeshProUGUI>().text = "Skip";
+            DetectiveStyleGuide.StyleButton(skipGO, DetectiveStyleGuide.ButtonRole.Primary);
 
-            DetectiveStyleGuide.StyleButton(skipGO, DetectiveStyleGuide.ButtonRole.Nav);
-
-            // ── Back button — bottom-left ──────────────────────────────────────
-            var backGO = NewChild("BadgeBackButton", panelRT);
-            var backRT = (RectTransform)backGO.transform;
-            backRT.anchorMin = new Vector2(0.03f, 0.03f);
-            backRT.anchorMax = new Vector2(0.30f, 0.10f);
-            backRT.offsetMin = Vector2.zero;
-            backRT.offsetMax = Vector2.zero;
-            backGO.AddComponent<Image>();
-            backGO.AddComponent<Button>();
-
-            var backLabel = NewChild("Label", backGO.transform);
-            var backLabelRT = (RectTransform)backLabel.transform;
-            backLabelRT.anchorMin = Vector2.zero; backLabelRT.anchorMax = Vector2.one;
-            backLabelRT.offsetMin = Vector2.zero; backLabelRT.offsetMax = Vector2.zero;
-            var backTMP = backLabel.AddComponent<TextMeshProUGUI>();
-            backTMP.text      = "Back";
-            backTMP.alignment = TextAlignmentOptions.Center;
-            backTMP.fontSize  = 28f;
-            backTMP.fontStyle = FontStyles.Bold;
-            if (font != null) backTMP.font = font;
-
-            DetectiveStyleGuide.StyleButton(backGO, DetectiveStyleGuide.ButtonRole.Nav);
 
             // ── Position just below ImagePopupPanel (or at top of canvas) ─────
             var imagePopup = canvasGO.transform.Find("ImagePopupPanel");
@@ -121,7 +90,6 @@ namespace ETEC510.Editor
             so.FindProperty("badgeAchievedVideoDisplay").objectReferenceValue = rawImg;
             so.FindProperty("badgeAchievedVideoPlayer").objectReferenceValue  = vp;
             so.FindProperty("badgeAchievedSkipButton").objectReferenceValue   = skipGO.GetComponent<Button>();
-            so.FindProperty("badgeAchievedBackButton").objectReferenceValue   = backGO.GetComponent<Button>();
             so.ApplyModifiedProperties();
 
             EditorUtility.SetDirty(runner);

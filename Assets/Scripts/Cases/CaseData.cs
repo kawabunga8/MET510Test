@@ -61,14 +61,16 @@ namespace ETEC510.Cases
 
         [Header("Password Unlocked Video")]
         public VideoClip UnlockVideo;
-        public string    UnlockVideoFile;  // filename in StreamingAssets/Video/
+        public string    UnlockVideoFile;      // filename in StreamingAssets/Video/
+        public string    VaultEntryVideoFile;  // plays after correct password (e.g. VaultEntry.mp4)
 
         [Header("Evidence Detail — Verdict")]
         public VerdictStep Verdict;
 
         [Header("Hints from the Chief")]
-        public VideoClip HintVideo;         // Editor / Standalone only
-        public string    HintVideoFile;     // filename in StreamingAssets/Video/ — used on WebGL
+        public VideoClip HintVideo;              // panel background video — Editor/Standalone only
+        public string    HintVideoFile;          // panel background video — filename in StreamingAssets/Video/
+        public string    HintsOverlayVideoFile;  // overlay video — filename in StreamingAssets/Video/ (e.g. HintsVideo.mp4)
         [TextArea(2, 8)]
         public string HintText;
         public Sprite HintImage;
