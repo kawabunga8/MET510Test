@@ -39,6 +39,7 @@ namespace ETEC510.Editor
 
             // ── Snapshot current button anchors before destroying ──────────────
             var existing = canvasGO.transform.Find("Badge1Panel");
+            var saved = DetectiveStyleGuide.SaveChildRects(existing);
             var ancRepeat   = ReadAnchors(existing, "RepeatVideoButton",      new Vector2(0.02f,0.08f), new Vector2(0.28f,0.19f));
             var ancMsg      = ReadAnchors(existing, "IncomingMessageText",    new Vector2(0.02f,0.22f), new Vector2(0.59f,0.42f));
             var ancCrit     = ReadAnchors(existing, "CriticalDecisionButton", new Vector2(0.27f,0.08f), new Vector2(0.54f,0.19f));
@@ -53,6 +54,7 @@ namespace ETEC510.Editor
 
             // ── Root panel — full stretch ──────────────────────────────────────
             var panelRT = NewStretch("Badge1Panel", canvasGO.transform);
+            DetectiveStyleGuide.ApplySavedRect(panelRT, "", saved);
             panelRT.gameObject.SetActive(false);
 
             // ── Background image — cover fill ──────────────────────────────────
@@ -79,6 +81,7 @@ namespace ETEC510.Editor
             repeatRT.anchorMax = ancRepeat.max;
             repeatRT.offsetMin = Vector2.zero;
             repeatRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(repeatRT, "RepeatVideoButton", saved);
             repeatGO.AddComponent<Image>();
             repeatGO.AddComponent<Button>();
             AddLabel(repeatGO, "Repeat Video", font);
@@ -91,6 +94,7 @@ namespace ETEC510.Editor
             msgRT.anchorMax = ancMsg.max;
             msgRT.offsetMin = Vector2.zero;
             msgRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(msgRT, "IncomingMessageText", saved);
             var msgTMP = msgGO.AddComponent<TextMeshProUGUI>();
             msgTMP.text          = "";
             msgTMP.alignment     = TextAlignmentOptions.TopLeft;
@@ -107,6 +111,7 @@ namespace ETEC510.Editor
             critRT.anchorMax = ancCrit.max;
             critRT.offsetMin = Vector2.zero;
             critRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(critRT, "CriticalDecisionButton", saved);
             critGO.AddComponent<Image>();
             critGO.AddComponent<Button>();
             AddLabel(critGO, "Make Decision", font);
@@ -119,18 +124,22 @@ namespace ETEC510.Editor
             // Analyze Account — top tool button
             var analyzeGO = NewInvisibleButton("AnalyzeAccountButton", panelRT,
                 ancAnalyze.min, ancAnalyze.max);
+            DetectiveStyleGuide.ApplySavedRect((RectTransform)analyzeGO.transform, "AnalyzeAccountButton", saved);
 
             // Evaluate Comments — middle tool button
             var commentsGO = NewInvisibleButton("EvaluateCommentsButton", panelRT,
                 ancComments.min, ancComments.max);
+            DetectiveStyleGuide.ApplySavedRect((RectTransform)commentsGO.transform, "EvaluateCommentsButton", saved);
 
             // Extract Meta Data — bottom tool button
             var metaGO = NewInvisibleButton("ExtractMetaDataButton", panelRT,
                 ancMeta.min, ancMeta.max);
+            DetectiveStyleGuide.ApplySavedRect((RectTransform)metaGO.transform, "ExtractMetaDataButton", saved);
 
             // ── Viral Image button — invisible overlay, top-left corner ──────────
             var viralGO = NewInvisibleButton("ViralImageButton", panelRT,
                 ancViral.min, ancViral.max);
+            DetectiveStyleGuide.ApplySavedRect((RectTransform)viralGO.transform, "ViralImageButton", saved);
 
             // ── Position panel just below MissionStartPanel ────────────────────
             var missionStart = canvasGO.transform.Find("MissionStartPanel");

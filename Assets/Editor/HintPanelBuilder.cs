@@ -57,6 +57,7 @@ namespace ETEC510.Editor
 
             // ── 3. Create semi-opaque overlay (bottom 42 % of panel) ──────────
             var existingOverlay = hintPanel.Find("HintOverlay");
+            var savedOverlay = DetectiveStyleGuide.SaveChildRects(existingOverlay);
             if (existingOverlay != null) Object.DestroyImmediate(existingOverlay.gameObject);
 
             var overlayGO = new GameObject("HintOverlay", typeof(RectTransform));
@@ -67,6 +68,7 @@ namespace ETEC510.Editor
             overlayRT.anchorMax = new Vector2(1f, 0.42f);
             overlayRT.offsetMin = Vector2.zero;
             overlayRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(overlayRT, "", savedOverlay);
 
             var overlayImg = overlayGO.AddComponent<Image>();
             overlayImg.color = new Color(0f, 0f, 0f, 0.72f);
@@ -106,6 +108,7 @@ namespace ETEC510.Editor
             rrt.anchorMax = new Vector2(0.30f, 0.24f);
             rrt.offsetMin = Vector2.zero;
             rrt.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(rrt, "HintReturnButton", savedOverlay);
 
             var returnImg = returnGO.AddComponent<Image>();
             returnImg.color = new Color(0.3f, 0.3f, 0.3f, 1f);

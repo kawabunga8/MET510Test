@@ -31,6 +31,7 @@ namespace ETEC510.Editor
 
             // Remove existing
             var existing = canvasGO.transform.Find("CritDecTryAgainPanel");
+            var saved = DetectiveStyleGuide.SaveChildRects(existing);
             if (existing != null) Object.DestroyImmediate(existing.gameObject);
 
             // ── Root panel — full stretch ──────────────────────────────────────
@@ -41,6 +42,7 @@ namespace ETEC510.Editor
             panelRT.anchorMax = Vector2.one;
             panelRT.offsetMin = Vector2.zero;
             panelRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(panelRT, "", saved);
             panelGO.SetActive(false);
 
             // ── Background image ───────────────────────────────────────────────
@@ -73,6 +75,7 @@ namespace ETEC510.Editor
             retryRT.anchorMax = new Vector2(0.70f, 0.25f);
             retryRT.offsetMin = Vector2.zero;
             retryRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(retryRT, "CritDecTryAgainRetryButton", saved);
 
             var retryImg = retryGO.AddComponent<Image>();
             retryImg.color         = Color.clear;

@@ -60,10 +60,12 @@ namespace ETEC510.Editor
         {
             // Remove existing
             var existing = canvasT.Find(panelName);
+            var saved = DetectiveStyleGuide.SaveChildRects(existing);
             if (existing != null) Object.DestroyImmediate(existing.gameObject);
 
             // Root — full stretch, sits above normal panels (set last sibling below image popup)
             var panel = NewStretch(panelName, canvasT);
+            DetectiveStyleGuide.ApplySavedRect(panel, "", saved);
             panel.gameObject.SetActive(false);
 
             // Background image using same sprite as other panels
@@ -76,6 +78,7 @@ namespace ETEC510.Editor
             var trRT = (RectTransform)topRule.transform;
             trRT.anchorMin = new Vector2(0f, 0.955f); trRT.anchorMax = new Vector2(1f, 0.965f);
             trRT.offsetMin = Vector2.zero; trRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(trRT, "TopRule", saved);
             var trImg = topRule.AddComponent<Image>();
             trImg.color = DetectiveStyleGuide.Gold;
             trImg.raycastTarget = false;
@@ -85,6 +88,7 @@ namespace ETEC510.Editor
             var titleRT = (RectTransform)titleGO.transform;
             titleRT.anchorMin = new Vector2(0.05f, 0.87f); titleRT.anchorMax = new Vector2(0.95f, 0.97f);
             titleRT.offsetMin = Vector2.zero; titleRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(titleRT, "TitleText", saved);
             var titleTMP = titleGO.AddComponent<TextMeshProUGUI>();
             titleTMP.text             = title;
             titleTMP.alignment        = TextAlignmentOptions.Center;
@@ -99,6 +103,7 @@ namespace ETEC510.Editor
             var titlerRT = (RectTransform)titleRule.transform;
             titlerRT.anchorMin = new Vector2(0.05f, 0.855f); titlerRT.anchorMax = new Vector2(0.95f, 0.862f);
             titlerRT.offsetMin = Vector2.zero; titlerRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(titlerRT, "TitleRule", saved);
             var titlerImg = titleRule.AddComponent<Image>();
             titlerImg.color = new Color(DetectiveStyleGuide.Gold.r, DetectiveStyleGuide.Gold.g,
                                         DetectiveStyleGuide.Gold.b, 0.4f);
@@ -109,6 +114,7 @@ namespace ETEC510.Editor
             var contentRT = (RectTransform)contentGO.transform;
             contentRT.anchorMin = new Vector2(0.05f, 0.15f); contentRT.anchorMax = new Vector2(0.95f, 0.84f);
             contentRT.offsetMin = Vector2.zero; contentRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(contentRT, "ContentArea", saved);
             var contentImg = contentGO.AddComponent<Image>();
             contentImg.color         = new Color(0f, 0f, 0f, 0.25f);
             contentImg.sprite        = rounded;
@@ -121,6 +127,7 @@ namespace ETEC510.Editor
             var backRT = (RectTransform)backGO.transform;
             backRT.anchorMin = new Vector2(0.25f, 0.03f); backRT.anchorMax = new Vector2(0.75f, 0.12f);
             backRT.offsetMin = Vector2.zero; backRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(backRT, "BackButton", saved);
             AddLabelledButton(backGO, "Back", font);
             DetectiveStyleGuide.StyleButton(backGO, DetectiveStyleGuide.ButtonRole.Nav);
 

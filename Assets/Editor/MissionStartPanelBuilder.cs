@@ -33,6 +33,7 @@ namespace ETEC510.Editor
 
             // ── Remove old panel if it exists ────────────────────────────────
             var existing = ct.Find("MissionStartPanel");
+            var saved = DetectiveStyleGuide.SaveChildRects(existing);
             if (existing != null)
             {
                 Object.DestroyImmediate(existing.gameObject);
@@ -53,6 +54,7 @@ namespace ETEC510.Editor
             panelRT.anchorMax = Vector2.one;
             panelRT.offsetMin = Vector2.zero;
             panelRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(panelRT, "", saved);
 
             // Dark background image
             var bgImg = panelGO.AddComponent<Image>();
@@ -76,6 +78,7 @@ namespace ETEC510.Editor
             displayRT.anchorMax = Vector2.one;
             displayRT.offsetMin = Vector2.zero;
             displayRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(displayRT, "MissionStartVideoDisplay", saved);
 
             var rawImg = displayGO.AddComponent<RawImage>();
             rawImg.color         = Color.clear;   // hidden until texture is ready
@@ -91,6 +94,7 @@ namespace ETEC510.Editor
             skipRT.anchorMax        = new Vector2(0.96f, 0.12f);
             skipRT.offsetMin = Vector2.zero;
             skipRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(skipRT, "MissionStartSkipButton", saved);
 
             var skipImg = skipGO.AddComponent<Image>();
             skipImg.sprite                  = rounded;

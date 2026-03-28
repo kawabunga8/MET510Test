@@ -37,12 +37,14 @@ namespace ETEC510.Editor
 
             // Remove existing
             var existing = canvasGO.transform.Find("CriticalDecisionPointPanel");
+            var saved = DetectiveStyleGuide.SaveChildRects(existing);
             if (existing != null) Object.DestroyImmediate(existing.gameObject);
 
             var font = FindFont();
 
             // ── Root panel ────────────────────────────────────────────────────
             var panelRT = NewStretch("CriticalDecisionPointPanel", canvasGO.transform);
+            DetectiveStyleGuide.ApplySavedRect(panelRT, "", saved);
             panelRT.gameObject.SetActive(false);
 
             // Dark base so there's no flash between video and background
@@ -55,6 +57,7 @@ namespace ETEC510.Editor
             var vidRT = (RectTransform)vidGO.transform;
             vidRT.anchorMin = Vector2.zero; vidRT.anchorMax = Vector2.one;
             vidRT.offsetMin = Vector2.zero; vidRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(vidRT, "CritDecVideoDisplay", saved);
             var rawImg = vidGO.AddComponent<RawImage>();
             rawImg.color         = Color.clear;
             rawImg.raycastTarget = false;
@@ -71,6 +74,7 @@ namespace ETEC510.Editor
             skipRT.anchorMin = new Vector2(0.72f, 0.03f);
             skipRT.anchorMax = new Vector2(0.98f, 0.11f);
             skipRT.offsetMin = Vector2.zero; skipRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(skipRT, "CritDecSkipButton", saved);
             skipGO.AddComponent<Image>();
             skipGO.AddComponent<Button>();
             AddLabel(skipGO, "Skip", font);
@@ -81,6 +85,7 @@ namespace ETEC510.Editor
             var bgRT = (RectTransform)bgGO.transform;
             bgRT.anchorMin = Vector2.zero; bgRT.anchorMax = Vector2.one;
             bgRT.offsetMin = Vector2.zero; bgRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(bgRT, "CritDecBackground", saved);
             var bgImg = bgGO.AddComponent<Image>();
             bgGO.SetActive(false); // hidden until video ends
 
@@ -105,14 +110,17 @@ namespace ETEC510.Editor
             // Select 1 — Account (left)
             var sel1 = NewInvisibleButton("SelectAccountButton", panelRT,
                 new Vector2(0.05f, 0.32f), new Vector2(0.32f, 0.45f));
+            DetectiveStyleGuide.ApplySavedRect((RectTransform)sel1.transform, "SelectAccountButton", saved);
 
             // Select 2 — Comments (centre)
             var sel2 = NewInvisibleButton("SelectCommentsButton", panelRT,
                 new Vector2(0.37f, 0.32f), new Vector2(0.63f, 0.45f));
+            DetectiveStyleGuide.ApplySavedRect((RectTransform)sel2.transform, "SelectCommentsButton", saved);
 
             // Select 3 — MetaData (right)
             var sel3 = NewInvisibleButton("SelectMetaDataButton", panelRT,
                 new Vector2(0.68f, 0.32f), new Vector2(0.95f, 0.45f));
+            DetectiveStyleGuide.ApplySavedRect((RectTransform)sel3.transform, "SelectMetaDataButton", saved);
 
             // ── Incoming Messages text box ────────────────────────────────────
             var msgGO = NewChild("CritDecMessageText", panelRT);
@@ -121,6 +129,7 @@ namespace ETEC510.Editor
             msgRT.anchorMax = new Vector2(0.59f, 0.42f);
             msgRT.offsetMin = Vector2.zero;
             msgRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(msgRT, "CritDecMessageText", saved);
             var msgTMP = msgGO.AddComponent<TextMeshProUGUI>();
             msgTMP.text          = "";
             msgTMP.alignment     = TextAlignmentOptions.TopLeft;
@@ -136,6 +145,7 @@ namespace ETEC510.Editor
             backRT.anchorMin = new Vector2(0.02f, 0.03f);
             backRT.anchorMax = new Vector2(0.28f, 0.12f);
             backRT.offsetMin = Vector2.zero; backRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(backRT, "CritDecBackButton", saved);
             backGO.AddComponent<Image>();
             backGO.AddComponent<Button>();
             AddLabel(backGO, "Back", font);
@@ -148,6 +158,7 @@ namespace ETEC510.Editor
             nextRT.anchorMin = new Vector2(0.60f, 0.03f);
             nextRT.anchorMax = new Vector2(0.98f, 0.12f);
             nextRT.offsetMin = Vector2.zero; nextRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(nextRT, "CritDecNextButton", saved);
             nextGO.AddComponent<Image>();
             nextGO.AddComponent<Button>();
             AddLabel(nextGO, "Skip to Next", font);

@@ -29,6 +29,7 @@ namespace ETEC510.Editor
             if (runner == null) { Debug.LogError("ETEC510: CaseRunner not found."); return; }
 
             var existing = canvasGO.transform.Find("Badge2CommentFeedPanel");
+            var saved = DetectiveStyleGuide.SaveChildRects(existing);
             if (existing != null) Object.DestroyImmediate(existing.gameObject);
 
             var rounded = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
@@ -49,6 +50,7 @@ namespace ETEC510.Editor
             panelRT.anchorMax = Vector2.one;
             panelRT.offsetMin = Vector2.zero;
             panelRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(panelRT, "", saved);
             panelGO.SetActive(false);
 
             // ── Background image ───────────────────────────────────────────────
@@ -80,6 +82,7 @@ namespace ETEC510.Editor
             backRT.anchorMax = new Vector2(0.21f, 0.12f);
             backRT.offsetMin = Vector2.zero;
             backRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(backRT, "Badge2CommentFeedBackButton", saved);
 
             var backImg = backGO.AddComponent<Image>();
             backImg.sprite                  = rounded;

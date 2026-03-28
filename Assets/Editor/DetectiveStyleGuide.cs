@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEditor;
@@ -197,8 +198,8 @@ namespace ETEC510.Editor
             brt.anchorMin = Vector2.zero; brt.anchorMax = Vector2.one;
             brt.offsetMin = new Vector2(3, 3); brt.offsetMax = new Vector2(-3, -3);
             var bgFillImg = bgFillT.GetComponent<Image>() ?? bgFillT.gameObject.AddComponent<Image>();
-            if (rounded != null) { bgFillImg.sprite = rounded; bgFillImg.type = Image.Type.Sliced; bgFillImg.pixelsPerUnitMultiplier = 0.10f; }
-            bgFillImg.color         = bg;
+            if (rounded != null) { bgFillImg.sprite = rounded; bgFillImg.type = Image.Type.Sliced; bgFillImg.pixelsPerUnitMultiplier = 0.3f; }
+            bgFillImg.color         = new Color(bg.r, bg.g, bg.b, 0.9f);
             bgFillImg.raycastTarget = false;
 
             // ── Shine — white sheen on upper half (simulates surface catch-light) ─
@@ -214,8 +215,8 @@ namespace ETEC510.Editor
             srt.anchorMin = new Vector2(0.04f, 0.52f); srt.anchorMax = new Vector2(0.96f, 0.90f);
             srt.offsetMin = Vector2.zero; srt.offsetMax = Vector2.zero;
             var shineImg = shineT.GetComponent<Image>() ?? shineT.gameObject.AddComponent<Image>();
-            if (rounded != null) { shineImg.sprite = rounded; shineImg.type = Image.Type.Sliced; shineImg.pixelsPerUnitMultiplier = 0.10f; }
-            shineImg.color         = new Color(1f, 1f, 1f, 0.07f);
+            if (rounded != null) { shineImg.sprite = rounded; shineImg.type = Image.Type.Sliced; shineImg.pixelsPerUnitMultiplier = 0.2f; }
+            shineImg.color         = new Color(1f, 1f, 1f, 0.8f);
             shineImg.raycastTarget = false;
 
             // ── Drop shadow ───────────────────────────────────────────────────
@@ -270,6 +271,43 @@ namespace ETEC510.Editor
         {
             ColorUtility.TryParseHtmlString(hex, out var c);
             return c;
+        }
+
+        // ── Rect persistence helpers ──────────────────────────────────────────
+
+        /// <summary>
+        /// Snapshots the RectTransform of <paramref name="root"/> (key "") and
+        /// all direct children (key = child.name) so they can be restored after
+        /// the panel is destroyed and recreated.
+        /// </summary>
+        public static Dictionary<string, (Vector2 anchorMin, Vector2 anchorMax, Vector2 offsetMin, Vector2 offsetMax)>
+            SaveChildRects(Transform root)
+        {
+            var d = new Dictionary<string, (Vector2, Vector2, Vector2, Vector2)>();
+            if (root == null) return d;
+            var rt = root.GetComponent<RectTransform>();
+            if (rt != null) d[""] = (rt.anchorMin, rt.anchorMax, rt.offsetMin, rt.offsetMax);
+            foreach (Transform child in root)
+            {
+                var crt = child.GetComponent<RectTransform>();
+                if (crt != null) d[child.name] = (crt.anchorMin, crt.anchorMax, crt.offsetMin, crt.offsetMax);
+            }
+            return d;
+        }
+
+        /// <summary>
+        /// Applies a previously saved rect to <paramref name="rt"/> if <paramref name="key"/>
+        /// exists in <paramref name="saved"/>. No-op when the key is absent.
+        /// </summary>
+        public static void ApplySavedRect(
+            RectTransform rt, string key,
+            Dictionary<string, (Vector2 anchorMin, Vector2 anchorMax, Vector2 offsetMin, Vector2 offsetMax)> saved)
+        {
+            if (rt == null || saved == null || !saved.TryGetValue(key, out var v)) return;
+            rt.anchorMin = v.anchorMin;
+            rt.anchorMax = v.anchorMax;
+            rt.offsetMin = v.offsetMin;
+            rt.offsetMax = v.offsetMax;
         }
     }
 }

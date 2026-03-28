@@ -79,6 +79,7 @@ namespace ETEC510.Editor
             var ct = canvasGO.transform;
 
             var existing = ct.Find("PopupRoot");
+            var saved = DetectiveStyleGuide.SaveChildRects(existing);
             if (existing != null) Object.DestroyImmediate(existing.gameObject);
 
             var mono = FindMonoFont();
@@ -87,8 +88,11 @@ namespace ETEC510.Editor
             // ── Root & frosted blocker ─────────────────────────────────────────
             var root = NewStretch("PopupRoot", ct);
             root.SetAsLastSibling();
+            DetectiveStyleGuide.ApplySavedRect(root, "", saved);
 
-            var blockerImg = NewStretch("Blocker", root.transform).gameObject.AddComponent<Image>();
+            var blockerRT = NewStretch("Blocker", root.transform);
+            DetectiveStyleGuide.ApplySavedRect(blockerRT, "Blocker", saved);
+            var blockerImg = blockerRT.gameObject.AddComponent<Image>();
             blockerImg.color = BlockerColor;
             blockerImg.raycastTarget = true;
 
@@ -97,6 +101,7 @@ namespace ETEC510.Editor
             var cardGO = new GameObject("PopupCard", typeof(RectTransform));
             cardGO.transform.SetParent(root.transform, false);
             Anch(cardGO, 0.25f, 0.06f, 0.75f, 0.94f);
+            DetectiveStyleGuide.ApplySavedRect((RectTransform)cardGO.transform, "PopupCard", saved);
 
             var bezelImg = cardGO.AddComponent<Image>();
             bezelImg.color       = BezelColor;

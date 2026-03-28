@@ -47,9 +47,10 @@ namespace ETEC510.Editor
 
             // ── Build / rebuild tooltip panel ─────────────────────────────────
             var existingPanel = ct.Find("TooltipPanel");
+            var savedTooltip = DetectiveStyleGuide.SaveChildRects(existingPanel);
             if (existingPanel != null) Object.DestroyImmediate(existingPanel.gameObject);
 
-            var tooltipPanel = BuildTooltipPanel(ct, out var tooltipTMP);
+            var tooltipPanel = BuildTooltipPanel(ct, out var tooltipTMP, savedTooltip);
 
             // ── Create / update TooltipController ─────────────────────────────
             var tcHost = ct.Find("TooltipController");
@@ -138,7 +139,8 @@ namespace ETEC510.Editor
             Debug.Log("ETEC510: Evidence board tooltips built. Press Ctrl+S to save.");
         }
 
-        static RectTransform BuildTooltipPanel(Transform ct, out TMP_Text textOut)
+        static RectTransform BuildTooltipPanel(Transform ct, out TMP_Text textOut,
+            System.Collections.Generic.Dictionary<string, (Vector2 anchorMin, Vector2 anchorMax, Vector2 offsetMin, Vector2 offsetMax)> saved = null)
         {
             var panel = new GameObject("TooltipPanel", typeof(RectTransform));
             panel.transform.SetParent(ct, false);
@@ -149,6 +151,7 @@ namespace ETEC510.Editor
             panelRT.anchorMin = new Vector2(0f, 0f);
             panelRT.anchorMax = new Vector2(0f, 0f);
             panelRT.sizeDelta = new Vector2(320, 90);
+            DetectiveStyleGuide.ApplySavedRect(panelRT, "", saved);
 
             // Border layer
             var borderImg = panel.AddComponent<Image>();

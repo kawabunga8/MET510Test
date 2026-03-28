@@ -42,6 +42,8 @@ namespace ETEC510.Editor
             var panel = ct.Find(panelName);
             if (panel == null) { Debug.LogWarning($"ETEC510: {panelName} not found."); return; }
 
+            var saved = DetectiveStyleGuide.SaveChildRects(panel);
+
             // Remove old confirm button and explanation text
             foreach (var name in removeOld)
             {
@@ -60,11 +62,13 @@ namespace ETEC510.Editor
             CreateOptionButton(panel, btn0Name,
                 anchorMin: new Vector2(0.05f, 0.20f),
                 anchorMax: new Vector2(0.48f, 0.33f));
+            DetectiveStyleGuide.ApplySavedRect(panel.Find(btn0Name)?.GetComponent<RectTransform>(), btn0Name, saved);
 
             // ── Option Button 1 (right) — matches GutOptionButton1 ───────────
             CreateOptionButton(panel, btn1Name,
                 anchorMin: new Vector2(0.52f, 0.20f),
                 anchorMax: new Vector2(0.95f, 0.33f));
+            DetectiveStyleGuide.ApplySavedRect(panel.Find(btn1Name)?.GetComponent<RectTransform>(), btn1Name, saved);
 
             // ── Feedback text (below buttons, above back button) ──────────────
             var feedbackGO = new GameObject(feedbackName, typeof(RectTransform));
@@ -74,6 +78,7 @@ namespace ETEC510.Editor
             frt.anchorMax = new Vector2(0.95f, 0.46f);
             frt.offsetMin = Vector2.zero;
             frt.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(frt, feedbackName, saved);
 
             var ftmp = feedbackGO.AddComponent<TextMeshProUGUI>();
             ftmp.text      = "";

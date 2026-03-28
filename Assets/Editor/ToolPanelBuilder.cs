@@ -68,10 +68,12 @@ namespace ETEC510.Editor
         {
             // Remove existing
             var existing = canvasT.Find(panelName);
+            var saved = DetectiveStyleGuide.SaveChildRects(existing);
             if (existing != null) Object.DestroyImmediate(existing.gameObject);
 
             // Root — full stretch
             var panelRT = NewStretch(panelName, canvasT);
+            DetectiveStyleGuide.ApplySavedRect(panelRT, "", saved);
             panelRT.gameObject.SetActive(false);
 
             // Background image
@@ -98,6 +100,7 @@ namespace ETEC510.Editor
             backRT.anchorMax = new Vector2(0.20f, 0.14f);
             backRT.offsetMin = Vector2.zero;
             backRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(backRT, "ReturnButton", saved);
             var backImg = backGO.AddComponent<Image>();
             backImg.color         = Color.clear; // invisible
             backImg.raycastTarget = true;

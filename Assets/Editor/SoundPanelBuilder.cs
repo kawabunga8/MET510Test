@@ -24,6 +24,7 @@ namespace ETEC510.Editor
 
             // Remove existing
             var existing = ct.Find("SoundTogglePanel");
+            var saved = DetectiveStyleGuide.SaveChildRects(existing);
             if (existing != null) Object.DestroyImmediate(existing.gameObject);
 
             // ── Root panel ────────────────────────────────────────────────────
@@ -36,6 +37,7 @@ namespace ETEC510.Editor
             panelRT.anchorMax = Vector2.one;
             panelRT.offsetMin = Vector2.zero;
             panelRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(panelRT, "", saved);
 
             var bgImg = panelGO.AddComponent<Image>();
             bgImg.color = DetectiveStyleGuide.BgDeep;
@@ -44,6 +46,7 @@ namespace ETEC510.Editor
             var badgeGO  = new GameObject("BadgeText", typeof(RectTransform));
             badgeGO.transform.SetParent(panelGO.transform, false);
             SetAnchors(badgeGO, 0.25f, 0.78f, 0.75f, 0.88f);
+            DetectiveStyleGuide.ApplySavedRect((RectTransform)badgeGO.transform, "BadgeText", saved);
             var badgeTMP = badgeGO.AddComponent<TextMeshProUGUI>();
             badgeTMP.text = "— DETECTIVE HQ —";
             DetectiveStyleGuide.ApplyTextStyle(badgeTMP, DetectiveStyleGuide.TextRole.Badge);
@@ -52,6 +55,7 @@ namespace ETEC510.Editor
             var titleGO  = new GameObject("SoundTitleText", typeof(RectTransform));
             titleGO.transform.SetParent(panelGO.transform, false);
             SetAnchors(titleGO, 0.08f, 0.60f, 0.92f, 0.80f);
+            DetectiveStyleGuide.ApplySavedRect((RectTransform)titleGO.transform, "SoundTitleText", saved);
             var titleTMP = titleGO.AddComponent<TextMeshProUGUI>();
             titleTMP.text = "Before you begin...";
             DetectiveStyleGuide.ApplyTextStyle(titleTMP, DetectiveStyleGuide.TextRole.Title);
@@ -60,6 +64,7 @@ namespace ETEC510.Editor
             var boxGO  = new GameObject("SoundQuestionBox", typeof(RectTransform));
             boxGO.transform.SetParent(panelGO.transform, false);
             SetAnchors(boxGO, 0.12f, 0.46f, 0.88f, 0.62f);
+            DetectiveStyleGuide.ApplySavedRect((RectTransform)boxGO.transform, "SoundQuestionBox", saved);
             var boxImg = boxGO.AddComponent<Image>();
             boxImg.color = DetectiveStyleGuide.BgPanel;
 
@@ -74,11 +79,13 @@ namespace ETEC510.Editor
             var soundOnGO  = CreateButton(panelGO.transform, "SoundOnButton",
                 0.22f, 0.25f, 0.46f, 0.38f, "Yes, sound on",
                 DetectiveStyleGuide.ButtonRole.Confirm);
+            DetectiveStyleGuide.ApplySavedRect((RectTransform)soundOnGO.transform, "SoundOnButton", saved);
 
             // ── Sound Off button (right) ──────────────────────────────────────
             var soundOffGO = CreateButton(panelGO.transform, "SoundOffButton",
                 0.54f, 0.25f, 0.78f, 0.38f, "No, silence",
                 DetectiveStyleGuide.ButtonRole.Alternate);
+            DetectiveStyleGuide.ApplySavedRect((RectTransform)soundOffGO.transform, "SoundOffButton", saved);
 
             // ── Wire CaseRunner ───────────────────────────────────────────────
             var controller = ct.Find("CaseController");

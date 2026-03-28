@@ -36,10 +36,12 @@ namespace ETEC510.Editor
 
             // Remove existing
             var existing = canvasGO.transform.Find("BadgeAchievedPanel");
+            var saved = DetectiveStyleGuide.SaveChildRects(existing);
             if (existing != null) Object.DestroyImmediate(existing.gameObject);
 
             // ── Root panel — full stretch ──────────────────────────────────────
             var panelRT = NewStretch("BadgeAchievedPanel", canvasGO.transform);
+            DetectiveStyleGuide.ApplySavedRect(panelRT, "", saved);
             panelRT.gameObject.SetActive(false);
 
             var bg = panelRT.gameObject.AddComponent<Image>();
@@ -51,6 +53,7 @@ namespace ETEC510.Editor
             var vidRT = (RectTransform)vidGO.transform;
             vidRT.anchorMin = Vector2.zero; vidRT.anchorMax = Vector2.one;
             vidRT.offsetMin = Vector2.zero; vidRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(vidRT, "BadgeVideoDisplay", saved);
             var rawImg = vidGO.AddComponent<RawImage>();
             rawImg.color         = Color.clear; // hidden until video plays
             rawImg.raycastTarget = false;
@@ -69,6 +72,7 @@ namespace ETEC510.Editor
             skipRT.anchorMax = new Vector2(0.97f, 0.13f);
             skipRT.offsetMin = Vector2.zero;
             skipRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(skipRT, "BadgeSkipButton", saved);
             skipGO.AddComponent<Image>();
             skipGO.AddComponent<Button>();
             var skipLabel = NewChild("Label", skipGO.transform);

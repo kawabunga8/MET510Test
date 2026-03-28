@@ -27,6 +27,8 @@ namespace ETEC510.Editor
             var boardPanel = ct.Find("EvidenceBoardPanel");
             if (boardPanel == null) { Debug.LogError("ETEC510: EvidenceBoardPanel not found."); return; }
 
+            var saved = DetectiveStyleGuide.SaveChildRects(boardPanel);
+
             // Remove existing buttons
             foreach (var name in new[] { "EvidenceBoardBackButton", "EvidenceBoardBadge2Button" })
             {
@@ -37,10 +39,12 @@ namespace ETEC510.Editor
             // ── Back button → Badge1Panel ─────────────────────────────────────
             var backGO = MakeButton("EvidenceBoardBackButton", boardPanel,
                 new Vector2(0.02f, 0.02f), new Vector2(0.21f, 0.10f), "Back", DetectiveStyleGuide.ButtonRole.Nav);
+            DetectiveStyleGuide.ApplySavedRect((RectTransform)backGO.transform, "EvidenceBoardBackButton", saved);
 
             // ── Badge 2 button → Badge2Panel ──────────────────────────────────
             var badge2GO = MakeButton("EvidenceBoardBadge2Button", boardPanel,
                 new Vector2(0.23f, 0.02f), new Vector2(0.44f, 0.10f), "Badge 2", DetectiveStyleGuide.ButtonRole.Primary);
+            DetectiveStyleGuide.ApplySavedRect((RectTransform)badge2GO.transform, "EvidenceBoardBadge2Button", saved);
 
             // ── Wire CaseRunner ───────────────────────────────────────────────
             var controllerT = ct.Find("CaseController");

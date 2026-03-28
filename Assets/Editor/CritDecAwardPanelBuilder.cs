@@ -43,6 +43,7 @@ namespace ETEC510.Editor
 
             // Remove existing
             var existing = canvasGO.transform.Find("CritDecAwardPanel");
+            var saved = DetectiveStyleGuide.SaveChildRects(existing);
             if (existing != null) Object.DestroyImmediate(existing.gameObject);
 
             // ── Root panel ────────────────────────────────────────────────────
@@ -62,6 +63,7 @@ namespace ETEC510.Editor
             panelRT.anchorMax = Vector2.one;
             panelRT.offsetMin = Vector2.zero;
             panelRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(panelRT, "", saved);
 
             var bgImg = panelGO.AddComponent<Image>();
             bgImg.color = new Color(0f, 0f, 0f, 1f);
@@ -81,6 +83,7 @@ namespace ETEC510.Editor
             displayRT.anchorMax = Vector2.one;
             displayRT.offsetMin = Vector2.zero;
             displayRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(displayRT, "CritDecAwardVideoDisplay", saved);
 
             var rawImg = displayGO.AddComponent<RawImage>();
             rawImg.color         = Color.clear;
@@ -94,6 +97,7 @@ namespace ETEC510.Editor
             skipRT.anchorMax = new Vector2(0.97f, 0.13f);
             skipRT.offsetMin = Vector2.zero;
             skipRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(skipRT, "CritDecAwardSkipButton", saved);
             skipGO.AddComponent<Image>();
             skipGO.AddComponent<Button>();
             var skipLabelGO = new GameObject("Label", typeof(RectTransform));
@@ -112,6 +116,7 @@ namespace ETEC510.Editor
             backRT.anchorMax = new Vector2(0.21f, 0.13f);
             backRT.offsetMin = Vector2.zero;
             backRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(backRT, "CritDecAwardBackButton", saved);
             backGO.AddComponent<Image>();
             backGO.AddComponent<Button>();
             var backLabelGO = new GameObject("Label", typeof(RectTransform));

@@ -53,6 +53,7 @@ namespace ETEC510.Editor
 
             // Remove existing
             var existing = canvasGO.transform.Find("Badge2IntroPanel");
+            var saved = DetectiveStyleGuide.SaveChildRects(existing);
             if (existing != null) Object.DestroyImmediate(existing.gameObject);
 
             var rounded = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
@@ -71,6 +72,7 @@ namespace ETEC510.Editor
             panelRT.anchorMax = Vector2.one;
             panelRT.offsetMin = Vector2.zero;
             panelRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(panelRT, "", saved);
 
             var bgImg = panelGO.AddComponent<Image>();
             bgImg.color = new Color(0f, 0f, 0f, 1f);
@@ -90,6 +92,7 @@ namespace ETEC510.Editor
             displayRT.anchorMax = Vector2.one;
             displayRT.offsetMin = Vector2.zero;
             displayRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(displayRT, "Badge2IntroVideoDisplay", saved);
 
             var rawImg = displayGO.AddComponent<RawImage>();
             rawImg.color         = Color.clear;
@@ -103,6 +106,7 @@ namespace ETEC510.Editor
             bgContentRT.anchorMax = Vector2.one;
             bgContentRT.offsetMin = Vector2.zero;
             bgContentRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(bgContentRT, "Badge2IntroBg", saved);
 
             var bgContentImg = bgContentGO.AddComponent<Image>();
             bgContentImg.raycastTarget = true;
@@ -134,6 +138,7 @@ namespace ETEC510.Editor
             skipRT.anchorMax = new Vector2(0.96f, 0.12f);
             skipRT.offsetMin = Vector2.zero;
             skipRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(skipRT, "Badge2IntroSkipButton", saved);
 
             var skipImg = skipGO.AddComponent<Image>();
             skipImg.color         = Color.clear;
@@ -162,6 +167,7 @@ namespace ETEC510.Editor
             proceedRT.anchorMax = new Vector2(0.70f, 0.25f);
             proceedRT.offsetMin = Vector2.zero;
             proceedRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(proceedRT, "Badge2IntroProceedButton", saved);
 
             var proceedImg = proceedGO.AddComponent<Image>();
             proceedImg.color         = Color.clear;
@@ -178,6 +184,7 @@ namespace ETEC510.Editor
             backRT.anchorMax = new Vector2(0.21f, 0.12f);
             backRT.offsetMin = Vector2.zero;
             backRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(backRT, "Badge2IntroBackButton", saved);
 
             var backImg = backGO.AddComponent<Image>();
             backImg.sprite                  = rounded;

@@ -36,12 +36,14 @@ namespace ETEC510.Editor
 
             // Remove existing
             var existing = canvasGO.transform.Find("Badge2Panel");
+            var saved = DetectiveStyleGuide.SaveChildRects(existing);
             if (existing != null) Object.DestroyImmediate(existing.gameObject);
 
             var font = FindFont();
 
             // ── Root panel — full stretch ──────────────────────────────────────
             var panelRT = NewStretch("Badge2Panel", canvasGO.transform);
+            DetectiveStyleGuide.ApplySavedRect(panelRT, "", saved);
             panelRT.gameObject.SetActive(false);
 
             // ── Background image ───────────────────────────────────────────────
@@ -68,6 +70,7 @@ namespace ETEC510.Editor
             msgRT.anchorMax = new Vector2(0.57f, 0.68f);
             msgRT.offsetMin = Vector2.zero;
             msgRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(msgRT, "IncomingMessageText", saved);
             var msgTMP = msgGO.AddComponent<TextMeshProUGUI>();
             msgTMP.text          = "";
             msgTMP.alignment     = TextAlignmentOptions.TopLeft;
@@ -84,6 +87,7 @@ namespace ETEC510.Editor
             repeatRT.anchorMax = new Vector2(0.50f, 0.16f);
             repeatRT.offsetMin = Vector2.zero;
             repeatRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(repeatRT, "Badge2RepeatButton", saved);
             repeatGO.AddComponent<Image>();
             repeatGO.AddComponent<Button>();
             AddLabel(repeatGO, "Repeat Video", font);
@@ -96,6 +100,7 @@ namespace ETEC510.Editor
             contRT.anchorMax = new Vector2(0.59f, 0.16f);
             contRT.offsetMin = Vector2.zero;
             contRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(contRT, "Badge2ContinueButton", saved);
             contGO.AddComponent<Image>();
             contGO.AddComponent<Button>();
             AddLabel(contGO, "Evidence Board", font);
@@ -107,10 +112,12 @@ namespace ETEC510.Editor
             // Analytics Board — bottom-right button
             var analyticsGO = NewInvisibleButton("AnalyticsBoardButton", panelRT,
                 new Vector2(0.60f, 0.02f), new Vector2(0.98f, 0.18f));
+            DetectiveStyleGuide.ApplySavedRect((RectTransform)analyticsGO.transform, "AnalyticsBoardButton", saved);
 
             // Comment Feed — bottom-left artwork button
             var commentGO = NewInvisibleButton("CommentFeedButton", panelRT,
                 new Vector2(0.02f, 0.02f), new Vector2(0.27f, 0.18f));
+            DetectiveStyleGuide.ApplySavedRect((RectTransform)commentGO.transform, "CommentFeedButton", saved);
 
             // ── Sibling order — just after CriticalDecisionPointPanel ──────────
             var critPanel = canvasGO.transform.Find("CriticalDecisionPointPanel");

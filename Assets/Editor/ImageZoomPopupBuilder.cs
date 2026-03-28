@@ -38,6 +38,7 @@ namespace ETEC510.Editor
 
             // ── Destroy existing ──────────────────────────────────────────────
             var existing = ct.Find("ImagePopupPanel");
+            var saved = DetectiveStyleGuide.SaveChildRects(existing);
             if (existing != null) Object.DestroyImmediate(existing.gameObject);
 
             // ── Find CaseRunner ───────────────────────────────────────────────
@@ -52,10 +53,12 @@ namespace ETEC510.Editor
             panelGO.transform.SetParent(ct, false);
             panelGO.transform.SetAsLastSibling();
             Stretch(panelGO);
+            DetectiveStyleGuide.ApplySavedRect((RectTransform)panelGO.transform, "", saved);
 
             // ── Dark overlay ──────────────────────────────────────────────────
             var overlayGO = Child("Overlay", panelGO.transform);
             Stretch(overlayGO);
+            DetectiveStyleGuide.ApplySavedRect((RectTransform)overlayGO.transform, "Overlay", saved);
             var overlayImg = overlayGO.AddComponent<Image>();
             overlayImg.color = OverlayColor;
             overlayImg.raycastTarget = true;
@@ -68,6 +71,7 @@ namespace ETEC510.Editor
             imgRT.anchorMax = new Vector2(0.96f, 0.96f);
             imgRT.offsetMin = Vector2.zero;
             imgRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(imgRT, "ZoomedImage", saved);
             var zoomedImg = imgGO.AddComponent<Image>();
             zoomedImg.preserveAspect = true;
             zoomedImg.raycastTarget  = false;
@@ -82,6 +86,7 @@ namespace ETEC510.Editor
             backRT.anchorMax = new Vector2(0.70f, 0.11f);
             backRT.offsetMin = Vector2.zero;
             backRT.offsetMax = Vector2.zero;
+            DetectiveStyleGuide.ApplySavedRect(backRT, "BackButton", saved);
 
             var backImg = backGO.AddComponent<Image>();
             backImg.color  = BtnBg;
