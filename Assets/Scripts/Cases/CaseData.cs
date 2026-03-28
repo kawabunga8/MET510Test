@@ -16,6 +16,9 @@ namespace ETEC510.Cases
         public string    IntroVideoFile;    // filename in StreamingAssets/Video/ — used on WebGL
         public AudioClip IntroMusic;
 
+        [Header("Narration Videos (music ducked while playing)")]
+        public string[] NarrationVideoFiles; // list of video filenames that contain narration
+
         [Header("Background Music")]
         public AudioClip MainMusic;
 

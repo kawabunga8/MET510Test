@@ -960,7 +960,7 @@ namespace ETEC510.UI
             if (url != null) { missionStartVideoPlayer.source = VideoSource.Url; missionStartVideoPlayer.url = url; }
             else             { missionStartVideoPlayer.source = VideoSource.VideoClip; missionStartVideoPlayer.clip = caseData.MissionStartVideo; }
 
-            if (AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
+            if (IsNarration(caseData.MissionStartVideoFile) && AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
                 StartCoroutine(DuckAudio(mainAudioSource, 0.15f, 0.5f));
             missionStartVideoPlayer.Prepare();
         }
@@ -1154,7 +1154,7 @@ namespace ETEC510.UI
             badge2IntroVideoPlayer.source = VideoSource.Url;
             badge2IntroVideoPlayer.url    = url;
 
-            if (AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
+            if (IsNarration(caseData.Badge2IntroVideoFile) && AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
                 StartCoroutine(DuckAudio(mainAudioSource, 0.15f, 0.5f));
             badge2IntroVideoPlayer.Prepare();
         }
@@ -1304,7 +1304,7 @@ namespace ETEC510.UI
             critDecAwardVideoPlayer.source = VideoSource.Url;
             critDecAwardVideoPlayer.url    = url;
 
-            if (AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
+            if (IsNarration(videoFile) && AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
                 StartCoroutine(DuckAudio(mainAudioSource, 0.15f, 0.5f));
             critDecAwardVideoPlayer.Prepare();
         }
@@ -1434,7 +1434,7 @@ namespace ETEC510.UI
             criticalDecisionVideoPlayer.source = VideoSource.Url;
             criticalDecisionVideoPlayer.url    = url;
 
-            if (AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
+            if (IsNarration(caseData.CriticalDecisionVideoFile) && AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
                 StartCoroutine(DuckAudio(mainAudioSource, 0.15f, 0.5f));
             criticalDecisionVideoPlayer.Prepare();
         }
@@ -1632,7 +1632,7 @@ namespace ETEC510.UI
 
                 if (url != null) { spotVideoPlayer.source = VideoSource.Url; spotVideoPlayer.url = url; }
                 else             { spotVideoPlayer.source = VideoSource.VideoClip; spotVideoPlayer.clip = caseData.SpotTheClueVideo; }
-                if (AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
+                if (IsNarration(caseData.SpotTheClueVideoFile) && AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
                     StartCoroutine(DuckAudio(mainAudioSource, 0.15f, 0.5f));
                 spotVideoPlayer.Prepare();
             }
@@ -1750,7 +1750,7 @@ namespace ETEC510.UI
             badgeAchievedVideoPlayer.source = VideoSource.Url;
             badgeAchievedVideoPlayer.url    = url;
 
-            if (AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
+            if (IsNarration(videoFile) && AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
                 StartCoroutine(DuckAudio(mainAudioSource, 0.15f, 0.5f));
             badgeAchievedVideoPlayer.Prepare();
         }
@@ -2199,6 +2199,13 @@ namespace ETEC510.UI
         private static bool IsWebGL =>
             Application.platform == RuntimePlatform.WebGLPlayer;
 
+        // Returns true only if the video filename is listed in NarrationVideoFiles.
+        // Music is ducked only for narration; SFX-only or silent videos leave music untouched.
+        private bool IsNarration(string filename) =>
+            !string.IsNullOrEmpty(filename) &&
+            caseData?.NarrationVideoFiles != null &&
+            System.Array.IndexOf(caseData.NarrationVideoFiles, filename) >= 0;
+
         private void ShowLevelComplete()
         {
             _session.CompleteCase();
@@ -2401,7 +2408,7 @@ namespace ETEC510.UI
             vaultEntryVideoPlayer.source = VideoSource.Url;
             vaultEntryVideoPlayer.url    = url;
 
-            if (AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
+            if (IsNarration(caseData.VaultEntryVideoFile) && AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
                 StartCoroutine(DuckAudio(mainAudioSource, 0.15f, 0.5f));
             vaultEntryVideoPlayer.Prepare();
         }
@@ -2487,7 +2494,7 @@ namespace ETEC510.UI
             if (url != null) { unlockVideoPlayer.source = VideoSource.Url; unlockVideoPlayer.url = url; }
             else             { unlockVideoPlayer.source = VideoSource.VideoClip; unlockVideoPlayer.clip = caseData.UnlockVideo; }
 
-            if (AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
+            if (IsNarration(caseData.UnlockVideoFile) && AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
                 StartCoroutine(DuckAudio(mainAudioSource, 0.15f, 0.5f));
             unlockVideoPlayer.Prepare();
         }
