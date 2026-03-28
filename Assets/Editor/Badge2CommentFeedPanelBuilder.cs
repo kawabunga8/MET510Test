@@ -77,7 +77,7 @@ namespace ETEC510.Editor
             backGO.transform.SetParent(panelGO.transform, false);
             var backRT = (RectTransform)backGO.transform;
             backRT.anchorMin = new Vector2(0.03f, 0.02f);
-            backRT.anchorMax = new Vector2(0.28f, 0.12f);
+            backRT.anchorMax = new Vector2(0.21f, 0.12f);
             backRT.offsetMin = Vector2.zero;
             backRT.offsetMax = Vector2.zero;
 

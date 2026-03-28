@@ -37,8 +37,16 @@ namespace ETEC510.Editor
             var runner = Object.FindFirstObjectByType<CaseRunner>();
             if (runner == null) { Debug.LogError("ETEC510: CaseRunner not found."); return; }
 
-            // Remove existing
+            // ── Snapshot current button anchors before destroying ──────────────
             var existing = canvasGO.transform.Find("Badge1Panel");
+            var ancRepeat   = ReadAnchors(existing, "RepeatVideoButton",      new Vector2(0.02f,0.08f), new Vector2(0.28f,0.19f));
+            var ancMsg      = ReadAnchors(existing, "IncomingMessageText",    new Vector2(0.02f,0.22f), new Vector2(0.59f,0.42f));
+            var ancCrit     = ReadAnchors(existing, "CriticalDecisionButton", new Vector2(0.27f,0.08f), new Vector2(0.54f,0.19f));
+            var ancAnalyze  = ReadAnchors(existing, "AnalyzeAccountButton",   new Vector2(0.66f,0.62f), new Vector2(1.00f,0.95f));
+            var ancComments = ReadAnchors(existing, "EvaluateCommentsButton", new Vector2(0.66f,0.28f), new Vector2(1.00f,0.61f));
+            var ancMeta     = ReadAnchors(existing, "ExtractMetaDataButton",  new Vector2(0.66f,0.00f), new Vector2(1.00f,0.27f));
+            var ancViral    = ReadAnchors(existing, "ViralImageButton",       new Vector2(0.00f,0.45f), new Vector2(0.32f,1.00f));
+
             if (existing != null) Object.DestroyImmediate(existing.gameObject);
 
             var font = FindFont();
@@ -67,8 +75,8 @@ namespace ETEC510.Editor
             // ── Repeat Video button — inside the dark blue box, bottom-left ───
             var repeatGO = NewChild("RepeatVideoButton", panelRT);
             var repeatRT = (RectTransform)repeatGO.transform;
-            repeatRT.anchorMin = new Vector2(0.02f, 0.08f);
-            repeatRT.anchorMax = new Vector2(0.28f, 0.19f);
+            repeatRT.anchorMin = ancRepeat.min;
+            repeatRT.anchorMax = ancRepeat.max;
             repeatRT.offsetMin = Vector2.zero;
             repeatRT.offsetMax = Vector2.zero;
             repeatGO.AddComponent<Image>();
@@ -79,8 +87,8 @@ namespace ETEC510.Editor
             // ── Incoming Messages text box — upper portion of the dark blue box ─
             var msgGO = NewChild("IncomingMessageText", panelRT);
             var msgRT = (RectTransform)msgGO.transform;
-            msgRT.anchorMin = new Vector2(0.02f, 0.22f);
-            msgRT.anchorMax = new Vector2(0.59f, 0.42f);
+            msgRT.anchorMin = ancMsg.min;
+            msgRT.anchorMax = ancMsg.max;
             msgRT.offsetMin = Vector2.zero;
             msgRT.offsetMax = Vector2.zero;
             var msgTMP = msgGO.AddComponent<TextMeshProUGUI>();
@@ -95,8 +103,8 @@ namespace ETEC510.Editor
             // ── Critical Decision button — inside the dark blue box, bottom-right
             var critGO = NewChild("CriticalDecisionButton", panelRT);
             var critRT = (RectTransform)critGO.transform;
-            critRT.anchorMin = new Vector2(0.27f, 0.08f);
-            critRT.anchorMax = new Vector2(0.54f, 0.19f);
+            critRT.anchorMin = ancCrit.min;
+            critRT.anchorMax = ancCrit.max;
             critRT.offsetMin = Vector2.zero;
             critRT.offsetMax = Vector2.zero;
             critGO.AddComponent<Image>();
@@ -110,15 +118,19 @@ namespace ETEC510.Editor
 
             // Analyze Account — top tool button
             var analyzeGO = NewInvisibleButton("AnalyzeAccountButton", panelRT,
-                new Vector2(0.66f, 0.62f), new Vector2(1.00f, 0.95f));
+                ancAnalyze.min, ancAnalyze.max);
 
             // Evaluate Comments — middle tool button
             var commentsGO = NewInvisibleButton("EvaluateCommentsButton", panelRT,
-                new Vector2(0.66f, 0.28f), new Vector2(1.00f, 0.61f));
+                ancComments.min, ancComments.max);
 
             // Extract Meta Data — bottom tool button
             var metaGO = NewInvisibleButton("ExtractMetaDataButton", panelRT,
-                new Vector2(0.66f, 0.00f), new Vector2(1.00f, 0.27f));
+                ancMeta.min, ancMeta.max);
+
+            // ── Viral Image button — invisible overlay, top-left corner ──────────
+            var viralGO = NewInvisibleButton("ViralImageButton", panelRT,
+                ancViral.min, ancViral.max);
 
             // ── Position panel just below MissionStartPanel ────────────────────
             var missionStart = canvasGO.transform.Find("MissionStartPanel");
@@ -137,6 +149,17 @@ namespace ETEC510.Editor
             so.FindProperty("badge1AnalyzeAccountButton").objectReferenceValue    = analyzeGO.GetComponent<Button>();
             so.FindProperty("badge1EvaluateCommentsButton").objectReferenceValue = commentsGO.GetComponent<Button>();
             so.FindProperty("badge1ExtractMetaDataButton").objectReferenceValue  = metaGO.GetComponent<Button>();
+            so.FindProperty("badge1ViralImageButton").objectReferenceValue       = viralGO.GetComponent<Button>();
+
+            // Auto-assign Viral_Image sprite if present in Assets/Images
+            var viralGuids = AssetDatabase.FindAssets("Viral_Image t:Texture2D", new[] { "Assets/Images" });
+            if (viralGuids.Length > 0)
+            {
+                var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(AssetDatabase.GUIDToAssetPath(viralGuids[0]));
+                if (sprite != null) so.FindProperty("viralImageSprite").objectReferenceValue = sprite;
+            }
+            else Debug.LogWarning("ETEC510: 'Viral_Image.png' not found in Assets/Images — assign viralImageSprite manually.");
+
             so.ApplyModifiedProperties();
 
             EditorUtility.SetDirty(runner);
@@ -145,6 +168,18 @@ namespace ETEC510.Editor
         }
 
         // ── Helpers ───────────────────────────────────────────────────────────
+
+        /// <summary>Reads anchor min/max from a named child RectTransform, or returns defaults.</summary>
+        static (Vector2 min, Vector2 max) ReadAnchors(Transform parent, string childName,
+            Vector2 defaultMin, Vector2 defaultMax)
+        {
+            if (parent == null) return (defaultMin, defaultMax);
+            var child = parent.Find(childName);
+            if (child == null) return (defaultMin, defaultMax);
+            var rt = child as RectTransform ?? child.GetComponent<RectTransform>();
+            if (rt == null) return (defaultMin, defaultMax);
+            return (rt.anchorMin, rt.anchorMax);
+        }
 
         /// <summary>Creates a button with a fully transparent Image — invisible but clickable.</summary>
         static GameObject NewInvisibleButton(string name, RectTransform parent,

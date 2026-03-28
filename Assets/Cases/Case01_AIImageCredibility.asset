@@ -34,7 +34,7 @@ MonoBehaviour:
   EvidenceBoardIntroVideoFile: 
   SpotTheClueVideo: {fileID: 0}
   SpotTheClueVideoFile: 
-  SpotTheClueBadgeVideoFile: 7) Pragmatic Badge Award.mp4
+  SpotTheClueBadgeVideoFile: 
   SpotTheClue:
     Prompt: 'LOOK CLOSELY at the image.
 
@@ -48,34 +48,38 @@ MonoBehaviour:
     EvidenceImage: {fileID: 0}
     Audio: {fileID: 0}
     Options:
-    - Distorted hands or fingers
+    - Police lights inside
     - The colours look too bright
     CorrectIndex: 0
-    FeedbackCorrect: "Nice detective work! This image shows hands with an unusual
-      number of fingers \u2014 a classic AI artefact. Current AI generators still
-      struggle to render hands correctly. That's Clue 1: the visual glitch."
-    FeedbackIncorrect: "Look more carefully. Bright colours can appear in real photos
-      too. Focus on the hands \u2014 count the fingers. Something isn't right there."
+    FeedbackCorrect: 'Nice detective work! This image is different from normal. That''s
+      Clue 1: the visual glitch.'
+    FeedbackIncorrect: Look more carefully. Bright colours can appear in real photos
+      too. Focus on the lights. Something isn't right there.
     CodeDigit: 5
-  GutCheckBadgeVideoFile: 12) Badge 2 Award.mp4
+  GutCheckBadgeVideoFile: 
+  DispositionalAwardVideoFile: 12) Badge 2 Award.mp4
   GutCheck:
-    Prompt: "Before sharing this image, what is your GUT REACTION?\n\nDoes the scene
-      feel realistic? Is the lighting consistent? Are the faces too perfect\u2014or
-      strangely blank?\n\nWhat's your verdict right now?"
+    Prompt: 'Before sharing this image, what is your GUT REACTION?
+
+
+      Does the
+      scene feel realistic? Is the lighting consistent?
+
+
+      What''s your verdict
+      right now?'
     EvidenceImage: {fileID: 0}
     Audio: {fileID: 0}
     Options:
     - It looks real to me
     - "Something feels off \u2014 probably AI"
     CorrectIndex: 1
-    FeedbackCorrect: "Good instinct! The too-perfect lighting, oddly blank expressions,
-      and background artefacts are giveaways. Trusting your gut \u2014 then verifying
-      \u2014 is a key media-literacy skill."
-    FeedbackIncorrect: Look again. The lighting is unnaturally even, faces lack micro-expressions,
-      and background details blur or repeat. AI generators often produce images that
-      feel 'clean' in a way real photos don't.
+    FeedbackCorrect: "Good instinct! The background artefacts are giveaways. Trusting
+      your gut \u2014 then verifying \u2014 is a key media-literacy skill."
+    FeedbackIncorrect: Look again. The background details blur or repeat. AI generators
+      often produce images that feel 'clean' in a way real photos don't.
     CodeDigit: 1
-  FindTheMotiveBadgeVideoFile: 7) Pragmatic Badge Award.mp4
+  FindTheMotiveBadgeVideoFile: 
   FindTheMotive:
     Prompt: "WHO would create and spread this image \u2014 and WHY?\n\nThink about:
       Who benefits if people believe this protest happened (or didn't)? What emotion
@@ -84,13 +88,13 @@ MonoBehaviour:
     EvidenceImage: {fileID: 0}
     Audio: {fileID: 0}
     Options:
-    - To manipulate public opinion about a protest
+    - To manipulate public opinion
     - To share an accurate news story
     CorrectIndex: 0
     FeedbackCorrect: "Exactly. Whoever made this image wanted to stir strong emotions
-      \u2014 possibly to make a protest look bigger, smaller, or more violent than
-      it was. That's disinformation: fake visuals used to shape what people believe.
-      Always ask: Who benefits from me believing this?"
+      \u2014 possibly to make a situation look worse. That's disinformation: fake
+      visuals used to shape what people believe. Always ask: Who benefits from me
+      believing this?"
     FeedbackIncorrect: "Think again. A real news story would use a verified photograph
       with a source and date. An AI-generated image has no original source \u2014
       it was created to mislead, not inform."

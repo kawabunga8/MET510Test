@@ -9,8 +9,11 @@ namespace ETEC510.Editor
 {
     /// <summary>
     /// Menu: ETEC510 > Add Evidence Board Back Button
-    /// Adds a "Go Back" button to EvidenceBoardPanel that returns to Mission Briefing.
-    /// Wires evidenceBoardBackButton on CaseRunner. Safe to re-run.
+    /// Adds two navigation buttons to EvidenceBoardPanel:
+    ///   - Back button (bottom-left)  → Badge1Panel
+    ///   - Badge 2 button (next to it) → Badge2Panel
+    /// Wires evidenceBoardBackButton and evidenceBoardBadge2Button on CaseRunner.
+    /// Safe to re-run.
     /// </summary>
     public static class EvidenceBoardBackButtonBuilder
     {
@@ -24,45 +27,20 @@ namespace ETEC510.Editor
             var boardPanel = ct.Find("EvidenceBoardPanel");
             if (boardPanel == null) { Debug.LogError("ETEC510: EvidenceBoardPanel not found."); return; }
 
-            // Remove old button if it exists
-            var existing = boardPanel.Find("EvidenceBoardBackButton");
-            if (existing != null)
+            // Remove existing buttons
+            foreach (var name in new[] { "EvidenceBoardBackButton", "EvidenceBoardBadge2Button" })
             {
-                Object.DestroyImmediate(existing.gameObject);
-                Debug.Log("  Removed existing EvidenceBoardBackButton.");
+                var old = boardPanel.Find(name);
+                if (old != null) { Object.DestroyImmediate(old.gameObject); Debug.Log($"  Removed existing {name}."); }
             }
 
-            var rounded = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
+            // ── Back button → Badge1Panel ─────────────────────────────────────
+            var backGO = MakeButton("EvidenceBoardBackButton", boardPanel,
+                new Vector2(0.02f, 0.02f), new Vector2(0.21f, 0.10f), "Back", DetectiveStyleGuide.ButtonRole.Nav);
 
-            // ── Button ────────────────────────────────────────────────────────
-            var btnGO = new GameObject("EvidenceBoardBackButton", typeof(RectTransform));
-            btnGO.transform.SetParent(boardPanel, false);
-
-            var btnRT = (RectTransform)btnGO.transform;
-            btnRT.anchorMin        = new Vector2(0.02f, 0.02f);
-            btnRT.anchorMax        = new Vector2(0.24f, 0.10f);
-            btnRT.offsetMin = Vector2.zero;
-            btnRT.offsetMax = Vector2.zero;
-
-            var img = btnGO.AddComponent<Image>();
-            img.raycastTarget = true;
-
-            btnGO.AddComponent<Button>();
-
-            // ── Label ─────────────────────────────────────────────────────────
-            var labelGO = new GameObject("Label", typeof(RectTransform));
-            labelGO.transform.SetParent(btnGO.transform, false);
-            var labelRT = (RectTransform)labelGO.transform;
-            labelRT.anchorMin = Vector2.zero;
-            labelRT.anchorMax = Vector2.one;
-            labelRT.offsetMin = Vector2.zero;
-            labelRT.offsetMax = Vector2.zero;
-
-            var tmp = labelGO.AddComponent<TextMeshProUGUI>();
-            tmp.text = "<< Go Back";
-
-            // Apply full DetectiveStyleGuide treatment (gold border, BgFill, Shine, shadow)
-            DetectiveStyleGuide.StyleButton(btnGO, DetectiveStyleGuide.ButtonRole.Nav);
+            // ── Badge 2 button → Badge2Panel ──────────────────────────────────
+            var badge2GO = MakeButton("EvidenceBoardBadge2Button", boardPanel,
+                new Vector2(0.23f, 0.02f), new Vector2(0.44f, 0.10f), "Badge 2", DetectiveStyleGuide.ButtonRole.Primary);
 
             // ── Wire CaseRunner ───────────────────────────────────────────────
             var controllerT = ct.Find("CaseController");
@@ -73,16 +51,36 @@ namespace ETEC510.Editor
                 if (runner != null)
                 {
                     var so = new SerializedObject(runner);
-                    so.FindProperty("evidenceBoardBackButton").objectReferenceValue = btnGO.GetComponent<Button>();
+                    so.FindProperty("evidenceBoardBackButton").objectReferenceValue   = backGO.GetComponent<Button>();
+                    so.FindProperty("evidenceBoardBadge2Button").objectReferenceValue = badge2GO.GetComponent<Button>();
                     so.ApplyModifiedProperties();
                     EditorUtility.SetDirty(runner);
-                    Debug.Log("  evidenceBoardBackButton wired on CaseRunner.");
+                    Debug.Log("  evidenceBoardBackButton and evidenceBoardBadge2Button wired on CaseRunner.");
                 }
             }
 
-            EditorUtility.SetDirty(btnGO);
             EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
-            Debug.Log("ETEC510: EvidenceBoardBackButton added. Ctrl+S to save.");
+            Debug.Log("ETEC510: Evidence Board navigation buttons added. Ctrl+S to save.");
+        }
+
+        static GameObject MakeButton(string name, Transform parent,
+            Vector2 anchorMin, Vector2 anchorMax, string label, DetectiveStyleGuide.ButtonRole role)
+        {
+            var go = new GameObject(name, typeof(RectTransform));
+            go.transform.SetParent(parent, false);
+            var rt = (RectTransform)go.transform;
+            rt.anchorMin = anchorMin; rt.anchorMax = anchorMax;
+            rt.offsetMin = Vector2.zero; rt.offsetMax = Vector2.zero;
+            go.AddComponent<Image>();
+            go.AddComponent<Button>();
+            var labelGO = new GameObject("Label", typeof(RectTransform));
+            labelGO.transform.SetParent(go.transform, false);
+            var labelRT = (RectTransform)labelGO.transform;
+            labelRT.anchorMin = Vector2.zero; labelRT.anchorMax = Vector2.one;
+            labelRT.offsetMin = Vector2.zero; labelRT.offsetMax = Vector2.zero;
+            labelGO.AddComponent<TextMeshProUGUI>().text = label;
+            DetectiveStyleGuide.StyleButton(go, role);
+            return go;
         }
     }
 }

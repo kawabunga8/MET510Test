@@ -42,6 +42,7 @@ namespace ETEC510.Cases
 
         [Header("Gut Check  (reveals digit 2 of code)")]
         public string    GutCheckBadgeVideoFile;    // plays after correct Gut Check answer
+        public string    DispositionalAwardVideoFile; // filename in StreamingAssets/Video/ — Dispositional badge award
         public GutCheckStep GutCheck;
 
         [Header("Find the Motive  (reveals digit 3 of code)")]
