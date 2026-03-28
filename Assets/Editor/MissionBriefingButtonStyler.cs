@@ -27,7 +27,7 @@ namespace ETEC510.Editor
         static readonly Color White         = Color.white;
 
         static readonly string[] ButtonNames = { "StartButton", "BriefingRepeatButton", "BriefingSkipButton" };
-        static readonly string[] ButtonLabels = { "Start Investigation  ", "▶  Replay Message  ", "Skip  " };
+        static readonly string[] ButtonLabels = { "Start Investigation", "Replay Message", "Skip" };
 
         [MenuItem("ETEC510/Style Mission Briefing Buttons")]
         public static void StyleButtons()
@@ -92,7 +92,11 @@ namespace ETEC510.Editor
             shadow.effectDistance = new Vector2(0f, -4f);
             EditorUtility.SetDirty(shadow);
 
-            // ── Label ─────────────────────────────────────────────────────────
+            // ── Remove Arrow badge if it exists from a previous style pass ─────
+            var oldArrow = go.transform.Find("Arrow");
+            if (oldArrow != null) Object.DestroyImmediate(oldArrow.gameObject);
+
+            // ── Label — fills the full pill, text centered ────────────────────
             var labelT = go.transform.Find("Label");
             if (labelT == null)
             {
@@ -102,63 +106,17 @@ namespace ETEC510.Editor
             }
             labelT.SetAsLastSibling();
             var lRT = (RectTransform)labelT;
-            // Fill button but leave right side for arrow badge
             lRT.anchorMin = Vector2.zero; lRT.anchorMax = Vector2.one;
-            lRT.offsetMin = new Vector2(24f, 0f); lRT.offsetMax = new Vector2(-72f, 0f);
+            lRT.offsetMin = Vector2.zero; lRT.offsetMax = Vector2.zero;
 
             var lTMP = labelT.GetComponent<TextMeshProUGUI>() ?? labelT.gameObject.AddComponent<TextMeshProUGUI>();
             lTMP.text             = labelText;
             lTMP.fontSize         = 30f;
             lTMP.fontStyle        = FontStyles.Bold;
             lTMP.color            = White;
-            lTMP.alignment        = TextAlignmentOptions.MidlineLeft;
+            lTMP.alignment        = TextAlignmentOptions.Center;
             lTMP.characterSpacing = 1f;
             EditorUtility.SetDirty(lTMP);
-
-            // ── Arrow badge (dark circle, right side) ─────────────────────────
-            var arrowT = go.transform.Find("Arrow");
-            if (arrowT == null)
-            {
-                var aGO = new GameObject("Arrow", typeof(RectTransform));
-                aGO.transform.SetParent(go.transform, false);
-                arrowT = aGO.transform;
-            }
-            arrowT.SetAsLastSibling();
-            var aRT = (RectTransform)arrowT;
-            // Circle anchored to right, vertically centred, square
-            aRT.anchorMin        = new Vector2(1f, 0.5f);
-            aRT.anchorMax        = new Vector2(1f, 0.5f);
-            aRT.pivot            = new Vector2(1f, 0.5f);
-            aRT.sizeDelta        = new Vector2(56f, 56f);
-            aRT.anchoredPosition = new Vector2(-6f, 0f);
-
-            var aImg = arrowT.GetComponent<Image>() ?? arrowT.gameObject.AddComponent<Image>();
-            aImg.sprite                  = rounded;
-            aImg.type                    = Image.Type.Sliced;
-            aImg.pixelsPerUnitMultiplier = 0.06f;
-            aImg.color                   = BtnBlueDark;
-            aImg.raycastTarget           = false;
-            EditorUtility.SetDirty(aImg);
-
-            // ── Arrow text ────────────────────────────────────────────────────
-            var arrowTextT = arrowT.Find("Text");
-            if (arrowTextT == null)
-            {
-                var atGO = new GameObject("Text", typeof(RectTransform));
-                atGO.transform.SetParent(arrowT, false);
-                arrowTextT = atGO.transform;
-            }
-            var atRT = (RectTransform)arrowTextT;
-            atRT.anchorMin = Vector2.zero; atRT.anchorMax = Vector2.one;
-            atRT.offsetMin = Vector2.zero; atRT.offsetMax = Vector2.zero;
-
-            var atTMP = arrowTextT.GetComponent<TextMeshProUGUI>() ?? arrowTextT.gameObject.AddComponent<TextMeshProUGUI>();
-            atTMP.text      = ">>";
-            atTMP.fontSize  = 22f;
-            atTMP.fontStyle = FontStyles.Bold;
-            atTMP.color     = White;
-            atTMP.alignment = TextAlignmentOptions.Center;
-            EditorUtility.SetDirty(atTMP);
         }
 
         static Transform FindInactive(string name)

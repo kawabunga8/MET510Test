@@ -75,6 +75,7 @@ namespace ETEC510.Editor
         public static readonly Color BtnNav        = Hex("#1A6BC8");
         public static readonly Color BtnDanger     = Hex("#2E0F0F");
         public static readonly Color BtnWarn       = Hex("#2A1A08");
+        public static readonly Color BtnTool       = Hex("#1A3A30"); // dark teal — investigation tool buttons
 
         // Button label colours
         public static readonly Color LabelGold     = Hex("#D4AF5A");
@@ -82,10 +83,11 @@ namespace ETEC510.Editor
         public static readonly Color LabelLight    = Hex("#E8E8E8");
         public static readonly Color LabelCrimson  = Hex("#E88A8A");
         public static readonly Color LabelAmber    = Hex("#E8C07A");
+        public static readonly Color LabelTeal     = Hex("#7ADCC8"); // cyan-teal — on tool buttons
 
         // ── Button roles ──────────────────────────────────────────────────────
 
-        public enum ButtonRole { Primary, Confirm, Alternate, Choice, Nav, Danger, Warn }
+        public enum ButtonRole { Primary, Confirm, Alternate, Choice, Nav, Danger, Warn, Tool }
 
         /// <summary>Returns (bgColor, labelColor) for the given role.</summary>
         public static (Color bg, Color label) ButtonColors(ButtonRole role) => role switch
@@ -97,6 +99,7 @@ namespace ETEC510.Editor
             ButtonRole.Nav       => (BtnNav,       LabelLight),
             ButtonRole.Danger    => (BtnDanger,    LabelCrimson),
             ButtonRole.Warn      => (BtnWarn,      LabelAmber),
+            ButtonRole.Tool      => (BtnTool,      LabelTeal),
             _                    => (BtnNav,       LabelLight),
         };
 

@@ -22,6 +22,9 @@ namespace ETEC510.UI
 
         [Header("Card")]
         public GameObject popupCard;    // scaled in on show
+        public Image      cardBackground;          // Image component on the card (optional)
+        public Sprite     defaultBackgroundSprite; // used for correct / neutral popups
+        public Sprite     incorrectBackgroundSprite; // used when isCorrect = false
         public TMP_Text   titleText;
         public TMP_Text   bodyText;
 
@@ -45,12 +48,12 @@ namespace ETEC510.UI
 
         // ── Static API ────────────────────────────────────────────────────────
 
-        /// <summary>Single-button modal.</summary>
+        /// <summary>Single-button modal. Pass isCorrect=false to use the incorrect background.</summary>
         public static void Show(string title, string body,
-            string btnLabel = "OK", System.Action onConfirm = null)
+            string btnLabel = "OK", System.Action onConfirm = null, bool isCorrect = true)
         {
             Ensure();
-            Instance.ShowInternal(title, body, btnLabel, onConfirm, null, null);
+            Instance.ShowInternal(title, body, btnLabel, onConfirm, null, null, isCorrect);
         }
 
         /// <summary>Two-button modal (confirm left, cancel right).</summary>
@@ -78,12 +81,20 @@ namespace ETEC510.UI
 
         void ShowInternal(string title, string body,
             string confirmLbl, System.Action onConfirm,
-            string cancelLbl,  System.Action onCancel)
+            string cancelLbl,  System.Action onCancel,
+            bool isCorrect = true)
         {
             StopAllCoroutines();
 
             _onConfirm = onConfirm;
             _onCancel  = onCancel;
+
+            // Swap card background based on correct/incorrect state
+            if (cardBackground != null)
+            {
+                var target = isCorrect ? defaultBackgroundSprite : incorrectBackgroundSprite;
+                if (target != null) cardBackground.sprite = target;
+            }
 
             if (titleText)  titleText.text  = title ?? "";
             if (bodyText)   bodyText.text   = body  ?? "";

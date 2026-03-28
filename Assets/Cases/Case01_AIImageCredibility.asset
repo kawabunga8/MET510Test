@@ -28,12 +28,13 @@ MonoBehaviour:
   BriefingImage: {fileID: 0}
   BriefingAudio: {fileID: 0}
   MissionStartVideo: {fileID: 32900000, guid: a40bb40b424394b3fa783919ab683b9b, type: 3}
-  MissionStartVideoFile: '2) Badge 1 Intro.mp4 '
+  MissionStartVideoFile: 2) Badge 1 Intro.mp4
   EvidenceBoardImage: {fileID: 0}
   EvidenceBoardIntroVideo: {fileID: 0}
   EvidenceBoardIntroVideoFile: 
   SpotTheClueVideo: {fileID: 0}
   SpotTheClueVideoFile: 
+  SpotTheClueBadgeVideoFile: 7) Pragmatic Badge Award.mp4
   SpotTheClue:
     Prompt: 'LOOK CLOSELY at the image.
 
@@ -56,6 +57,7 @@ MonoBehaviour:
     FeedbackIncorrect: "Look more carefully. Bright colours can appear in real photos
       too. Focus on the hands \u2014 count the fingers. Something isn't right there."
     CodeDigit: 5
+  GutCheckBadgeVideoFile: 12) Badge 2 Award.mp4
   GutCheck:
     Prompt: "Before sharing this image, what is your GUT REACTION?\n\nDoes the scene
       feel realistic? Is the lighting consistent? Are the faces too perfect\u2014or
@@ -73,6 +75,7 @@ MonoBehaviour:
       and background details blur or repeat. AI generators often produce images that
       feel 'clean' in a way real photos don't.
     CodeDigit: 1
+  FindTheMotiveBadgeVideoFile: 7) Pragmatic Badge Award.mp4
   FindTheMotive:
     Prompt: "WHO would create and spread this image \u2014 and WHY?\n\nThink about:
       Who benefits if people believe this protest happened (or didn't)? What emotion
@@ -92,6 +95,19 @@ MonoBehaviour:
       with a source and date. An AI-generated image has no original source \u2014
       it was created to mislead, not inform."
     CodeDigit: 0
+  CriticalDecisionVideoFile: 6) Pragmatic Decision Point.mp4
+  CriticalDecision:
+    Options:
+    - Analyze Account
+    - Evaluate Comments
+    - Extract Meta Data
+    CorrectIndex: 2
+    FeedbackCorrect: Good call! Checking the metadata is the most reliable way to
+      verify an image's origin. Metadata reveals the device, date, location, and
+      software used to create or edit a file.
+    FeedbackIncorrect: Not quite. Try another approach to verify this image.
+    BadgeVideoFile: 7) Pragmatic Badge Award.mp4
+  Badge2IntroVideoFile: 09) Badge 2 Intro.mp4
   Password: 510
   UnlockVideo: {fileID: 32900000, guid: 7ec4e8a9379e74a9789d14ade3ff12b7, type: 3}
   UnlockVideoFile: 6) Pragmatic Decision Point.mp4

@@ -90,7 +90,7 @@ namespace ETEC510.Editor
             skipRT.sizeDelta = new Vector2(140, 50);
 
             // Enter button — center-bottom, hidden by default
-            var enterBtn = CreateButton(panel, "EnterButton", "Enter →");
+            var enterBtn = CreateButton(panel, "EnterButton", "Enter");
             var enterRT = enterBtn.GetComponent<RectTransform>();
             enterRT.anchorMin = new Vector2(0.5f, 0);
             enterRT.anchorMax = new Vector2(0.5f, 0);
@@ -132,7 +132,7 @@ namespace ETEC510.Editor
             body.GetComponent<TMP_Text>().alignment = TextAlignmentOptions.TopLeft;
 
             // Start button
-            var startBtn = CreateButton(panel, "StartButton", "Start Investigation →");
+            var startBtn = CreateButton(panel, "StartButton", "Start Investigation");
             var startRT = startBtn.GetComponent<RectTransform>();
             startRT.anchorMin = new Vector2(0.5f, 0);
             startRT.anchorMax = new Vector2(0.5f, 0);
@@ -208,7 +208,7 @@ namespace ETEC510.Editor
             CreateButton(panel.transform, "SpotConfirmButton", "I Found It!",
                 new Vector2(0.3f, 0.06f), new Vector2(0.7f, 0.17f));
 
-            CreateButton(panel.transform, "SpotBackButton", "← Back to Board",
+            CreateButton(panel.transform, "SpotBackButton", "Back to Board",
                 new Vector2(0.01f, 0.01f), new Vector2(0.22f, 0.09f));
 
             Debug.Log("  ✓ SpotTheCluePanel");
@@ -235,11 +235,11 @@ namespace ETEC510.Editor
                 new Vector2(0.05f, 0.10f), new Vector2(0.95f, 0.19f));
 
             // Next / back
-            var nextBtn = CreateButton(panel.transform, "GutNextButton", "Back to Board →",
+            var nextBtn = CreateButton(panel.transform, "GutNextButton", "Back to Board",
                 new Vector2(0.3f, 0.02f), new Vector2(0.7f, 0.10f));
             nextBtn.SetActive(false);
 
-            CreateButton(panel.transform, "GutBackButton", "← Back to Board",
+            CreateButton(panel.transform, "GutBackButton", "Back to Board",
                 new Vector2(0.01f, 0.01f), new Vector2(0.22f, 0.09f));
 
             Debug.Log("  ✓ GutCheckPanel");
@@ -263,7 +263,7 @@ namespace ETEC510.Editor
             CreateButton(panel.transform, "MotiveConfirmButton", "I Found Them!",
                 new Vector2(0.3f, 0.06f), new Vector2(0.7f, 0.17f));
 
-            CreateButton(panel.transform, "MotiveBackButton", "← Back to Board",
+            CreateButton(panel.transform, "MotiveBackButton", "Back to Board",
                 new Vector2(0.01f, 0.01f), new Vector2(0.22f, 0.09f));
 
             Debug.Log("  ✓ FindTheMotivePanel");
@@ -307,10 +307,10 @@ namespace ETEC510.Editor
                 new Vector2(0.2f, 0.44f), new Vector2(0.8f, 0.52f));
             feedback.GetComponent<TMP_Text>().color = new Color(1f, 0.4f, 0.4f);
 
-            CreateButton(panel, "PasswordSubmitButton", "Unlock →",
+            CreateButton(panel, "PasswordSubmitButton", "Unlock",
                 new Vector2(0.35f, 0.30f), new Vector2(0.65f, 0.42f));
 
-            CreateButton(panel, "PasswordBackButton", "← Back to Board",
+            CreateButton(panel, "PasswordBackButton", "Back to Board",
                 new Vector2(0.01f, 0.01f), new Vector2(0.22f, 0.09f));
 
             Debug.Log("  ✓ PasswordLockPanel");
@@ -330,7 +330,7 @@ namespace ETEC510.Editor
             CreateButton(panel.transform, "VerdictOptionButton1", "FAKE",
                 new Vector2(0.55f, 0.06f), new Vector2(0.95f, 0.20f));
 
-            CreateButton(panel.transform, "VerdictBackButton", "← Back to Board",
+            CreateButton(panel.transform, "VerdictBackButton", "Back to Board",
                 new Vector2(0.01f, 0.01f), new Vector2(0.22f, 0.09f));
 
             Debug.Log("  ✓ EvidenceDetailPanel");
@@ -369,7 +369,7 @@ namespace ETEC510.Editor
                 new Vector2(0.05f, 0.35f), new Vector2(0.52f, 0.78f));
             hint.GetComponent<TMP_Text>().alignment = TextAlignmentOptions.TopLeft;
 
-            CreateButton(panel, "HintTryAgainButton", "Try Again →",
+            CreateButton(panel, "HintTryAgainButton", "Try Again",
                 new Vector2(0.05f, 0.12f), new Vector2(0.35f, 0.28f));
 
             Debug.Log("  ✓ HintsFromChiefPanel");

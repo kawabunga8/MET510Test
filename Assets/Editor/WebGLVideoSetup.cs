@@ -1,20 +1,47 @@
 using UnityEngine;
+using UnityEngine.Video;
 using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEngine.SceneManagement;
 using System.IO;
 
 namespace ETEC510.Editor
 {
     /// <summary>
     /// Menu: ETEC510 > Setup WebGL Videos
-    /// Copies all VideoClip assets from Assets/Video/ into StreamingAssets/Video/
-    /// so they are accessible via URL in WebGL builds.
-    /// Safe to re-run — skips files that already exist.
+    /// Prepares the project for a WebGL build:
+    ///   1. Clears all VideoClip references from VideoPlayer components in the scene.
+    ///      (WebGL cannot play embedded clips — runtime code loads via StreamingAssets URL.)
+    ///   2. Copies video files from Assets/Video/ into StreamingAssets/Video/ if missing.
+    ///
+    /// Run this before every WebGL build to avoid the
+    /// "Embedded video clips are not supported by the WebGL player" warning.
     /// </summary>
     public static class WebGLVideoSetup
     {
         [MenuItem("ETEC510/Setup WebGL Videos")]
-        public static void CopyVideosToStreamingAssets()
+        public static void PrepareForWebGL()
         {
+            // ── 1. Clear VideoClip references from all VideoPlayers in the scene ──
+            int cleared = 0;
+            foreach (var vp in Object.FindObjectsByType<VideoPlayer>(
+                         FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                if (vp.clip != null)
+                {
+                    Debug.Log($"  Clearing clip from VideoPlayer on '{vp.gameObject.name}': {vp.clip.name}");
+                    vp.clip = null;
+                    EditorUtility.SetDirty(vp);
+                    cleared++;
+                }
+            }
+
+            if (cleared > 0)
+                EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
+
+            Debug.Log($"ETEC510: Cleared {cleared} VideoPlayer clip(s). Save the scene (Ctrl+S) before building.");
+
+            // ── 2. Copy video files to StreamingAssets/Video if missing ───────────
             var destDir = Path.Combine(Application.streamingAssetsPath, "Video");
             if (!Directory.Exists(destDir))
                 Directory.CreateDirectory(destDir);
@@ -24,27 +51,20 @@ namespace ETEC510.Editor
 
             foreach (var guid in guids)
             {
-                var srcPath = AssetDatabase.GUIDToAssetPath(guid);
+                var srcPath  = AssetDatabase.GUIDToAssetPath(guid);
                 var filename = Path.GetFileName(srcPath);
                 var destPath = Path.Combine(destDir, filename);
+                var fullSrc  = Path.GetFullPath(srcPath);
 
-                // Full source path on disk
-                var fullSrc = Path.GetFullPath(srcPath);
-
-                if (File.Exists(destPath))
-                {
-                    skipped++;
-                    continue;
-                }
+                if (File.Exists(destPath)) { skipped++; continue; }
 
                 File.Copy(fullSrc, destPath);
                 copied++;
-                Debug.Log($"  Copied: {filename}");
+                Debug.Log($"  Copied to StreamingAssets: {filename}");
             }
 
             AssetDatabase.Refresh();
-            Debug.Log($"ETEC510: WebGL video setup complete — {copied} copied, {skipped} already present.");
-            Debug.Log("  Set each CaseData '*VideoFile' field to the filename (e.g. 'StartupVideo.mp4').");
+            Debug.Log($"ETEC510: StreamingAssets — {copied} copied, {skipped} already present.");
         }
     }
 }

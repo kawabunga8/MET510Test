@@ -2,6 +2,7 @@ using ETEC510.Cases;
 using ETEC510.Runtime;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.Video;
 
@@ -47,6 +48,26 @@ namespace ETEC510.UI
         public GameObject hintsFromChiefPanel;
         public GameObject levelCompletePanel;
 
+        // ── Badge 1 Panel ─────────────────────────────────────────────────────
+        [Header("Badge 1 Panel")]
+        public GameObject badge1Panel;
+        public Image      badge1BackgroundImage;
+        public Button     badge1RepeatButton;               // replays Badge 1 Intro video
+        public Button     badge1AnalyzeAccountButton;     // invisible overlay → AnalyzeAccountPanel
+        public Button     badge1EvaluateCommentsButton;   // invisible overlay → EvaluateCommentsPanel
+        public Button     badge1ExtractMetaDataButton;    // invisible overlay → ExtractMetaDataPanel
+        public Button     badge1CriticalDecisionButton;    // → CriticalDecisionPointPanel
+        public TMP_Text   badge1IncomingMessageText;      // Incoming Messages text box
+
+        // ── Tool Panels (from Badge 1) ─────────────────────────────────────────
+        [Header("Tool Panels")]
+        public GameObject analyzeAccountPanel;
+        public Button     analyzeAccountBackButton;   // invisible, over Return button in background
+        public GameObject evaluateCommentsPanel;
+        public Button     evaluateCommentsBackButton;
+        public GameObject extractMetaDataPanel;
+        public Button     extractMetaDataBackButton;
+
         // ── Tool Sub-Panels ───────────────────────────────────────────────────
         [Header("Tool Sub-Panels")]
         public GameObject accountProfilePanel;
@@ -55,6 +76,70 @@ namespace ETEC510.UI
         public Button     commentsSectionBackButton;
         public GameObject metaDataPanel;
         public Button     metaDataBackButton;
+
+        // ── Critical Decision Point ───────────────────────────────────────────
+        [Header("Critical Decision Point")]
+        public GameObject  criticalDecisionPanel;
+        public RawImage    criticalDecisionVideoDisplay;
+        public VideoPlayer criticalDecisionVideoPlayer;
+        public Button      criticalDecisionSkipButton;
+        public Image       criticalDecisionBackground;   // shown after video ends
+        public Button      criticalDecisionSelect1Button; // invisible overlay — Account
+        public Button      criticalDecisionSelect2Button; // invisible overlay — Comments
+        public Button      criticalDecisionSelect3Button; // invisible overlay — MetaData
+        public Button      criticalDecisionBackButton;    // visible, returns to Badge1Panel
+        public Button      criticalDecisionNextButton;    // visible, skips to Badge2Panel
+        public TMP_Text    criticalDecisionMessageText;   // hover text display
+
+        // ── Badge 2 Panel ─────────────────────────────────────────────────────
+        [Header("Badge 2 Panel")]
+        public GameObject  badge2IntroPanel;
+        public RawImage    badge2IntroVideoDisplay;
+        public VideoPlayer badge2IntroVideoPlayer;
+        public Image       badge2IntroBackground;      // shown after video ends
+        public Button      badge2IntroSkipButton;      // visible during video → stops video, shows background
+        public Button      badge2IntroProceedButton;   // invisible, over "Proceed to Task 2" → Badge2Panel
+        public Button      badge2IntroBackButton;      // visible → CriticalDecisionPanel
+        public GameObject  badge2Panel;
+        public Image       badge2BackgroundImage;
+        public TMP_Text    badge2IncomingMessageText;
+        public Button      badge2RepeatButton;
+        public Button      badge2AnalyticsBoardButton;
+        public Button      badge2CommentFeedButton;
+        public Button      badge2ContinueButton;
+
+        // ── Badge 2 Tool Panels ───────────────────────────────────────────────
+        [Header("Badge 2 Tool Panels")]
+        public GameObject badge2AnalyticsPanel;
+        public Button     badge2AnalyticsBackButton;
+        public GameObject badge2CommentFeedPanel;
+        public Button     badge2CommentFeedBackButton;
+
+        // ── Critical Decision Try Again ───────────────────────────────────────
+        [Header("Critical Decision Try Again")]
+        public GameObject critDecTryAgainPanel;
+        public Button     critDecTryAgainRetryButton;   // invisible, over artwork "Try Again"
+
+        // ── Critical Decision Award ───────────────────────────────────────────
+        [Header("Critical Decision Award")]
+        public GameObject  critDecAwardPanel;
+        public RawImage    critDecAwardVideoDisplay;
+        public VideoPlayer critDecAwardVideoPlayer;
+        public Button      critDecAwardSkipButton;   // invisible overlay → Badge2IntroPanel
+        public Button      critDecAwardBackButton;   // visible → CriticalDecisionBackground
+
+        // ── Badge Achieved ────────────────────────────────────────────────────
+        [Header("Badge Achieved")]
+        public GameObject  badgeAchievedPanel;
+        public RawImage    badgeAchievedVideoDisplay;
+        public VideoPlayer badgeAchievedVideoPlayer;
+        public Button      badgeAchievedSkipButton;
+        public Button      badgeAchievedBackButton;
+
+        // Digit replay buttons on Evidence Board (clicking an earned digit replays its badge video)
+        public Button digit1Button;
+        public Button digit2Button;
+        public Button digit3Button;
 
         // ── Intro ─────────────────────────────────────────────────────────────
         [Header("Intro")]
@@ -181,9 +266,14 @@ namespace ETEC510.UI
         public AudioSource sfxSource;   // separate non-looping source for one-shots
 
         // ── Private ───────────────────────────────────────────────────────────
-        private CaseSession _session;
-        private bool        _boardIntroPlayed;
-        private GameObject  _imagePopupReturnPanel;
+        private CaseSession   _session;
+        private bool          _boardIntroPlayed;
+        private bool          _critDecAwardButtonsWired;
+        private bool          _badge2IntroButtonsWired;
+        private bool          _badge2PanelButtonsWired;
+        private GameObject    _imagePopupReturnPanel;
+        private System.Action _badgeReturnAction;
+        private System.Action _badgeBackAction;
 
         // ═════════════════════════════════════════════════════════════════════
 
@@ -420,6 +510,64 @@ namespace ETEC510.UI
             if (introEnterButton) introEnterButton.onClick.AddListener(ShowMissionBriefing);
             if (introSkipButton)  introSkipButton.onClick.AddListener(OnIntroSkip);
 
+            // Badge 1 Panel
+            if (badge1RepeatButton)           badge1RepeatButton.onClick.AddListener(OnMissionStartPressed);
+            if (badge1AnalyzeAccountButton)   badge1AnalyzeAccountButton.onClick.AddListener(() => ShowPanel(analyzeAccountPanel));
+            if (badge1EvaluateCommentsButton) badge1EvaluateCommentsButton.onClick.AddListener(() => ShowPanel(evaluateCommentsPanel));
+            if (badge1ExtractMetaDataButton)      badge1ExtractMetaDataButton.onClick.AddListener(() => ShowPanel(extractMetaDataPanel));
+            if (badge1CriticalDecisionButton)     badge1CriticalDecisionButton.onClick.AddListener(ShowCriticalDecisionPanel);
+
+            // Badge 1 hover text
+            AddHoverText(badge1AnalyzeAccountButton,   "Analyze Account");
+            AddHoverText(badge1EvaluateCommentsButton, "Evaluate Comments");
+            AddHoverText(badge1ExtractMetaDataButton,  "Extract Meta Data");
+            AddHoverText(badge1CriticalDecisionButton, "Make Your Decision");
+            AddHoverText(badge1RepeatButton,           "Replay Video");
+
+            // Critical Decision hover text
+            AddHoverText(criticalDecisionSelect1Button, "Analyze Account",   criticalDecisionMessageText);
+            AddHoverText(criticalDecisionSelect2Button, "Evaluate Comments", criticalDecisionMessageText);
+            AddHoverText(criticalDecisionSelect3Button, "Extract Meta Data", criticalDecisionMessageText);
+            AddHoverText(criticalDecisionNextButton,    "Skip to Next",      criticalDecisionMessageText);
+
+            // Critical Decision Point
+            if (criticalDecisionSkipButton)   criticalDecisionSkipButton.onClick.AddListener(SkipCriticalDecisionVideo);
+            if (criticalDecisionBackButton)   criticalDecisionBackButton.onClick.AddListener(ShowBadge1Panel);
+            if (criticalDecisionNextButton)   criticalDecisionNextButton.onClick.AddListener(PlayCritDecAwardVideo);
+            // Select buttons — answer choices for the critical decision
+            if (criticalDecisionSelect1Button) criticalDecisionSelect1Button.onClick.AddListener(() => OnCriticalDecisionSelect(0));
+            if (criticalDecisionSelect2Button) criticalDecisionSelect2Button.onClick.AddListener(() => OnCriticalDecisionSelect(1));
+            if (criticalDecisionSelect3Button) criticalDecisionSelect3Button.onClick.AddListener(() => OnCriticalDecisionSelect(2));
+
+            // Badge 2 Intro
+            if (badge2IntroSkipButton)    badge2IntroSkipButton.onClick.AddListener(SkipBadge2IntroVideo);
+            if (badge2IntroProceedButton) badge2IntroProceedButton.onClick.AddListener(ShowBadge2Panel);
+            if (badge2IntroBackButton)    badge2IntroBackButton.onClick.AddListener(PlayCritDecAwardVideo);
+            if (badge2IntroSkipButton != null || badge2IntroProceedButton != null || badge2IntroBackButton != null)
+                _badge2IntroButtonsWired = true;
+
+            // Badge 2 Panel
+            if (badge2RepeatButton)          badge2RepeatButton.onClick.AddListener(PlayBadge2IntroVideo);
+            if (badge2AnalyticsBoardButton)  badge2AnalyticsBoardButton.onClick.AddListener(ShowBadge2AnalyticsPanel);
+            if (badge2CommentFeedButton)     badge2CommentFeedButton.onClick.AddListener(ShowBadge2CommentFeedPanel);
+            if (badge2ContinueButton)        badge2ContinueButton.onClick.AddListener(ShowEvidenceBoard);
+            if (badge2AnalyticsBoardButton != null || badge2CommentFeedButton != null) _badge2PanelButtonsWired = true;
+
+            // Badge 2 hover text
+            AddHoverText(badge2AnalyticsBoardButton, "Analytics Board",  badge2IncomingMessageText);
+            AddHoverText(badge2CommentFeedButton,    "Comments Feed",     badge2IncomingMessageText);
+            AddHoverText(badge2RepeatButton,         "Replay Video",      badge2IncomingMessageText);
+            AddHoverText(badge2ContinueButton,       "Continue to Evidence Board", badge2IncomingMessageText);
+
+            // Badge 2 Tool Panels
+            if (badge2AnalyticsBackButton)   badge2AnalyticsBackButton.onClick.AddListener(ShowBadge2Panel);
+            if (badge2CommentFeedBackButton)  badge2CommentFeedBackButton.onClick.AddListener(ShowBadge2Panel);
+
+            // Tool Panels
+            if (analyzeAccountBackButton)   analyzeAccountBackButton.onClick.AddListener(ShowBadge1Panel);
+            if (evaluateCommentsBackButton) evaluateCommentsBackButton.onClick.AddListener(ShowBadge1Panel);
+            if (extractMetaDataBackButton)  extractMetaDataBackButton.onClick.AddListener(ShowBadge1Panel);
+
             // Mission Briefing
             if (briefingStartButton)  briefingStartButton.onClick.AddListener(OnMissionStartPressed);
             if (briefingSkipButton)   briefingSkipButton.onClick.AddListener(SkipBriefingVideo);
@@ -429,7 +577,7 @@ namespace ETEC510.UI
             if (missionStartSkipButton) missionStartSkipButton.onClick.AddListener(SkipMissionStartVideo);
 
             // Evidence Board
-            if (evidenceBoardBackButton) evidenceBoardBackButton.onClick.AddListener(OnMissionStartPressed);
+            if (evidenceBoardBackButton) evidenceBoardBackButton.onClick.AddListener(ShowBadge2Panel);
             if (spotTheClueButton)   spotTheClueButton.onClick.AddListener(ShowSpotTheClue);
             if (gutCheckButton)      gutCheckButton.onClick.AddListener(ShowGutCheck);
             if (findTheMotiveButton) findTheMotiveButton.onClick.AddListener(ShowFindTheMotive);
@@ -464,6 +612,33 @@ namespace ETEC510.UI
             if (commentsSectionBackButton) commentsSectionBackButton.onClick.AddListener(ShowGutCheck);
             if (metaDataBackButton)        metaDataBackButton.onClick.AddListener(ShowFindTheMotive);
 
+            // Critical Decision Try Again
+            if (critDecTryAgainRetryButton) critDecTryAgainRetryButton.onClick.AddListener(ShowCriticalDecisionBackground);
+
+            // Critical Decision Award
+            if (critDecAwardSkipButton) critDecAwardSkipButton.onClick.AddListener(SkipCritDecAwardVideo);
+            if (critDecAwardBackButton) critDecAwardBackButton.onClick.AddListener(OnCritDecAwardBack);
+            if (critDecAwardSkipButton != null || critDecAwardBackButton != null) _critDecAwardButtonsWired = true;
+
+            // Badge Achieved
+            if (badgeAchievedSkipButton) badgeAchievedSkipButton.onClick.AddListener(SkipBadgeVideo);
+            if (badgeAchievedBackButton) badgeAchievedBackButton.onClick.AddListener(OnBadgeAchievedBack);
+            if (digit1Button) digit1Button.onClick.AddListener(() =>
+            {
+                if (_session.SpotTheClueCompleted)
+                    ShowBadgeAchieved(caseData.SpotTheClueBadgeVideoFile, ShowEvidenceBoard);
+            });
+            if (digit2Button) digit2Button.onClick.AddListener(() =>
+            {
+                if (_session.GutCheckCompleted)
+                    ShowBadgeAchieved(caseData.GutCheckBadgeVideoFile, ShowEvidenceBoard);
+            });
+            if (digit3Button) digit3Button.onClick.AddListener(() =>
+            {
+                if (_session.FindTheMotiveCompleted)
+                    ShowBadgeAchieved(caseData.FindTheMotiveBadgeVideoFile, ShowEvidenceBoard);
+            });
+
             // Image Popup
             if (imagePopupBackButton) imagePopupBackButton.onClick.AddListener(HideImagePopup);
 
@@ -486,6 +661,15 @@ namespace ETEC510.UI
 
             // ── Click sounds on every button ──────────────────────────────────
             AddClick(soundOnButton); AddClick(soundOffButton);
+            AddClick(badge2IntroSkipButton); AddClick(badge2IntroProceedButton); AddClick(badge2IntroBackButton);
+            AddClick(badge2RepeatButton); AddClick(badge2AnalyticsBoardButton); AddClick(badge2CommentFeedButton); AddClick(badge2ContinueButton);
+            AddClick(badge2AnalyticsBackButton); AddClick(badge2CommentFeedBackButton);
+            AddClick(badge1RepeatButton); AddClick(badge1AnalyzeAccountButton);
+            AddClick(badge1EvaluateCommentsButton); AddClick(badge1ExtractMetaDataButton);
+            AddClick(badge1CriticalDecisionButton);
+            AddClick(analyzeAccountBackButton); AddClick(evaluateCommentsBackButton); AddClick(extractMetaDataBackButton);
+            AddClick(criticalDecisionSkipButton); AddClick(criticalDecisionBackButton); AddClick(criticalDecisionNextButton);
+            AddClick(criticalDecisionSelect1Button); AddClick(criticalDecisionSelect2Button); AddClick(criticalDecisionSelect3Button);
             AddClick(introEnterButton); AddClick(introSkipButton);
             AddClick(briefingStartButton);
             AddClick(spotTheClueButton); AddClick(gutCheckButton);
@@ -494,6 +678,9 @@ namespace ETEC510.UI
             AddClick(gutBackButton); AddClick(gutEvidenceButton); AddClick(gutCommentsSectionButton);
             AddClick(motiveBackButton); AddClick(motiveEvidenceButton); AddClick(motiveMetaDataButton);
             AddClick(imagePopupBackButton);
+            AddClick(critDecTryAgainRetryButton);
+            AddClick(critDecAwardSkipButton); AddClick(critDecAwardBackButton);
+            AddClick(badgeAchievedSkipButton); AddClick(badgeAchievedBackButton); AddClick(digit1Button); AddClick(digit2Button); AddClick(digit3Button);
             AddClick(accountProfileBackButton); AddClick(commentsSectionBackButton); AddClick(metaDataBackButton);
             AddClick(passwordSubmitButton); AddClick(passwordBackButton);
             AddClick(verdictBackButton);
@@ -522,10 +709,14 @@ namespace ETEC510.UI
         {
             GameObject[] all = {
                 soundTogglePanel, introPanel, missionBriefingPanel, missionStartPanel, evidenceBoardPanel,
+                badge1Panel, criticalDecisionPanel, critDecTryAgainPanel, critDecAwardPanel, badge2IntroPanel, badge2Panel,
+                badge2AnalyticsPanel, badge2CommentFeedPanel,
+                analyzeAccountPanel, evaluateCommentsPanel, extractMetaDataPanel,
                 spotTheCluePanel, gutCheckPanel, findTheMotivePanel,
                 passwordLockPanel, unlockPanel, evidenceDetailPanel,
                 hintsFromChiefPanel, levelCompletePanel,
-                accountProfilePanel, commentsSectionPanel, metaDataPanel
+                accountProfilePanel, commentsSectionPanel, metaDataPanel,
+                badgeAchievedPanel
             };
             foreach (var p in all)
                 if (p != null) p.SetActive(p == target);
@@ -660,7 +851,7 @@ namespace ETEC510.UI
             if (AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
                 StartCoroutine(UnduckAudio(mainAudioSource, 1f, 0.5f));
             _boardIntroPlayed = true;
-            ShowEvidenceBoard();
+            ShowBadge1Panel();
         }
 
         private void OnMissionStartPressed()
@@ -717,10 +908,9 @@ namespace ETEC510.UI
         {
             vp.loopPointReached -= OnMissionStartVideoFinished;
             if (missionStartVideoDisplay != null) missionStartVideoDisplay.gameObject.SetActive(false);
-            if (AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
-                StartCoroutine(UnduckAudio(mainAudioSource, 1f, 0.5f));
             _boardIntroPlayed = true;
-            ShowEvidenceBoard();
+            StartMainMusic();
+            ShowBadge1Panel();
         }
 
         private void OnMissionStartVideoError(VideoPlayer vp, string msg)
@@ -728,23 +918,487 @@ namespace ETEC510.UI
             Debug.LogError($"[CaseRunner] Mission start video error: {msg}");
             vp.errorReceived -= OnMissionStartVideoError;
             if (missionStartVideoDisplay != null) missionStartVideoDisplay.gameObject.SetActive(false);
+            _boardIntroPlayed = true;
+            StartMainMusic();
+            ShowBadge1Panel();
+        }
+
+        private void ShowBadge1Panel()
+        {
+            StartMainMusic();
+            if (badge1Panel != null)
+                ShowPanel(badge1Panel);
+            else
+                ShowEvidenceBoard(); // fallback if panel not built yet
+        }
+
+        private void ShowBadge2Panel()
+        {
+            if (badge2Panel == null)
+            {
+                var canvas = GameObject.Find("GameCanvas");
+                if (canvas != null) { var t = canvas.transform.Find("Badge2Panel"); if (t != null) badge2Panel = t.gameObject; }
+            }
+            if (badge2Panel == null) { ShowEvidenceBoard(); return; }
+
+            // Resolve text box if needed
+            if (badge2IncomingMessageText == null)
+                badge2IncomingMessageText = badge2Panel.transform.Find("IncomingMessageText")?.GetComponent<TMP_Text>();
+
+            // Resolve button refs via fallback if null
+            if (badge2AnalyticsBoardButton == null)
+                badge2AnalyticsBoardButton = badge2Panel.transform.Find("AnalyticsBoardButton")?.GetComponent<Button>();
+            if (badge2CommentFeedButton == null)
+                badge2CommentFeedButton = badge2Panel.transform.Find("CommentFeedButton")?.GetComponent<Button>();
+            if (badge2RepeatButton == null)
+                badge2RepeatButton = badge2Panel.transform.Find("Badge2RepeatButton")?.GetComponent<Button>();
+            if (badge2ContinueButton == null)
+                badge2ContinueButton = badge2Panel.transform.Find("Badge2ContinueButton")?.GetComponent<Button>();
+
+            // Wire each button using remove+add to avoid duplicates
+            WireOnce(badge2AnalyticsBoardButton, ShowBadge2AnalyticsPanel);
+            WireOnce(badge2CommentFeedButton,    ShowBadge2CommentFeedPanel);
+            WireOnce(badge2RepeatButton,         PlayBadge2IntroVideo);
+            WireOnce(badge2ContinueButton,       ShowEvidenceBoard);
+            if (!_badge2PanelButtonsWired)
+            {
+                AddHoverText(badge2AnalyticsBoardButton, "Analytics Board",           badge2IncomingMessageText);
+                AddHoverText(badge2CommentFeedButton,    "Comments Feed",              badge2IncomingMessageText);
+                AddHoverText(badge2RepeatButton,         "Replay Video",               badge2IncomingMessageText);
+                AddHoverText(badge2ContinueButton,       "Continue to Evidence Board", badge2IncomingMessageText);
+                _badge2PanelButtonsWired = true;
+            }
+
+            ShowPanel(badge2Panel);
+        }
+
+        private void ShowBadge2AnalyticsPanel()
+        {
+            if (badge2AnalyticsPanel == null)
+            {
+                var canvas = GameObject.Find("GameCanvas");
+                if (canvas != null)
+                {
+                    var t = canvas.transform.Find("Badge2AnalyticsPanel");
+                    if (t != null) badge2AnalyticsPanel = t.gameObject;
+                }
+            }
+            if (badge2AnalyticsPanel != null)
+                ShowPanel(badge2AnalyticsPanel);
+            else if (badge2IncomingMessageText != null)
+                badge2IncomingMessageText.text = "Analytics Board not available.";
+        }
+
+        private void ShowBadge2CommentFeedPanel()
+        {
+            if (badge2CommentFeedPanel == null)
+            {
+                var canvas = GameObject.Find("GameCanvas");
+                if (canvas != null)
+                {
+                    var t = canvas.transform.Find("Badge2CommentFeedPanel");
+                    if (t != null) badge2CommentFeedPanel = t.gameObject;
+                }
+            }
+            if (badge2CommentFeedPanel != null)
+                ShowPanel(badge2CommentFeedPanel);
+            else if (badge2IncomingMessageText != null)
+                badge2IncomingMessageText.text = "Comment Feed not available.";
+        }
+
+        private void PlayBadge2IntroVideo()
+        {
+            // Runtime lookup fallback
+            if (badge2IntroPanel == null)
+            {
+                var canvas = GameObject.Find("GameCanvas");
+                if (canvas != null)
+                {
+                    var t = canvas.transform.Find("Badge2IntroPanel");
+                    if (t != null) badge2IntroPanel = t.gameObject;
+                }
+            }
+            if (badge2IntroVideoPlayer == null && badge2IntroPanel != null)
+                badge2IntroVideoPlayer = badge2IntroPanel.GetComponent<VideoPlayer>();
+            if (badge2IntroSkipButton == null && badge2IntroPanel != null)
+                badge2IntroSkipButton = badge2IntroPanel.transform.Find("Badge2IntroSkipButton")?.GetComponent<Button>();
+            if (badge2IntroProceedButton == null && badge2IntroPanel != null)
+                badge2IntroProceedButton = badge2IntroPanel.transform.Find("Badge2IntroProceedButton")?.GetComponent<Button>();
+            if (badge2IntroBackButton == null && badge2IntroPanel != null)
+                badge2IntroBackButton = badge2IntroPanel.transform.Find("Badge2IntroBackButton")?.GetComponent<Button>();
+            if (badge2IntroBackground == null && badge2IntroPanel != null)
+                badge2IntroBackground = badge2IntroPanel.transform.Find("Badge2IntroBg")?.GetComponent<Image>();
+
+            // Wire listeners if resolved via fallback
+            if (!_badge2IntroButtonsWired)
+            {
+                if (badge2IntroSkipButton    != null) badge2IntroSkipButton.onClick.AddListener(SkipBadge2IntroVideo);
+                if (badge2IntroProceedButton != null) badge2IntroProceedButton.onClick.AddListener(ShowBadge2Panel);
+                if (badge2IntroBackButton    != null) badge2IntroBackButton.onClick.AddListener(PlayCritDecAwardVideo);
+                if (badge2IntroSkipButton != null || badge2IntroProceedButton != null || badge2IntroBackButton != null)
+                    _badge2IntroButtonsWired = true;
+            }
+
+            var url = BuildVideoUrl(caseData.Badge2IntroVideoFile);
+            bool hasSource = url != null || (!IsWebGL && false);
+            if (badge2IntroPanel == null || badge2IntroVideoPlayer == null || !hasSource)
+            {
+                ShowBadge2Panel(); return;
+            }
+
+            ShowPanel(badge2IntroPanel);
+
+            // Video state: show skip + back, hide background/proceed
+            if (badge2IntroBackground    != null) badge2IntroBackground.gameObject.SetActive(false);
+            if (badge2IntroSkipButton    != null) badge2IntroSkipButton.gameObject.SetActive(true);
+            if (badge2IntroProceedButton != null) badge2IntroProceedButton.gameObject.SetActive(false);
+            if (badge2IntroBackButton    != null) badge2IntroBackButton.gameObject.SetActive(true);
+
+            if (badge2IntroVideoDisplay != null)
+            {
+                badge2IntroVideoDisplay.gameObject.SetActive(true);
+                badge2IntroVideoDisplay.color        = Color.clear;
+                badge2IntroVideoDisplay.raycastTarget = false;
+            }
+
+            badge2IntroVideoPlayer.errorReceived    -= OnBadge2IntroVideoError;
+            badge2IntroVideoPlayer.loopPointReached -= OnBadge2IntroVideoFinished;
+            badge2IntroVideoPlayer.prepareCompleted -= OnBadge2IntroVideoPrepared;
+            badge2IntroVideoPlayer.isLooping        = false;
+            badge2IntroVideoPlayer.audioOutputMode  = VideoAudioOutputMode.Direct;
+            badge2IntroVideoPlayer.errorReceived    += OnBadge2IntroVideoError;
+            badge2IntroVideoPlayer.loopPointReached += OnBadge2IntroVideoFinished;
+            badge2IntroVideoPlayer.prepareCompleted += OnBadge2IntroVideoPrepared;
+            badge2IntroVideoPlayer.source = VideoSource.Url;
+            badge2IntroVideoPlayer.url    = url;
+
+            if (AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
+                StartCoroutine(DuckAudio(mainAudioSource, 0.15f, 0.5f));
+            badge2IntroVideoPlayer.Prepare();
+        }
+
+        private void SkipBadge2IntroVideo()
+        {
+            if (badge2IntroVideoPlayer != null)
+            {
+                badge2IntroVideoPlayer.loopPointReached -= OnBadge2IntroVideoFinished;
+                badge2IntroVideoPlayer.Stop();
+            }
+            ShowBadge2IntroContent();
+        }
+
+        private void ShowBadge2IntroContent()
+        {
+            // Hide video state elements before transitioning to Badge2Panel
+            if (badge2IntroVideoDisplay != null) badge2IntroVideoDisplay.gameObject.SetActive(false);
+            if (badge2IntroSkipButton   != null) badge2IntroSkipButton.gameObject.SetActive(false);
             if (AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
                 StartCoroutine(UnduckAudio(mainAudioSource, 1f, 0.5f));
-            _boardIntroPlayed = true;
-            ShowEvidenceBoard();
+            ShowBadge2Panel();
+        }
+
+        private void OnBadge2IntroVideoPrepared(VideoPlayer vp)
+        {
+            vp.prepareCompleted -= OnBadge2IntroVideoPrepared;
+            var rt = new RenderTexture((int)vp.width, (int)vp.height, 0, RenderTextureFormat.ARGB32);
+            rt.Create();
+            vp.targetTexture = rt;
+            if (badge2IntroVideoDisplay != null)
+            {
+                badge2IntroVideoDisplay.texture = rt;
+                badge2IntroVideoDisplay.color   = Color.white;
+            }
+            vp.Play();
+        }
+
+        private void OnBadge2IntroVideoFinished(VideoPlayer vp)
+        {
+            vp.loopPointReached -= OnBadge2IntroVideoFinished;
+            ShowBadge2IntroContent();
+        }
+
+        private void OnBadge2IntroVideoError(VideoPlayer vp, string msg)
+        {
+            Debug.LogError($"[CaseRunner] Badge 2 intro video error: {msg}");
+            vp.errorReceived -= OnBadge2IntroVideoError;
+            ShowBadge2IntroContent();
+        }
+
+        private void OnCriticalDecisionSelect(int idx)
+        {
+            var step = caseData != null ? caseData.CriticalDecision : null;
+            Debug.Log($"[CaseRunner] CritDecSelect idx={idx} step={step != null} correctIdx={step?.CorrectIndex}");
+            if (step == null) return;
+            PlayClick();
+            if (idx == step.CorrectIndex)
+            {
+                PlayCritDecAwardVideo();
+            }
+            else
+            {
+                ShowCritDecTryAgainPanel();
+            }
+        }
+
+        private void ShowCritDecTryAgainPanel()
+        {
+            if (critDecTryAgainPanel != null)
+                ShowPanel(critDecTryAgainPanel);
+            else
+                ShowCriticalDecisionBackground(); // fallback
+        }
+
+        // ── Critical Decision Award ───────────────────────────────────────────
+
+        private void PlayCritDecAwardVideo()
+        {
+            // Runtime lookup fallback — resolves null serialized refs caused by scene-save timing
+            if (critDecAwardPanel == null)
+            {
+                var canvas = GameObject.Find("GameCanvas");
+                if (canvas != null)
+                {
+                    var t = canvas.transform.Find("CritDecAwardPanel");
+                    if (t != null) critDecAwardPanel = t.gameObject;
+                }
+            }
+            if (critDecAwardVideoPlayer == null && critDecAwardPanel != null)
+                critDecAwardVideoPlayer = critDecAwardPanel.GetComponent<VideoPlayer>();
+            if (critDecAwardSkipButton == null && critDecAwardPanel != null)
+                critDecAwardSkipButton = critDecAwardPanel.transform.Find("CritDecAwardSkipButton")?.GetComponent<Button>();
+            if (critDecAwardBackButton == null && critDecAwardPanel != null)
+                critDecAwardBackButton = critDecAwardPanel.transform.Find("CritDecAwardBackButton")?.GetComponent<Button>();
+            if (critDecAwardVideoDisplay == null && critDecAwardPanel != null)
+                critDecAwardVideoDisplay = critDecAwardPanel.transform.Find("CritDecAwardVideoDisplay")?.GetComponent<RawImage>();
+
+            // Wire listeners if buttons were just resolved (WireButtons ran before fallback lookup)
+            if (critDecAwardSkipButton != null && !_critDecAwardButtonsWired)
+            {
+                critDecAwardSkipButton.onClick.AddListener(SkipCritDecAwardVideo);
+                AddClick(critDecAwardSkipButton);
+            }
+            if (critDecAwardBackButton != null && !_critDecAwardButtonsWired)
+            {
+                critDecAwardBackButton.onClick.AddListener(OnCritDecAwardBack);
+                AddClick(critDecAwardBackButton);
+            }
+            _critDecAwardButtonsWired = true;
+
+            var step = caseData != null ? caseData.CriticalDecision : null;
+            var videoFile = step?.BadgeVideoFile;
+            var url = BuildVideoUrl(videoFile);
+
+            if (critDecAwardPanel == null || critDecAwardVideoPlayer == null || url == null)
+            {
+                Debug.LogWarning($"[CaseRunner] CritDecAward fallback — panel={critDecAwardPanel != null} player={critDecAwardVideoPlayer != null} url={url}");
+                PlayBadge2IntroVideo(); return;
+            }
+
+            ShowPanel(critDecAwardPanel);
+
+            // Video state: skip visible, back hidden
+            if (critDecAwardSkipButton != null) critDecAwardSkipButton.gameObject.SetActive(true);
+            if (critDecAwardBackButton != null) critDecAwardBackButton.gameObject.SetActive(false);
+
+            if (critDecAwardVideoDisplay != null)
+            {
+                critDecAwardVideoDisplay.gameObject.SetActive(true);
+                critDecAwardVideoDisplay.color        = Color.clear;
+                critDecAwardVideoDisplay.raycastTarget = false;
+            }
+
+            critDecAwardVideoPlayer.errorReceived    -= OnCritDecAwardVideoError;
+            critDecAwardVideoPlayer.loopPointReached -= OnCritDecAwardVideoFinished;
+            critDecAwardVideoPlayer.prepareCompleted -= OnCritDecAwardVideoPrepared;
+            critDecAwardVideoPlayer.isLooping        = false;
+            critDecAwardVideoPlayer.audioOutputMode  = VideoAudioOutputMode.Direct;
+            critDecAwardVideoPlayer.errorReceived    += OnCritDecAwardVideoError;
+            critDecAwardVideoPlayer.loopPointReached += OnCritDecAwardVideoFinished;
+            critDecAwardVideoPlayer.prepareCompleted += OnCritDecAwardVideoPrepared;
+            critDecAwardVideoPlayer.source = VideoSource.Url;
+            critDecAwardVideoPlayer.url    = url;
+
+            if (AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
+                StartCoroutine(DuckAudio(mainAudioSource, 0.15f, 0.5f));
+            critDecAwardVideoPlayer.Prepare();
+        }
+
+        private void SkipCritDecAwardVideo()
+        {
+            if (critDecAwardVideoPlayer != null)
+            {
+                critDecAwardVideoPlayer.loopPointReached -= OnCritDecAwardVideoFinished;
+                critDecAwardVideoPlayer.Stop();
+            }
+            ShowCritDecAwardContent();
+        }
+
+        private void ShowCritDecAwardContent()
+        {
+            _critDecAwardContentShown = true;
+            if (critDecAwardVideoDisplay != null) critDecAwardVideoDisplay.color = Color.clear;
+            if (critDecAwardSkipButton != null) critDecAwardSkipButton.gameObject.SetActive(false);
+            if (critDecAwardBackButton != null) critDecAwardBackButton.gameObject.SetActive(false);
+            if (AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
+                StartCoroutine(UnduckAudio(mainAudioSource, 1f, 0.5f));
+            PlayBadge2IntroVideo();
+        }
+
+        private void OnCritDecAwardBack()
+        {
+            if (critDecAwardVideoPlayer != null)
+            {
+                critDecAwardVideoPlayer.loopPointReached -= OnCritDecAwardVideoFinished;
+                critDecAwardVideoPlayer.Stop();
+            }
+            if (critDecAwardVideoDisplay != null) critDecAwardVideoDisplay.color = Color.clear;
+            if (AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
+                StartCoroutine(UnduckAudio(mainAudioSource, 1f, 0.5f));
+            ShowCriticalDecisionBackground();
+        }
+
+        private bool _critDecAwardContentShown;
+
+        private void OnCritDecAwardVideoPrepared(VideoPlayer vp)
+        {
+            vp.prepareCompleted -= OnCritDecAwardVideoPrepared;
+            var rt = new RenderTexture((int)vp.width, (int)vp.height, 0, RenderTextureFormat.ARGB32);
+            rt.Create();
+            vp.targetTexture = rt;
+            if (critDecAwardVideoDisplay != null)
+            {
+                critDecAwardVideoDisplay.texture = rt;
+                critDecAwardVideoDisplay.color   = Color.white;
+            }
+            _critDecAwardContentShown = false;
+            vp.Play();
+            StartCoroutine(WaitForCritDecAwardVideoEnd(vp));
+        }
+
+        private System.Collections.IEnumerator WaitForCritDecAwardVideoEnd(VideoPlayer vp)
+        {
+            // Wait until playing starts, then wait until it stops
+            yield return new WaitUntil(() => vp.isPlaying);
+            yield return new WaitUntil(() => !vp.isPlaying || !vp.gameObject.activeInHierarchy);
+            if (!_critDecAwardContentShown)
+                ShowCritDecAwardContent();
+        }
+
+        private void OnCritDecAwardVideoFinished(VideoPlayer vp)
+        {
+            vp.loopPointReached -= OnCritDecAwardVideoFinished;
+            if (!_critDecAwardContentShown)
+                ShowCritDecAwardContent();
+        }
+
+        private void OnCritDecAwardVideoError(VideoPlayer vp, string msg)
+        {
+            Debug.LogError($"[CaseRunner] CritDec award video error: {msg}");
+            vp.errorReceived -= OnCritDecAwardVideoError;
+            ShowCritDecAwardContent();
+        }
+
+        private void ShowCriticalDecisionBackground()
+        {
+            ShowPanel(criticalDecisionPanel);
+            if (criticalDecisionVideoDisplay != null) criticalDecisionVideoDisplay.gameObject.SetActive(false);
+            if (criticalDecisionBackground   != null) criticalDecisionBackground.gameObject.SetActive(true);
+            SetCriticalDecisionButtonsVisible(true);
+        }
+
+        public void ShowCriticalDecisionPanel()
+        {
+            ShowPanel(criticalDecisionPanel);
+
+            if (criticalDecisionBackground != null) criticalDecisionBackground.gameObject.SetActive(false);
+            SetCriticalDecisionButtonsVisible(false);
+
+            if (criticalDecisionVideoDisplay != null)
+            {
+                criticalDecisionVideoDisplay.gameObject.SetActive(true);
+                criticalDecisionVideoDisplay.color        = Color.clear;
+                criticalDecisionVideoDisplay.raycastTarget = false;
+            }
+
+            var url = BuildVideoUrl(caseData.CriticalDecisionVideoFile);
+            bool hasSource = url != null || (!IsWebGL && false); // WebGL URL only
+            if (criticalDecisionVideoPlayer == null || !hasSource)
+            {
+                ShowCriticalDecisionContent(); return;
+            }
+
+            criticalDecisionVideoPlayer.errorReceived    -= OnCriticalDecisionVideoError;
+            criticalDecisionVideoPlayer.loopPointReached -= OnCriticalDecisionVideoFinished;
+            criticalDecisionVideoPlayer.prepareCompleted -= OnCriticalDecisionVideoPrepared;
+            criticalDecisionVideoPlayer.isLooping        = false;
+            criticalDecisionVideoPlayer.audioOutputMode  = VideoAudioOutputMode.Direct;
+            criticalDecisionVideoPlayer.errorReceived    += OnCriticalDecisionVideoError;
+            criticalDecisionVideoPlayer.loopPointReached += OnCriticalDecisionVideoFinished;
+            criticalDecisionVideoPlayer.prepareCompleted += OnCriticalDecisionVideoPrepared;
+            criticalDecisionVideoPlayer.source = VideoSource.Url;
+            criticalDecisionVideoPlayer.url    = url;
+
+            if (AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
+                StartCoroutine(DuckAudio(mainAudioSource, 0.15f, 0.5f));
+            criticalDecisionVideoPlayer.Prepare();
+        }
+
+        private void ShowCriticalDecisionContent()
+        {
+            if (criticalDecisionVideoDisplay != null) criticalDecisionVideoDisplay.gameObject.SetActive(false);
+            if (criticalDecisionBackground   != null) criticalDecisionBackground.gameObject.SetActive(true);
+            SetCriticalDecisionButtonsVisible(true);
+            if (AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
+                StartCoroutine(UnduckAudio(mainAudioSource, 1f, 0.5f));
+        }
+
+        private void SetCriticalDecisionButtonsVisible(bool visible)
+        {
+            if (criticalDecisionSkipButton)    criticalDecisionSkipButton.gameObject.SetActive(!visible);
+            if (criticalDecisionBackButton)    criticalDecisionBackButton.gameObject.SetActive(visible);
+            if (criticalDecisionNextButton)    criticalDecisionNextButton.gameObject.SetActive(visible);
+        }
+
+        private void SkipCriticalDecisionVideo()
+        {
+            if (criticalDecisionVideoPlayer != null)
+            {
+                criticalDecisionVideoPlayer.loopPointReached -= OnCriticalDecisionVideoFinished;
+                criticalDecisionVideoPlayer.Stop();
+            }
+            ShowCriticalDecisionContent();
+        }
+
+        private void OnCriticalDecisionVideoPrepared(VideoPlayer vp)
+        {
+            vp.prepareCompleted -= OnCriticalDecisionVideoPrepared;
+            var rt = new RenderTexture((int)vp.width, (int)vp.height, 0, RenderTextureFormat.ARGB32);
+            rt.Create();
+            vp.targetTexture = rt;
+            if (criticalDecisionVideoDisplay != null)
+            {
+                criticalDecisionVideoDisplay.texture = rt;
+                criticalDecisionVideoDisplay.color   = Color.white;
+            }
+            vp.Play();
+        }
+
+        private void OnCriticalDecisionVideoFinished(VideoPlayer vp)
+        {
+            vp.loopPointReached -= OnCriticalDecisionVideoFinished;
+            ShowCriticalDecisionContent();
+        }
+
+        private void OnCriticalDecisionVideoError(VideoPlayer vp, string msg)
+        {
+            Debug.LogError($"[CaseRunner] Critical Decision video error: {msg}");
+            vp.errorReceived -= OnCriticalDecisionVideoError;
+            ShowCriticalDecisionContent();
         }
 
         public void ShowEvidenceBoard()
         {
             if (introAudioSource != null) introAudioSource.Stop();
-
-            if (mainAudioSource != null && caseData.MainMusic != null && !mainAudioSource.isPlaying)
-            {
-                mainAudioSource.clip   = caseData.MainMusic;
-                mainAudioSource.loop   = true;
-                mainAudioSource.volume = _boardIntroPlayed ? 1f : 0f; // silent until video finishes on first visit
-                mainAudioSource.Play();
-            }
 
             if (evidenceBoardImage && caseData.EvidenceBoardImage)
                 evidenceBoardImage.sprite = caseData.EvidenceBoardImage;
@@ -950,6 +1604,114 @@ namespace ETEC510.UI
         private void HideImagePopup()
         {
             if (imagePopupPanel != null) imagePopupPanel.SetActive(false);
+        }
+
+        // ── Badge Achieved ─────────────────────────────────────────────────────
+
+        private void ShowBadgeAchieved(string videoFile, System.Action onComplete, System.Action onBack = null)
+        {
+            _badgeReturnAction = onComplete;
+            _badgeBackAction   = onBack ?? ShowBadge1Panel;
+            ShowPanel(badgeAchievedPanel);
+
+            if (badgeAchievedVideoDisplay != null)
+            {
+                badgeAchievedVideoDisplay.gameObject.SetActive(true);
+                badgeAchievedVideoDisplay.color        = Color.clear;
+                badgeAchievedVideoDisplay.raycastTarget = false;
+            }
+
+            if (badgeAchievedVideoPlayer == null || string.IsNullOrEmpty(videoFile))
+            {
+                OnBadgeVideoFinished(null); return;
+            }
+
+            var url = BuildVideoUrl(videoFile);
+            if (url == null) { OnBadgeVideoFinished(null); return; }
+
+            badgeAchievedVideoPlayer.errorReceived    -= OnBadgeVideoError;
+            badgeAchievedVideoPlayer.loopPointReached -= OnBadgeVideoFinished;
+            badgeAchievedVideoPlayer.prepareCompleted -= OnBadgeVideoPrepared;
+            badgeAchievedVideoPlayer.isLooping        = false;
+            badgeAchievedVideoPlayer.audioOutputMode  = VideoAudioOutputMode.Direct;
+            badgeAchievedVideoPlayer.errorReceived    += OnBadgeVideoError;
+            badgeAchievedVideoPlayer.loopPointReached += OnBadgeVideoFinished;
+            badgeAchievedVideoPlayer.prepareCompleted += OnBadgeVideoPrepared;
+            badgeAchievedVideoPlayer.source = VideoSource.Url;
+            badgeAchievedVideoPlayer.url    = url;
+
+            if (AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
+                StartCoroutine(DuckAudio(mainAudioSource, 0.15f, 0.5f));
+            badgeAchievedVideoPlayer.Prepare();
+        }
+
+        private void SkipBadgeVideo()
+        {
+            if (badgeAchievedVideoPlayer != null)
+            {
+                badgeAchievedVideoPlayer.loopPointReached -= OnBadgeVideoFinished;
+                badgeAchievedVideoPlayer.Stop();
+            }
+            if (badgeAchievedVideoDisplay != null) badgeAchievedVideoDisplay.color = Color.clear;
+            if (AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
+                StartCoroutine(UnduckAudio(mainAudioSource, 1f, 0.5f));
+            var action = _badgeReturnAction;
+            _badgeReturnAction = null;
+            _badgeBackAction   = null;
+            action?.Invoke();
+        }
+
+        private void OnBadgeAchievedBack()
+        {
+            if (badgeAchievedVideoPlayer != null)
+            {
+                badgeAchievedVideoPlayer.loopPointReached -= OnBadgeVideoFinished;
+                badgeAchievedVideoPlayer.Stop();
+            }
+            if (badgeAchievedVideoDisplay != null) badgeAchievedVideoDisplay.color = Color.clear;
+            if (AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
+                StartCoroutine(UnduckAudio(mainAudioSource, 1f, 0.5f));
+            var action = _badgeBackAction;
+            _badgeReturnAction = null;
+            _badgeBackAction   = null;
+            action?.Invoke();
+        }
+
+        private void OnBadgeVideoPrepared(VideoPlayer vp)
+        {
+            vp.prepareCompleted -= OnBadgeVideoPrepared;
+            var rt = new RenderTexture((int)vp.width, (int)vp.height, 0, RenderTextureFormat.ARGB32);
+            rt.Create();
+            vp.targetTexture = rt;
+            if (badgeAchievedVideoDisplay != null)
+            {
+                badgeAchievedVideoDisplay.texture = rt;
+                badgeAchievedVideoDisplay.color   = Color.white;
+            }
+            vp.Play();
+        }
+
+        private void OnBadgeVideoFinished(VideoPlayer vp)
+        {
+            if (vp != null) vp.loopPointReached -= OnBadgeVideoFinished;
+            if (badgeAchievedVideoDisplay != null) badgeAchievedVideoDisplay.color = Color.clear;
+            if (AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
+                StartCoroutine(UnduckAudio(mainAudioSource, 1f, 0.5f));
+            var action = _badgeReturnAction;
+            _badgeReturnAction = null;
+            action?.Invoke();
+        }
+
+        private void OnBadgeVideoError(VideoPlayer vp, string msg)
+        {
+            Debug.LogError($"[CaseRunner] Badge video error: {msg}");
+            vp.errorReceived -= OnBadgeVideoError;
+            if (badgeAchievedVideoDisplay != null) badgeAchievedVideoDisplay.color = Color.clear;
+            if (AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
+                StartCoroutine(UnduckAudio(mainAudioSource, 1f, 0.5f));
+            var action = _badgeReturnAction;
+            _badgeReturnAction = null;
+            action?.Invoke();
         }
 
         private void ShowGutCheck()
@@ -1204,22 +1966,41 @@ namespace ETEC510.UI
             if (_session.SpotTheClueCompleted) return;
             var step = caseData.SpotTheClue;
             bool correct = selectedIndex == step.CorrectIndex;
-            if (correct) { _session.CompleteSpotTheClue(); LockButtons(spotOptionButtons); }
-            PopupController.Show(
-                correct ? "Clue Found!" : "Look Again...",
-                correct ? step.FeedbackCorrect : step.FeedbackIncorrect,
-                "Got it");
+            if (correct)
+            {
+                _session.CompleteSpotTheClue();
+                LockButtons(spotOptionButtons);
+                var feedback = step.FeedbackCorrect;
+                ShowBadgeAchieved(caseData.SpotTheClueBadgeVideoFile, () =>
+                {
+                    ShowPanel(spotTheCluePanel);
+                    PopupController.Show("Clue Found!", feedback, "Got it");
+                });
+            }
+            else
+            {
+                PopupController.Show("Look Again...", step.FeedbackIncorrect, "Got it", isCorrect: false);
+            }
         }
 
         private void OnGutCheckAnswer(int selectedIndex)
         {
             if (_session.GutCheckCompleted) return;
             var result = _session.AnswerGutCheck(selectedIndex);
-            if (result.isCorrect) LockButtons(gutOptionButtons);
-            PopupController.Show(
-                result.isCorrect ? "Good Instinct!" : "Think Again...",
-                result.feedback,
-                "Got it");
+            if (result.isCorrect)
+            {
+                LockButtons(gutOptionButtons);
+                var feedback = result.feedback;
+                ShowBadgeAchieved(caseData.GutCheckBadgeVideoFile, () =>
+                {
+                    ShowPanel(gutCheckPanel);
+                    PopupController.Show("Good Instinct!", feedback, "Got it");
+                });
+            }
+            else
+            {
+                PopupController.Show("Think Again...", result.feedback, "Got it", isCorrect: false);
+            }
         }
 
         private void OnMotiveAnswer(int selectedIndex)
@@ -1227,11 +2008,21 @@ namespace ETEC510.UI
             if (_session.FindTheMotiveCompleted) return;
             var step = caseData.FindTheMotive;
             bool correct = selectedIndex == step.CorrectIndex;
-            if (correct) { _session.CompleteMotive(); LockButtons(motiveOptionButtons); }
-            PopupController.Show(
-                correct ? "Motive Identified!" : "Look Deeper...",
-                correct ? step.FeedbackCorrect : step.FeedbackIncorrect,
-                "Got it");
+            if (correct)
+            {
+                _session.CompleteMotive();
+                LockButtons(motiveOptionButtons);
+                var feedback = step.FeedbackCorrect;
+                ShowBadgeAchieved(caseData.FindTheMotiveBadgeVideoFile, () =>
+                {
+                    ShowPanel(findTheMotivePanel);
+                    PopupController.Show("Motive Identified!", feedback, "Got it");
+                });
+            }
+            else
+            {
+                PopupController.Show("Look Deeper...", step.FeedbackIncorrect, "Got it", isCorrect: false);
+            }
         }
 
         private void PlayClick()
@@ -1243,6 +2034,31 @@ namespace ETEC510.UI
         private void AddClick(Button btn)
         {
             if (btn != null) btn.onClick.AddListener(PlayClick);
+        }
+
+        private void WireOnce(Button btn, UnityEngine.Events.UnityAction action)
+        {
+            if (btn == null) return;
+            btn.onClick.RemoveListener(action);
+            btn.onClick.AddListener(action);
+        }
+
+        private void AddHoverText(Button btn, string message)
+            => AddHoverText(btn, message, badge1IncomingMessageText);
+
+        private void AddHoverText(Button btn, string message, TMP_Text target)
+        {
+            if (btn == null || target == null) return;
+            var trigger = btn.gameObject.GetComponent<EventTrigger>()
+                          ?? btn.gameObject.AddComponent<EventTrigger>();
+
+            var enter = new EventTrigger.Entry { eventID = EventTriggerType.PointerEnter };
+            enter.callback.AddListener(_ => target.text = message);
+            trigger.triggers.Add(enter);
+
+            var exit = new EventTrigger.Entry { eventID = EventTriggerType.PointerExit };
+            exit.callback.AddListener(_ => target.text = "");
+            trigger.triggers.Add(exit);
         }
 
         private static void LockButtons(Button[] buttons)

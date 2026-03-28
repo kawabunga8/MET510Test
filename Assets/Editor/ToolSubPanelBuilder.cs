@@ -121,7 +121,7 @@ namespace ETEC510.Editor
             var backRT = (RectTransform)backGO.transform;
             backRT.anchorMin = new Vector2(0.25f, 0.03f); backRT.anchorMax = new Vector2(0.75f, 0.12f);
             backRT.offsetMin = Vector2.zero; backRT.offsetMax = Vector2.zero;
-            AddLabelledButton(backGO, "\u2190  Back", font);
+            AddLabelledButton(backGO, "Back", font);
             DetectiveStyleGuide.StyleButton(backGO, DetectiveStyleGuide.ButtonRole.Nav);
 
             // Wire panel + back button into CaseRunner

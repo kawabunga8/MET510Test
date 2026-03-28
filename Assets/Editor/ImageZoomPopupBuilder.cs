@@ -102,7 +102,7 @@ namespace ETEC510.Editor
             labelRT.offsetMin = Vector2.zero;
             labelRT.offsetMax = Vector2.zero;
             var labelTMP = labelGO.AddComponent<TextMeshProUGUI>();
-            labelTMP.text             = "\u2190 BACK";
+            labelTMP.text             = "BACK";
             labelTMP.alignment        = TextAlignmentOptions.Center;
             labelTMP.fontSize         = 22;
             labelTMP.color            = BtnLabel;

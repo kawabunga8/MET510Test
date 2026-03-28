@@ -36,14 +36,24 @@ namespace ETEC510.Cases
 
         [Header("Spot the Clue  (reveals digit 1 of code)")]
         public VideoClip SpotTheClueVideo;
-        public string    SpotTheClueVideoFile;  // filename in StreamingAssets/Video/
+        public string    SpotTheClueVideoFile;      // filename in StreamingAssets/Video/
+        public string    SpotTheClueBadgeVideoFile; // plays after correct Spot answer
         public SpotTheClueStep SpotTheClue;
 
         [Header("Gut Check  (reveals digit 2 of code)")]
+        public string    GutCheckBadgeVideoFile;    // plays after correct Gut Check answer
         public GutCheckStep GutCheck;
 
         [Header("Find the Motive  (reveals digit 3 of code)")]
+        public string    FindTheMotiveBadgeVideoFile; // plays after correct Motive answer
         public FindTheMotiveStep FindTheMotive;
+
+        [Header("Critical Decision Point")]
+        public string CriticalDecisionVideoFile; // filename in StreamingAssets/Video/
+        public CriticalDecisionStep CriticalDecision;
+
+        [Header("Badge 2 Intro")]
+        public string Badge2IntroVideoFile;  // filename in StreamingAssets/Video/
 
         [Header("Password Lock")]
         public string Password = "510";
@@ -119,6 +129,18 @@ namespace ETEC510.Cases
         [TextArea(2, 6)]
         public string FeedbackIncorrect;
         public string CodeDigit = "0";
+    }
+
+    [Serializable]
+    public class CriticalDecisionStep
+    {
+        public string[] Options = { "Option A", "Option B", "Option C" };
+        public int CorrectIndex = 0;
+        [TextArea(2, 6)]
+        public string FeedbackCorrect;
+        [TextArea(2, 6)]
+        public string FeedbackIncorrect;
+        public string BadgeVideoFile;  // plays after correct answer
     }
 
     [Serializable]
