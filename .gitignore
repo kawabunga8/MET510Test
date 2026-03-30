@@ -105,6 +105,6 @@ InitTestScene*.unity*
 .fake
 
 # Large archive/build files exceeding GitHub 100MB limit
-DigitalDetectiveToolkitDemoWebGLVIDEO/Archive*.zip
-DigitalDetectiveToolkitDemoWebGL/Archive*.zip
-DigitalDetectiveToolkitDemoWebGLVIDEO/Build/*.data.brDigitalDetectiveToolkitMobile/Build/*.data.br
+DigitalDetectiveToolkit*/Archive*.zip
+DigitalDetectiveToolkit*/Build/*.data.br
+DigitalDetectiveToolkitDemoMac.zip
