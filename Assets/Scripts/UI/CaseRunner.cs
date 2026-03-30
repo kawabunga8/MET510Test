@@ -129,7 +129,6 @@ namespace ETEC510.UI
         public RawImage    critDecAwardVideoDisplay;
         public VideoPlayer critDecAwardVideoPlayer;
         public Button      critDecAwardSkipButton;   // invisible overlay → Badge2IntroPanel
-        public Button      critDecAwardBackButton;   // visible → CriticalDecisionBackground
 
         // ── Badge Achieved ────────────────────────────────────────────────────
         [Header("Badge Achieved")]
@@ -145,7 +144,6 @@ namespace ETEC510.UI
         public RawImage    dispositionalAwardVideoDisplay;
         public VideoPlayer dispositionalAwardVideoPlayer;
         public Button      dispositionalAwardSkipButton;
-        public Button      dispositionalAwardBackButton;
 
         // Digit replay buttons on Evidence Board (clicking an earned digit replays its badge video)
         public Button digit1Button;
@@ -649,10 +647,9 @@ namespace ETEC510.UI
             // Critical Decision Try Again
             if (critDecTryAgainRetryButton) critDecTryAgainRetryButton.onClick.AddListener(ShowCriticalDecisionBackground);
 
-            // Critical Decision Award
+            // Critical Decision Award (Pragmatic)
             if (critDecAwardSkipButton) critDecAwardSkipButton.onClick.AddListener(SkipCritDecAwardVideo);
-            if (critDecAwardBackButton) critDecAwardBackButton.onClick.AddListener(OnCritDecAwardBack);
-            if (critDecAwardSkipButton != null || critDecAwardBackButton != null) _critDecAwardButtonsWired = true;
+            if (critDecAwardSkipButton != null) _critDecAwardButtonsWired = true;
 
             // Badge Achieved
             if (badgeAchievedSkipButton) badgeAchievedSkipButton.onClick.AddListener(SkipBadgeVideo);
@@ -714,7 +711,7 @@ namespace ETEC510.UI
             AddClick(motiveBackButton); AddClick(motiveEvidenceButton); AddClick(motiveMetaDataButton);
             AddClick(imagePopupBackButton);
             AddClick(critDecTryAgainRetryButton);
-            AddClick(critDecAwardSkipButton); AddClick(critDecAwardBackButton);
+            AddClick(critDecAwardSkipButton);
             AddClick(badgeAchievedSkipButton); AddClick(badgeAchievedBackButton); AddClick(digit1Button); AddClick(digit2Button); AddClick(digit3Button);
             AddClick(accountProfileBackButton); AddClick(commentsSectionBackButton); AddClick(metaDataBackButton);
             AddClick(passwordSubmitButton); AddClick(passwordBackButton);
@@ -813,6 +810,7 @@ namespace ETEC510.UI
                 briefingVideoPlayer.url             = loopUrl;
                 briefingVideoPlayer.errorReceived    += OnBriefingVideoError;
                 briefingVideoPlayer.prepareCompleted += OnBriefingVideoPrepared;
+                briefingVideoPlayer.gameObject.SetActive(true);
                 briefingVideoPlayer.Prepare();
             }
         }
@@ -865,6 +863,7 @@ namespace ETEC510.UI
             if (url != null) { briefingVideoPlayer.source = VideoSource.Url; briefingVideoPlayer.url = url; }
             else             { briefingVideoPlayer.source = VideoSource.VideoClip; briefingVideoPlayer.clip = caseData.BriefingVideo; }
 
+            briefingVideoPlayer.gameObject.SetActive(true);
             briefingVideoPlayer.Prepare();
         }
 
@@ -899,6 +898,7 @@ namespace ETEC510.UI
                 vp.url             = loopUrl;
                 vp.errorReceived    += OnBriefingVideoError;
                 vp.prepareCompleted += OnBriefingVideoPrepared;
+                vp.gameObject.SetActive(true);
                 vp.Prepare();
             }
             else
@@ -1239,6 +1239,9 @@ namespace ETEC510.UI
 
         private void PlayCritDecAwardVideo()
         {
+            var _diagVideoFile = caseData?.CriticalDecision?.BadgeVideoFile;
+            Debug.Log($"[CaseRunner] PlayCritDecAwardVideo — panel={critDecAwardPanel?.name ?? "NULL"} player={critDecAwardVideoPlayer?.name ?? "NULL"} badgeVideoFile={_diagVideoFile ?? "NULL"}");
+
             // Runtime lookup fallback — resolves null serialized refs caused by scene-save timing
             if (critDecAwardPanel == null)
             {
@@ -1253,21 +1256,17 @@ namespace ETEC510.UI
                 critDecAwardVideoPlayer = critDecAwardPanel.GetComponent<VideoPlayer>();
             if (critDecAwardSkipButton == null && critDecAwardPanel != null)
                 critDecAwardSkipButton = critDecAwardPanel.transform.Find("CritDecAwardSkipButton")?.GetComponent<Button>();
-            if (critDecAwardBackButton == null && critDecAwardPanel != null)
-                critDecAwardBackButton = critDecAwardPanel.transform.Find("CritDecAwardBackButton")?.GetComponent<Button>();
             if (critDecAwardVideoDisplay == null && critDecAwardPanel != null)
                 critDecAwardVideoDisplay = critDecAwardPanel.transform.Find("CritDecAwardVideoDisplay")?.GetComponent<RawImage>();
+            if (critDecAwardVideoDisplay == null && critDecAwardPanel != null)
+                critDecAwardVideoDisplay = EnsureVideoDisplay(critDecAwardPanel, "CritDecAwardVideoDisplay");
 
-            // Wire listeners if buttons were just resolved (WireButtons ran before fallback lookup)
+            // Wire listeners — use WireOnce for back button so it is always correctly wired
+            // regardless of whether _critDecAwardButtonsWired was set early by the skip button.
             if (critDecAwardSkipButton != null && !_critDecAwardButtonsWired)
             {
                 critDecAwardSkipButton.onClick.AddListener(SkipCritDecAwardVideo);
                 AddClick(critDecAwardSkipButton);
-            }
-            if (critDecAwardBackButton != null && !_critDecAwardButtonsWired)
-            {
-                critDecAwardBackButton.onClick.AddListener(OnCritDecAwardBack);
-                AddClick(critDecAwardBackButton);
             }
             _critDecAwardButtonsWired = true;
 
@@ -1283,13 +1282,7 @@ namespace ETEC510.UI
 
             ShowPanel(critDecAwardPanel);
 
-            // Skip visible immediately; back appears after 1 s
             if (critDecAwardSkipButton != null) critDecAwardSkipButton.gameObject.SetActive(true);
-            if (critDecAwardBackButton != null)
-            {
-                critDecAwardBackButton.gameObject.SetActive(false);
-                StartCoroutine(ShowAfterDelay(critDecAwardBackButton.gameObject, 1f));
-            }
 
             if (critDecAwardVideoDisplay != null)
             {
@@ -1329,32 +1322,10 @@ namespace ETEC510.UI
             _critDecAwardContentShown = true;
             if (critDecAwardVideoDisplay != null) critDecAwardVideoDisplay.color = Color.clear;
             if (critDecAwardSkipButton != null) critDecAwardSkipButton.gameObject.SetActive(false);
-            if (critDecAwardBackButton != null) critDecAwardBackButton.gameObject.SetActive(false);
             if (AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
                 StartCoroutine(UnduckAudio(mainAudioSource, 1f, 0.5f));
             PlayBadge2IntroVideo();
 
-        }
-
-        private void OnCritDecAwardBack()
-        {
-            Debug.Log("[CaseRunner] OnCritDecAwardBack — stopping award video, navigating to Badge1Panel.");
-            if (critDecAwardVideoPlayer != null)
-            {
-                critDecAwardVideoPlayer.loopPointReached -= OnCritDecAwardVideoFinished;
-                critDecAwardVideoPlayer.Stop();
-                Debug.Log($"[CaseRunner] OnCritDecAwardBack — video stopped. panel={critDecAwardPanel != null} player={critDecAwardVideoPlayer != null}");
-            }
-            else
-            {
-                Debug.LogWarning("[CaseRunner] OnCritDecAwardBack — critDecAwardVideoPlayer is null.");
-            }
-            if (critDecAwardVideoDisplay != null) critDecAwardVideoDisplay.color = Color.clear;
-            if (AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
-                StartCoroutine(UnduckAudio(mainAudioSource, 1f, 0.5f));
-            if (badge1Panel == null) Debug.LogWarning("[CaseRunner] OnCritDecAwardBack — badge1Panel is null, ShowBadge1Panel may fallback.");
-            ShowBadge1Panel();
-            Debug.Log($"[CaseRunner] OnCritDecAwardBack — ShowBadge1Panel called. badge1Panel active={badge1Panel?.activeSelf}");
         }
 
         private bool _critDecAwardContentShown;
@@ -1756,8 +1727,9 @@ namespace ETEC510.UI
             badgeAchievedVideoPlayer.errorReceived    += OnBadgeVideoError;
             badgeAchievedVideoPlayer.loopPointReached += OnBadgeVideoFinished;
             badgeAchievedVideoPlayer.prepareCompleted += OnBadgeVideoPrepared;
-            badgeAchievedVideoPlayer.source = VideoSource.Url;
-            badgeAchievedVideoPlayer.url    = url;
+            badgeAchievedVideoPlayer.source        = VideoSource.Url;
+            badgeAchievedVideoPlayer.url           = url;
+            badgeAchievedVideoPlayer.playbackSpeed = GetPlaybackSpeed(videoFile);
 
             if (IsNarration(videoFile) && AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
                 StartCoroutine(DuckAudio(mainAudioSource, 0.15f, 0.5f));
@@ -1857,8 +1829,6 @@ namespace ETEC510.UI
                 dispositionalAwardVideoPlayer = dispositionalAwardPanel.GetComponent<VideoPlayer>();
             if (dispositionalAwardSkipButton == null && dispositionalAwardPanel != null)
                 dispositionalAwardSkipButton = dispositionalAwardPanel.transform.Find("DispositionalAwardSkipButton")?.GetComponent<Button>();
-            if (dispositionalAwardBackButton == null && dispositionalAwardPanel != null)
-                dispositionalAwardBackButton = dispositionalAwardPanel.transform.Find("DispositionalAwardBackButton")?.GetComponent<Button>();
             if (dispositionalAwardVideoDisplay == null && dispositionalAwardPanel != null)
                 dispositionalAwardVideoDisplay = dispositionalAwardPanel.transform.Find("DispositionalAwardVideoDisplay")?.GetComponent<RawImage>();
 
@@ -1868,14 +1838,6 @@ namespace ETEC510.UI
                 {
                     dispositionalAwardSkipButton.onClick.AddListener(SkipDispositionalAwardVideo);
                     AddClick(dispositionalAwardSkipButton);
-                }
-                if (dispositionalAwardBackButton != null)
-                {
-                    dispositionalAwardBackButton.onClick.AddListener(() => {
-                        StopDispositionalAwardVideo();
-                        onBack?.Invoke();
-                    });
-                    AddClick(dispositionalAwardBackButton);
                 }
                 _dispositionalAwardButtonsWired = true;
             }
@@ -1891,13 +1853,7 @@ namespace ETEC510.UI
 
             ShowPanel(dispositionalAwardPanel);
 
-            // Skip visible immediately; back appears after 1 s
             if (dispositionalAwardSkipButton != null) dispositionalAwardSkipButton.gameObject.SetActive(true);
-            if (dispositionalAwardBackButton != null)
-            {
-                dispositionalAwardBackButton.gameObject.SetActive(false);
-                StartCoroutine(ShowAfterDelay(dispositionalAwardBackButton.gameObject, 1f));
-            }
 
             if (dispositionalAwardVideoDisplay != null)
             {
@@ -1943,7 +1899,6 @@ namespace ETEC510.UI
             _dispositionalAwardContentShown = true;
             if (dispositionalAwardVideoDisplay != null) dispositionalAwardVideoDisplay.color = Color.clear;
             if (dispositionalAwardSkipButton != null) dispositionalAwardSkipButton.gameObject.SetActive(false);
-            if (dispositionalAwardBackButton != null) dispositionalAwardBackButton.gameObject.SetActive(false); // hide on complete
             if (AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
                 StartCoroutine(UnduckAudio(mainAudioSource, 1f, 0.5f));
             var action = _dispositionalAwardReturnAction;
@@ -2140,8 +2095,9 @@ namespace ETEC510.UI
             hintsOverlayVideoPlayer.errorReceived    += OnHintsOverlayVideoError;
             hintsOverlayVideoPlayer.loopPointReached += OnHintsOverlayVideoFinished;
             hintsOverlayVideoPlayer.prepareCompleted += OnHintsOverlayVideoPrepared;
-            hintsOverlayVideoPlayer.source = VideoSource.Url;
-            hintsOverlayVideoPlayer.url    = url;
+            hintsOverlayVideoPlayer.source        = VideoSource.Url;
+            hintsOverlayVideoPlayer.url           = url;
+            hintsOverlayVideoPlayer.playbackSpeed = GetPlaybackSpeed(caseData.HintsOverlayVideoFile);
             hintsOverlayVideoPlayer.Prepare();
         }
 
@@ -2197,11 +2153,42 @@ namespace ETEC510.UI
 
         // Returns a StreamingAssets URL for the given filename, or null if not provided.
         // On WebGL, Application.streamingAssetsPath is already an http:// URL.
+        private static float GetPlaybackSpeed(string filename)
+        {
+            if (string.IsNullOrEmpty(filename)) return 1f;
+            var f = filename.Trim();
+            if (f.Equals("VaultEntry.mp4",                     System.StringComparison.OrdinalIgnoreCase)) return 3f;
+            if (f.Equals("HintsVideo.mp4",                     System.StringComparison.OrdinalIgnoreCase)) return 3f;
+            if (f.Equals("BadgeCodeReveal-Dispositional.mp4",  System.StringComparison.OrdinalIgnoreCase)) return 3f;
+            if (f.Equals("BadgeCodeReveal-Pragmatic.mp4",      System.StringComparison.OrdinalIgnoreCase)) return 3f;
+            return 1f;
+        }
+
         private static string BuildVideoUrl(string filename)
         {
             if (string.IsNullOrEmpty(filename)) return null;
             return System.IO.Path.Combine(
                 Application.streamingAssetsPath, "Video", filename).Replace("\\", "/");
+        }
+
+        /// <summary>
+        /// Returns or creates a full-screen RawImage child named <paramref name="name"/> on <paramref name="panel"/>.
+        /// Used as a fallback when the Inspector reference is missing from the scene.
+        /// </summary>
+        private static RawImage EnsureVideoDisplay(GameObject panel, string name)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(panel.transform, false);
+            go.transform.SetAsFirstSibling();
+            var rt = go.AddComponent<RectTransform>();
+            rt.anchorMin        = Vector2.zero;
+            rt.anchorMax        = Vector2.one;
+            rt.anchoredPosition = Vector2.zero;
+            rt.sizeDelta        = Vector2.zero;
+            var raw = go.AddComponent<RawImage>();
+            raw.color          = Color.clear;
+            raw.raycastTarget  = false;
+            return raw;
         }
 
         // On WebGL VideoClip assets cannot be used — URL is required.
@@ -2399,6 +2386,11 @@ namespace ETEC510.UI
                 PlayUnlockVideo(); return; // fallback to old unlock panel
             }
 
+            if (vaultEntryVideoDisplay == null)
+                vaultEntryVideoDisplay = vaultEntryPanel.transform.Find("VaultEntryVideoDisplay")?.GetComponent<RawImage>();
+            if (vaultEntryVideoDisplay == null)
+                vaultEntryVideoDisplay = EnsureVideoDisplay(vaultEntryPanel, "VaultEntryVideoDisplay");
+
             ShowPanel(vaultEntryPanel);
 
             if (vaultEntryVideoDisplay != null)
@@ -2421,8 +2413,9 @@ namespace ETEC510.UI
             vaultEntryVideoPlayer.errorReceived    += OnVaultEntryVideoError;
             vaultEntryVideoPlayer.loopPointReached += OnVaultEntryVideoFinished;
             vaultEntryVideoPlayer.prepareCompleted += OnVaultEntryVideoPrepared;
-            vaultEntryVideoPlayer.source = VideoSource.Url;
-            vaultEntryVideoPlayer.url    = url;
+            vaultEntryVideoPlayer.source        = VideoSource.Url;
+            vaultEntryVideoPlayer.url           = url;
+            vaultEntryVideoPlayer.playbackSpeed = GetPlaybackSpeed(caseData.VaultEntryVideoFile);
 
             if (IsNarration(caseData.VaultEntryVideoFile) && AudioListener.volume > 0f && mainAudioSource != null && mainAudioSource.isPlaying)
                 StartCoroutine(DuckAudio(mainAudioSource, 0.15f, 0.5f));

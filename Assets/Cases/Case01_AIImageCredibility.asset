@@ -119,8 +119,8 @@ MonoBehaviour:
     BadgeVideoFile: 7) Pragmatic Badge Award.mp4
   Badge2IntroVideoFile: 09) Badge 2 Intro.mp4
   Password: 510
-  UnlockVideo: {fileID: 32900000, guid: 7ec4e8a9379e74a9789d14ade3ff12b7, type: 3}
-  UnlockVideoFile: 6) Pragmatic Decision Point.mp4
+  UnlockVideo: {fileID: 0}
+  UnlockVideoFile: 
   VaultEntryVideoFile: VaultEntry.mp4
   Verdict:
     Prompt: 'You''ve collected all three clues.

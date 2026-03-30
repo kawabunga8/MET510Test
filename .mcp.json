@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "mcp-unity": {
+      "command": "node",
+      "args": [
+        "/Users/shingokawamura/Unity Projects/MET510DigitalDetectiveToolkit/Packages/com.gamelovers.mcp-unity/Server~/build/index.js"
+      ]
+    }
+  }
+}
