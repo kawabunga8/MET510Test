@@ -81,7 +81,7 @@ namespace ETEC510.Editor
             panel.gameObject.AddComponent<VideoPlayer>();
 
             // Skip button — top-right
-            var skipBtn = CreateButton(panel, "SkipButton", "Skip");
+            var skipBtn = CreateButton(panel, "SkipButton", "Skip ▶");
             var skipRT = skipBtn.GetComponent<RectTransform>();
             skipRT.anchorMin = new Vector2(1, 1);
             skipRT.anchorMax = new Vector2(1, 1);
@@ -90,7 +90,7 @@ namespace ETEC510.Editor
             skipRT.sizeDelta = new Vector2(140, 50);
 
             // Enter button — center-bottom, hidden by default
-            var enterBtn = CreateButton(panel, "EnterButton", "Enter");
+            var enterBtn = CreateButton(panel, "EnterButton", "Enter →");
             var enterRT = enterBtn.GetComponent<RectTransform>();
             enterRT.anchorMin = new Vector2(0.5f, 0);
             enterRT.anchorMax = new Vector2(0.5f, 0);
@@ -132,7 +132,7 @@ namespace ETEC510.Editor
             body.GetComponent<TMP_Text>().alignment = TextAlignmentOptions.TopLeft;
 
             // Start button
-            var startBtn = CreateButton(panel, "StartButton", "Start Investigation");
+            var startBtn = CreateButton(panel, "StartButton", "Start Investigation →");
             var startRT = startBtn.GetComponent<RectTransform>();
             startRT.anchorMin = new Vector2(0.5f, 0);
             startRT.anchorMax = new Vector2(0.5f, 0);
@@ -174,12 +174,12 @@ namespace ETEC510.Editor
             CreateDigitLabel(codeRow.transform, "Digit3Text", "?", new Vector2(0.66f, 0f), new Vector2(1f, 1f));
 
             // Three investigation path buttons
-            BuildEvidenceBoardButton(panel, "SpotTheClueButton",    "Spot the Clue",    new Vector2(0.06f, 0.38f), new Vector2(0.37f, 0.65f));
-            BuildEvidenceBoardButton(panel, "GutCheckButton",       "Gut Check",        new Vector2(0.38f, 0.38f), new Vector2(0.62f, 0.65f));
-            BuildEvidenceBoardButton(panel, "FindTheMotiveButton",  "Find the Motive",  new Vector2(0.63f, 0.38f), new Vector2(0.94f, 0.65f));
+            BuildEvidenceBoardButton(panel, "SpotTheClueButton",    "🔍 Spot the Clue",    new Vector2(0.1f, 0.38f), new Vector2(0.38f, 0.65f));
+            BuildEvidenceBoardButton(panel, "GutCheckButton",       "💬 Gut Check",        new Vector2(0.41f, 0.38f), new Vector2(0.59f, 0.65f));
+            BuildEvidenceBoardButton(panel, "FindTheMotiveButton",  "🎯 Find the Motive",  new Vector2(0.62f, 0.38f), new Vector2(0.9f, 0.65f));
 
             // Enter password button (locked until all 3 done)
-            var lockBtn = CreateButton(panel, "EnterPasswordButton", "Enter Code Room");
+            var lockBtn = CreateButton(panel, "EnterPasswordButton", "🔒  Enter Code Room");
             var lockRT = lockBtn.GetComponent<RectTransform>();
             lockRT.anchorMin = new Vector2(0.35f, 0.12f);
             lockRT.anchorMax = new Vector2(0.65f, 0.28f);
@@ -205,10 +205,10 @@ namespace ETEC510.Editor
                 new Vector2(0.05f, 0.18f), new Vector2(0.95f, 0.38f));
             explain.SetActive(false);
 
-            CreateButton(panel.transform, "SpotConfirmButton", "I Found It!",
+            CreateButton(panel.transform, "SpotConfirmButton", "✔  I Found It!",
                 new Vector2(0.3f, 0.06f), new Vector2(0.7f, 0.17f));
 
-            CreateButton(panel.transform, "SpotBackButton", "Back to Board",
+            CreateButton(panel.transform, "SpotBackButton", "← Back to Board",
                 new Vector2(0.01f, 0.01f), new Vector2(0.22f, 0.09f));
 
             Debug.Log("  ✓ SpotTheCluePanel");
@@ -235,11 +235,11 @@ namespace ETEC510.Editor
                 new Vector2(0.05f, 0.10f), new Vector2(0.95f, 0.19f));
 
             // Next / back
-            var nextBtn = CreateButton(panel.transform, "GutNextButton", "Back to Board",
+            var nextBtn = CreateButton(panel.transform, "GutNextButton", "Back to Board →",
                 new Vector2(0.3f, 0.02f), new Vector2(0.7f, 0.10f));
             nextBtn.SetActive(false);
 
-            CreateButton(panel.transform, "GutBackButton", "Back to Board",
+            CreateButton(panel.transform, "GutBackButton", "← Back to Board",
                 new Vector2(0.01f, 0.01f), new Vector2(0.22f, 0.09f));
 
             Debug.Log("  ✓ GutCheckPanel");
@@ -260,10 +260,10 @@ namespace ETEC510.Editor
                 new Vector2(0.05f, 0.18f), new Vector2(0.95f, 0.38f));
             explain.SetActive(false);
 
-            CreateButton(panel.transform, "MotiveConfirmButton", "I Found Them!",
+            CreateButton(panel.transform, "MotiveConfirmButton", "✔  I Found Them!",
                 new Vector2(0.3f, 0.06f), new Vector2(0.7f, 0.17f));
 
-            CreateButton(panel.transform, "MotiveBackButton", "Back to Board",
+            CreateButton(panel.transform, "MotiveBackButton", "← Back to Board",
                 new Vector2(0.01f, 0.01f), new Vector2(0.22f, 0.09f));
 
             Debug.Log("  ✓ FindTheMotivePanel");
@@ -307,10 +307,10 @@ namespace ETEC510.Editor
                 new Vector2(0.2f, 0.44f), new Vector2(0.8f, 0.52f));
             feedback.GetComponent<TMP_Text>().color = new Color(1f, 0.4f, 0.4f);
 
-            CreateButton(panel, "PasswordSubmitButton", "Unlock",
+            CreateButton(panel, "PasswordSubmitButton", "Unlock →",
                 new Vector2(0.35f, 0.30f), new Vector2(0.65f, 0.42f));
 
-            CreateButton(panel, "PasswordBackButton", "Back to Board",
+            CreateButton(panel, "PasswordBackButton", "← Back to Board",
                 new Vector2(0.01f, 0.01f), new Vector2(0.22f, 0.09f));
 
             Debug.Log("  ✓ PasswordLockPanel");
@@ -330,7 +330,7 @@ namespace ETEC510.Editor
             CreateButton(panel.transform, "VerdictOptionButton1", "FAKE",
                 new Vector2(0.55f, 0.06f), new Vector2(0.95f, 0.20f));
 
-            CreateButton(panel.transform, "VerdictBackButton", "Back to Board",
+            CreateButton(panel.transform, "VerdictBackButton", "← Back to Board",
                 new Vector2(0.01f, 0.01f), new Vector2(0.22f, 0.09f));
 
             Debug.Log("  ✓ EvidenceDetailPanel");
@@ -344,32 +344,23 @@ namespace ETEC510.Editor
             var panel = CreateFullscreenPanel(parent, "HintsFromChiefPanel", new Color(0.08f, 0.06f, 0.02f));
             panel.gameObject.SetActive(false);
 
-            // VideoPlayer on the panel itself
-            panel.gameObject.AddComponent<VideoPlayer>();
-
             var title = CreateTMPText(panel, "TitleText", "HINT FROM THE CHIEF", 46, FontStyles.Bold);
             SetAnchoredRect(title.GetComponent<RectTransform>(),
                 new Vector2(0.1f, 0.82f), new Vector2(0.9f, 0.95f));
 
-            // Chief video — right column
-            var videoDisplay = CreateChild<RawImage>(panel, "HintVideoDisplay");
-            videoDisplay.color = Color.white;
-            SetAnchoredRect(videoDisplay.GetComponent<RectTransform>(),
-                new Vector2(0.55f, 0.15f), new Vector2(0.95f, 0.80f));
-
-            // Chief silhouette image (shown as fallback / behind video)
+            // Chief silhouette image — right side
             var chiefImg = CreateChild<Image>(panel, "ChiefImage");
             SetAnchoredRect(chiefImg.GetComponent<RectTransform>(),
-                new Vector2(0.55f, 0.15f), new Vector2(0.95f, 0.80f));
+                new Vector2(0.65f, 0.15f), new Vector2(0.95f, 0.80f));
             chiefImg.preserveAspect = true;
 
             // Hint text — left side
             var hint = CreateTMPText(panel, "HintBodyText", "Here's a clue to help you...", 30, FontStyles.Normal);
             SetAnchoredRect(hint.GetComponent<RectTransform>(),
-                new Vector2(0.05f, 0.35f), new Vector2(0.52f, 0.78f));
+                new Vector2(0.05f, 0.35f), new Vector2(0.60f, 0.78f));
             hint.GetComponent<TMP_Text>().alignment = TextAlignmentOptions.TopLeft;
 
-            CreateButton(panel, "HintTryAgainButton", "Try Again",
+            CreateButton(panel, "HintTryAgainButton", "Try Again →",
                 new Vector2(0.05f, 0.12f), new Vector2(0.35f, 0.28f));
 
             Debug.Log("  ✓ HintsFromChiefPanel");
@@ -472,8 +463,25 @@ namespace ETEC510.Editor
                 SetAnchoredRect(rt, anchorMin, anchorMax);
 
             var img = go.AddComponent<Image>();
+            img.sprite                  = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
+            img.type                    = Image.Type.Sliced;
+            img.pixelsPerUnitMultiplier = 0.1f;
             img.color = new Color(0.18f, 0.45f, 0.85f);
             go.AddComponent<Button>();
+
+            // Shine overlay — top portion, white at low alpha
+            var shineGO = new GameObject("Shine");
+            shineGO.transform.SetParent(go.transform, false);
+            var shineRT = shineGO.AddComponent<RectTransform>();
+            shineRT.anchorMin = new Vector2(0.04f, 0.52f);
+            shineRT.anchorMax = new Vector2(0.96f, 0.90f);
+            shineRT.offsetMin = shineRT.offsetMax = Vector2.zero;
+            var shineImg = shineGO.AddComponent<Image>();
+            shineImg.sprite                  = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
+            shineImg.type                    = Image.Type.Sliced;
+            shineImg.pixelsPerUnitMultiplier = 0.1f;
+            shineImg.color                   = new Color(1f, 1f, 1f, 0.07f);
+            shineImg.raycastTarget           = false;
 
             // Label
             var labelGO = new GameObject("Label");

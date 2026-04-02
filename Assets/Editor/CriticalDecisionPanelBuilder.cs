@@ -152,20 +152,7 @@ namespace ETEC510.Editor
             DetectiveStyleGuide.StyleButton(backGO, DetectiveStyleGuide.ButtonRole.Nav);
             backGO.SetActive(false); // hidden during video, shown after
 
-            // ── Visible Skip to Next button ───────────────────────────────────
-            var nextGO = NewChild("CritDecNextButton", panelRT);
-            var nextRT = (RectTransform)nextGO.transform;
-            nextRT.anchorMin = new Vector2(0.60f, 0.03f);
-            nextRT.anchorMax = new Vector2(0.98f, 0.12f);
-            nextRT.offsetMin = Vector2.zero; nextRT.offsetMax = Vector2.zero;
-            DetectiveStyleGuide.ApplySavedRect(nextRT, "CritDecNextButton", saved);
-            nextGO.AddComponent<Image>();
-            nextGO.AddComponent<Button>();
-            AddLabel(nextGO, "Skip to Next", font);
-            DetectiveStyleGuide.StyleButton(nextGO, DetectiveStyleGuide.ButtonRole.Primary);
-            nextGO.SetActive(false); // hidden during video, shown after
-
-            // ── Sibling order — just after Badge1Panel ────────────────────────
+// ── Sibling order — just after Badge1Panel ────────────────────────
             var badge1 = canvasGO.transform.Find("Badge1Panel");
             int targetIndex = badge1 != null ? badge1.GetSiblingIndex() + 1 : canvasGO.transform.childCount;
             panelRT.transform.SetSiblingIndex(targetIndex);
@@ -181,7 +168,6 @@ namespace ETEC510.Editor
             so.FindProperty("criticalDecisionSelect2Button").objectReferenceValue = sel2.GetComponent<Button>();
             so.FindProperty("criticalDecisionSelect3Button").objectReferenceValue = sel3.GetComponent<Button>();
             so.FindProperty("criticalDecisionBackButton").objectReferenceValue    = backGO.GetComponent<Button>();
-            so.FindProperty("criticalDecisionNextButton").objectReferenceValue    = nextGO.GetComponent<Button>();
             so.FindProperty("criticalDecisionMessageText").objectReferenceValue  = msgTMP;
             so.ApplyModifiedProperties();
 

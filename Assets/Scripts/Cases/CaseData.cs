@@ -60,6 +60,15 @@ namespace ETEC510.Cases
         [Header("Badge 2 Intro")]
         public string Badge2IntroVideoFile;  // filename in StreamingAssets/Video/
 
+        [Header("Badge 3")]
+        public string Badge3IntroVideoFile;         // filename in StreamingAssets/Video/
+        public string Badge3DecisionVideoFile;      // filename in StreamingAssets/Video/
+        public string Badge3DecisionFalseVideoFile; // plays when wrong choice selected
+        public string Badge3AwardVideoFile;         // filename in StreamingAssets/Video/
+
+        [Header("Conclusion")]
+        public string ConclusionVideoFile;     // filename in StreamingAssets/Video/
+
         [Header("Password Lock")]
         public string Password = "510";
 

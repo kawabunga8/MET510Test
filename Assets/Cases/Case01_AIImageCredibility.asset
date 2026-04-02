@@ -22,6 +22,9 @@ MonoBehaviour:
   - 2) Badge 1 Intro.mp4
   - 6) Pragmatic Decision Point.mp4
   - 09) Badge 2 Intro.mp4
+  - 14) Badge 3 IntroSplit.mov
+  - 15) Badge 3 Decision.mp4
+  - 17) Conclusion.mp4
   MainMusic: {fileID: 8300000, guid: dc987ed1832a54bb59c66d5aff5d76cb, type: 3}
   BriefingVideo: {fileID: 32900000, guid: 12857437f439a47bbb0dfadc1f694faa, type: 3}
   BriefingVideoFile: 1) Intro Video.mp4
@@ -118,6 +121,11 @@ MonoBehaviour:
     FeedbackIncorrect: Not quite. Try another approach to verify this image.
     BadgeVideoFile: 7) Pragmatic Badge Award.mp4
   Badge2IntroVideoFile: 09) Badge 2 Intro.mp4
+  Badge3IntroVideoFile: 14) Badge 3 IntroSplit.mov
+  Badge3DecisionVideoFile: 15) Badge 3 Decision.mp4
+  Badge3DecisionFalseVideoFile: Badge3DecisionFalse.mp4
+  Badge3AwardVideoFile: 16) Badge 3 Award.mp4
+  ConclusionVideoFile: 17) Conclusion.mp4
   Password: 510
   UnlockVideo: {fileID: 0}
   UnlockVideoFile: 
